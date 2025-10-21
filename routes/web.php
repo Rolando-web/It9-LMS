@@ -10,7 +10,6 @@ Route::get('/', function () {
 });
 
 // In web.php
-Route::get('/register', [NavController::class, 'register'])->name('register');
 Route::get('/app', [NavController::class, 'home'])->name('home');
 Route::get('/book-collection', [NavController::class, 'collection'])->name('collection');
 Route::get('/book-return', [NavController::class, 'book'])->name('book');
@@ -25,6 +24,7 @@ Route::get('/categories', [NavController::class, 'categories'])->name('categorie
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/register', [NavController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::get('/login', function () {

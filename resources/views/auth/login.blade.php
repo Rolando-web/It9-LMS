@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- @vite('resources/css/app.css')
+<script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
     <div class="flex min-h-screen items-center justify-center bg-[#1A1A1A] py-12 px-4">
@@ -24,11 +24,11 @@
               @csrf
             <div>
               <label for="email" class="block text-sm font-medium  text-left">Email</label>
-              <input required type="email" placeholder="Email" id="email" name="email" value="{{ old('email') }}" class="mt-1 w-full px-4 py-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="email" placeholder="Email" id="email" name="email" value="{{ old('email') }}" class="text-black mt-1 w-full px-4 py-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
               <label for="password" class="block text-sm font-medium  text-left">Password</label>
-              <input required type="password" placeholder="Password" name="password" id="password" class="mt-1 w-full 
+              <input required type="password" placeholder="Password" name="password" id="password" class="text-black mt-1 w-full 
                px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex justify-between items-center">

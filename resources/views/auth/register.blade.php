@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @vite('resources/css/app.css')
+<script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
      <div class="flex min-h-screen items-center justify-center bg-[#1A1A1A] py-12 px-4">
@@ -27,36 +27,36 @@
             <div class="flex flex-col md:flex-row gap-4">
               <div class="w-full">
                 <label for="firstName" class="block text-sm font-medium text-left">First Name</label>
-                <input required type="text" id="firstName" name="firstName" placeholder="First Name" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input required type="text" id="firstName" name="firstName" placeholder="First Name" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
               <div class="w-full">
                 <label for="lastName" class="block text-sm font-medium text-left">Last Name</label>
-                <input required type="text" id="lastName" name="lastName" placeholder="Last Name" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input required type="text" id="lastName" name="lastName" placeholder="Last Name" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
             </div>
 
             <!-- Contact -->
             <div>
               <label for="contact" class="block text-sm font-medium text-left">Contact</label>
-              <input required type="text" id="contact" name="contact" placeholder="Contact Number" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="text" id="contact" name="contact" placeholder="Contact Number" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <!-- Email -->
             <div>
               <label for="email" class="block text-sm font-medium text-left">Email</label>
-              <input required type="email" id="email" name="email" placeholder="Email" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="email" id="email" name="email" placeholder="Email" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <!-- Password -->
             <div>
               <label for="password" class="block text-sm font-medium text-left">Password</label>
-              <input required type="password" id="password" name="password" placeholder="Password" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="password" id="password" name="password" placeholder="Password" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
              <!-- Confirmed Password -->
             <div>
               <label for="password" class="block text-sm font-medium text-left">Password</label>
-              <input required type="password" id="password" name="password_confirmation" placeholder="Confirm Password" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="password" id="password" name="password_confirmation" placeholder="Confirm Password" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <!-- Submit Button -->
