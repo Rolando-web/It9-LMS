@@ -36,7 +36,7 @@
             </svg>
             <span>Collection</span>
           </a>
-          <a href="{{route('transaction')}}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
+          <a href="{{route('user-transaction')}}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 21">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l3 3 5-5m0 6l6-6L21 13" />
               <text x="10" y="15" font-size="12" font-family="sans-serif">$</text>
@@ -66,12 +66,12 @@
 
             <div id="dropdownMenu" class="absolute w-20 lg:w-40 rounded-lg shadow-lg bg-gray-800 ring-1 ring-opacity-5 hidden" style="margin-top: 90px;">
               <div role="menu" aria-orientation="vertical" aria-labelledby="dropdownButton">
-                  <a href="{{route('login')}}">
-                    <button type="submit" name="logout" class="text-start block px-4 w-20 lg:w-40 py-2 rounded-lg text-sm text-white hover:bg-gray-700">
-                    Logout
-                  </button>
-                  </a>
-
+                  <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-start block px-4 w-20 lg:w-40 py-2 rounded-lg text-sm text-white hover:bg-gray-700">
+                      Logout
+                    </button>
+                  </form>
               </div>
             </div>
           </div>
@@ -113,11 +113,13 @@
               </div>
             </div>
             <div class="p-4">
-              <a href="{{route('login')}}" class="text-decoration-none">
-                <button class="btn text-light d-flex align-items-center" style="font-size: 16px;">
+              <form method="POST" action="{{ route('logout') }}" class="text-decoration-none">
+                @csrf
+                <button type="submit" class="btn text-light d-flex align-items-center" style="font-size: 16px;">
                   <i class="bi bi-box-arrow-right me-2"></i>
                   Log Out
-                </button></a>
+                </button>
+              </form>
             </div>
 
             <nav class="space-y-">

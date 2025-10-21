@@ -44,6 +44,9 @@ class AuthController extends Controller
             if ($user->role === 'admin') {
                 $request->session()->regenerate();
                 return redirect()->intended('dashboard');
+            } else if ($user->role === 'super_admin') {
+                $request->session()->regenerate();
+                return redirect()->intended('dashboard');
             } else {
                 $request->session()->regenerate();
                 return redirect()->intended('app');
@@ -57,9 +60,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login')->with('success', 'Logged out successfully');
+        $request->session()->flush();
+
+        if ($request->hasCookie('remember_web')) {
+            cookie()->queue(cookie()->forget('remember_web'));
+        }
+        return redirect()->route('login')->with('success', 'You have been logged out successfully.');
     }
 }

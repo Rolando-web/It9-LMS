@@ -41,31 +41,36 @@
                 Transaction
               </a>
 
-              <a class="nav-link flex items-center p-3 text-white transition-all duration-300
+              <a class="{{ request()->is('activity-log') ? 'bg-white/10 shadow-sm rounded-lg':'text-white' }} nav-link flex items-center p-3 text-white transition-all duration-300
                         hover:bg-white/10 hover:pl-4 hover:-translate-x-0.5 hover:shadow-sm rounded-lg"
-                href="../admin/activity-log.php">
+                href="{{ route('activity-log') }}">
                 <i class="bi bi-journal-text mr-2 transition-transform duration-300 hover:scale-110"></i>
                 Activity Log
               </a>
 
-              <a class="nav-link flex items-center p-3 text-white transition-all duration-300
-                        hover:bg-white/10 hover:pl-4 hover:-translate-x-0.5 hover:shadow-sm rounded-lg"
-                href="../admin/useradmin.php">
-                <i class="bi bi-people mr-2 transition-transform duration-300 hover:scale-110"></i>
-                Users
-              </a>
+              <!-- Users - Only visible to Super Admin -->
+              @auth
+                @if(auth()->user()->role === 'super_admin')
+                  <a class="{{ request()->is('user-admin') ? 'bg-white/10 shadow-sm rounded-lg':'text-white' }} nav-link flex items-center p-3 text-white transition-all duration-300
+                            hover:bg-white/10 hover:pl-4 hover:-translate-x-0.5 hover:shadow-sm rounded-lg"
+                    href="{{ route('user-admin') }}">
+                    <i class="bi bi-people mr-2 transition-transform duration-300 hover:scale-110"></i>
+                    Users
+                  </a>
+                @endif
+              @endauth
 
             </nav>
           </div>
 
-          <form method="POST">
-            <div class="position-absolute bottom-0 p-4">
-              <a class="nav-link flex items-center p-3 text-white transition-all duration-300 hover:text-red-900"
-                href="{{ route('login')}}">
+          <div class="position-absolute bottom-0 p-4 w-100">
+            <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+              @csrf
+              <button type="submit" class="nav-link flex items-center p-3 text-white transition-all duration-300 hover:text-red-500 bg-transparent border-0 w-100 text-start">
                 <i class="bi bi-box-arrow-right me-2"></i>
-              Logout
-              </a>
-            </div>
-          </form>
+                Logout
+              </button>
+            </form>
+          </div>
         </div>
 

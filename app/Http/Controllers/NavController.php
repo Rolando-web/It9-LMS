@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Book;
 
 class NavController extends Controller
 {
@@ -39,13 +40,27 @@ class NavController extends Controller
 
 
 
+    public function activitylog()
+    {
+        return view('Admin.activitylog');
+    }
+
+    public function useradmin()
+    {
+        return view('Admin.useradmin');
+    }
+
     public function dashboard()
     {
-        return view('Admin.dashboard');
+        $books = Book::latest()->get();
+        return view('Admin.dashboard', compact('books'));
     }
+
+
     public function books()
     {
-        return view('Admin.books');
+        $books = Book::latest()->get();
+        return view('Admin.books', compact('books'));
     }
     public function transactions()
     {

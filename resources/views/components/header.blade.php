@@ -16,7 +16,6 @@
                             </div>
                             <small class="text-white opacity-50">Admin</small>
                         </div>
-                        <!-- Mobile Dropdown -->
                         <div class="dropdown d-sm-none">
                             <a
                                 href="#"
