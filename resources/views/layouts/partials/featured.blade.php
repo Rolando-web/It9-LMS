@@ -11,10 +11,10 @@
       <!-- 🔹 First Row Slider -->
       <div class="swiper mySwiper1">
         <div class="swiper-wrapper">
-          <!-- Book 1 -->
-            <div class="swiper-slide">
-              <div class="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors">
-                  <div class="w-full h-48 md:h-60 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center mb-4 justify-center relative overflow-hidden">
+        <!-- Book 1 -->
+           <div class="swiper-slide">
+              <div class="bg-gray-800 rounded-xl hover:bg-gray-750 transition-colors px-4 py-5">
+                  <div class="p w-full h-50 md:h-60 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center mb-4 justify-center relative overflow-hidden">
                     <img src="{{asset('image/willan.jpg')}}"
                       alt="the man"
                       class="w-full h-full object-cover rounded-lg">
@@ -36,8 +36,8 @@
 
              <!-- Book 1 -->
            <div class="swiper-slide">
-              <div class="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors">
-                  <div class="w-full h-48 md:h-60 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center mb-4 justify-center relative overflow-hidden">
+              <div class="bg-gray-800 rounded-xl hover:bg-gray-750 transition-colors px-4 py-5">
+                  <div class="p w-full h-50 md:h-60 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center mb-4 justify-center relative overflow-hidden">
                     <img src="{{asset('image/willan.jpg')}}"
                       alt="the man"
                       class="w-full h-full object-cover rounded-lg">

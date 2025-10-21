@@ -20,14 +20,15 @@
       <div class="md:w-1/2 w-full p-8 flex flex-col justify-center items-center text-center bg-[#1E1E1E] text-white">
         <div class="w-full max-w-md">
           <h2 class="text-2xl md:text-4xl font-semibold  mb-6">LOGIN</h2>
-          <form class="space-y-4" method="POST">
+          <form class="space-y-4" method="POST" action="{{ route('login') }}">
+              @csrf
             <div>
               <label for="email" class="block text-sm font-medium  text-left">Email</label>
-              <input type="email" placeholder="Email" id="email" name="email" class="mt-1 w-full px-4 py-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input required type="email" placeholder="Email" id="email" name="email" value="{{ old('email') }}" class="mt-1 w-full px-4 py-2  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
               <label for="password" class="block text-sm font-medium  text-left">Password</label>
-              <input type="password" placeholder="Password" name="password" id="password" class="mt-1 w-full 
+              <input required type="password" placeholder="Password" name="password" id="password" class="mt-1 w-full 
                px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex justify-between items-center">

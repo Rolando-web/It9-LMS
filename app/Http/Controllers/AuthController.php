@@ -9,68 +9,57 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Show registration form
-    public function showRegistrationForm()
-    {
-        return view('auth.register');
-    }
 
-    // Handle registration
     public function register(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
-            'contact' => 'nullable|string|max:20',
             'email' => 'required|string|email|max:255|unique:users',
+            'contact' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,admin,super_admin',
         ]);
 
-        User::create([
-            'firstName' => $request->firstName,
-            'lastName' => $request->lastName,
-            'contact' => $request->contact,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+        $user = User::create([
+            'firstName' => $validated['firstName'],
+            'lastName' => $validated['lastName'],
+            'email' => $validated['email'],
+            'contact' => $validated['contact'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('login')->with('success', 'Registered successfully!');
+        return redirect()->route('login')->with('success', 'Registration successful!');
     }
 
-    // Show login form
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-    // Handle login
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        $credentials = $request->only('email', 'password');
-
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            $user = Auth::user();
+
+            if ($user->role === 'admin') {
+                $request->session()->regenerate();
+                return redirect()->intended('dashboard');
+            } else {
+                $request->session()->regenerate();
+                return redirect()->intended('app');
+            }
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials',
-        ]);
+            'email' => 'Invalid email or password',
+        ])->onlyInput('email');
     }
 
-    // Handle logout
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect('/login')->with('success', 'Logged out successfully');
     }
 }

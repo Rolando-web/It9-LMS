@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+
 class AdminMiddleware
 {
     /**
@@ -15,6 +16,15 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Check if the user is authenticated
+        if (!auth()->check()) {
+            return redirect('/login'); // Redirect to login if not logged in
+        }
+
+        // Check if the user is an admin
+        if (auth()->user()->role !== 'admin') {
+            return redirect('/home'); // Redirect to home if not an admin
+        }
         return $next($request);
     }
 }

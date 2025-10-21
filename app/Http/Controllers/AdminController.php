@@ -9,7 +9,6 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // In AdminController.php
     public function createAdminUser(Request $request)
     {
         $request->validate([
@@ -26,6 +25,6 @@ class AuthController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->back()->with('success', 'User created successfully!');
+        return redirect('login')->back()->with('success', 'User created successfully!');
     }
 }

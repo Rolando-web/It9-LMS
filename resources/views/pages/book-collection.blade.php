@@ -4,21 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   @vite('resources/css/app.css')
-  <title>Book Collection - Home Library</title>
+  <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
+ @vite('resources/css/app.css')
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <title>Home Library</title>
 </head>
-<style>
-  .filter-btn.active {
-    background-color: white !important;
-    color: black !important;
-  }
-</style>
+<body class="bg-gray-900 text-white font-sans w-full">
 
-<body class="bg-gray-900 text-white font-sans">
-
-      @include('layouts.partials.header')
+ @include('layouts.partials.header')
 
 
 
@@ -113,6 +107,5 @@
 
 
    <script src="{{ asset('js/user.js') }}"></script>
-</body>
-
+  </body>
 </html>

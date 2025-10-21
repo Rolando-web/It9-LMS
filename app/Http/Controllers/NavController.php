@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class NavController extends Controller
 {
-    // In LoginController.php
     public function login()
     {
         return view('auth.login');
@@ -35,5 +34,26 @@ class NavController extends Controller
     public function transaction()
     {
         return view('pages.user-transaction');
+    }
+
+
+
+
+    public function dashboard()
+    {
+        return view('Admin.dashboard');
+    }
+    public function books()
+    {
+        return view('Admin.books');
+    }
+    public function transactions()
+    {
+        return view('Admin.transaction');
+    }
+
+    public function categories()
+    {
+        return view('Admin.categories');
     }
 }

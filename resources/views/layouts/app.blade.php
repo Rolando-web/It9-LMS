@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <title>Home Library</title>
 </head>
-<body class="bg-gray-900 text-white font-sans w-full">
+<body class="bg-gray-900 text-white font-sans">
    
   @include('layouts.partials.header')
   @include('layouts.partials.hero')
@@ -24,3 +24,6 @@
   <script src="{{ asset('js/user.js') }}"></script>
 </body>
 </html>
+
+
+

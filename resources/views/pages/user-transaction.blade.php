@@ -1,24 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Transaction</title>
-  <link rel="stylesheet" href="../src/input.css" />
-  <link rel="stylesheet" href="../src/output.css" />
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
-  <script src="https://cdn.tailwindcss.com"></script>
-
+ @vite('resources/css/app.css')
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <title>Home Library</title>
 </head>
-
-<body class="min-h-screen bg-[#101929]">
+<body class="bg-gray-900 text-white font-sans w-full">
 
  @include('layouts.partials.header')
 
-
-
-  <!-- Main Content -->
+<!-- Main Content -->
   <main class="max-w-7xl mx-auto px-6 py-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-[#1E2939] rounded-xl p-6 text-white">
@@ -143,6 +139,5 @@
     </div>
   </main>
      <script src="{{ asset('js/user.js') }}"></script>
-</body>
-
+  </body>
 </html>

@@ -4,21 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
   <title>Book Return - Home Library</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'sans': ['Inter', 'system-ui', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
 </head>
 
 <body class="bg-gray-900 text-white font-sans">
@@ -97,62 +86,9 @@
     </div>
   </main>
 
-  <script src="../user-interface/user.js"></script>
+     <script src="{{ asset('js/user.js') }}"></script>
 
-  <script>
-    // Open Return Modal
-    document.querySelectorAll(".openReturnModal").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const transactionId = btn.dataset.transactionId;
-        document.getElementById("returnTransactionId").value = transactionId;
-        document.getElementById("openReturnModal").classList.remove("hidden");
-      });
-    });
 
-    // Close Return Modal
-    document.querySelectorAll(".closeReturnModal").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.getElementById("openReturnModal").classList.add("hidden");
-      });
-    });
-
-    // LOADMORE SECTION
-    document.addEventListener("DOMContentLoaded", () => {
-      const books = document.querySelectorAll("#booksGrid > div"); // Select direct children of #booksGrid
-      const totalBooks = books.length;
-      const loadMoreBtn = document.getElementById("loadMoreBtn");
-      let visibleCount = 8; // Show 6 books initially
-
-      // Hide all books beyond the first 8
-      books.forEach((book, index) => {
-        if (index >= visibleCount) {
-          book.style.display = "none"; // Hide extra books
-        }
-      });
-
-      // Load more books on button click
-      loadMoreBtn.addEventListener("click", () => {
-        const nextBatch = Array.from(books).slice(visibleCount, visibleCount + 8);
-        nextBatch.forEach((book) => (book.style.display = "")); // Show hidden books
-        visibleCount += 8;
-
-        // Hide the "Load More" button if all books are shown
-        if (visibleCount >= totalBooks) {
-          loadMoreBtn.style.display = "none";
-        }
-      });
-    });
-    // LOADMORE SECTION
-
-    // Function to update return date based on selected duration
-    function updateReturnDate() {
-      const duration = parseInt(document.getElementById("borrowDuration").value);
-      const borrowDate = new Date(); // Use current date
-      const returnDate = new Date(borrowDate);
-      returnDate.setDate(borrowDate.getDate() + duration);
-      document.getElementById("returnDate").value = returnDate.toISOString().split("T")[0];
-    }
-  </script>
 </body>
 
 </html>

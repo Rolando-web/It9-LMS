@@ -7,7 +7,7 @@
   </head>
   <body>
      <div class="flex min-h-screen items-center justify-center bg-[#1A1A1A] py-12 px-4">
-    <div class="flex flex-col md:flex-row-reverse w-full max-w-4xl rounded-lg shadow-lg overflow-hidden md:h-[600px]">
+    <div class="flex flex-col md:flex-row-reverse w-full max-w-4xl rounded-lg shadow-lg overflow-hidden md:h-[650px]">
 
       <!-- Right Section (Image & Title) -->
       <div class="md:w-1/2 w-full bg-[#252525] p-8 flex flex-col items-center justify-center text-center text-white">
@@ -51,6 +51,12 @@
             <div>
               <label for="password" class="block text-sm font-medium text-left">Password</label>
               <input required type="password" id="password" name="password" placeholder="Password" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+             <!-- Confirmed Password -->
+            <div>
+              <label for="password" class="block text-sm font-medium text-left">Password</label>
+              <input required type="password" id="password" name="password_confirmation" placeholder="Confirm Password" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <!-- Submit Button -->
