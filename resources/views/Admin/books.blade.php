@@ -1,35 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Books - Book Management System</title>
-    <meta name="description" content="Admin dashboard for book management system with dark theme interface">
-  <link rel="stylesheet" href="{{asset('css/style.css')}}" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-          theme: {
-            extend: {
-              colors: {
-                dark: {
-                  primary: '#1a1b1e',
-                  secondary: '#25262b',
-                  card: '#2c2e33',
-                  border: '#373a40',
-                }
-              }
-            }
-          }
-        }
-    </script>
-</head>
-
-<body class="bg-[#1a1b1e]">
+<x-import>
+  <title>Manage Books - Book Management System</title>
+</x-import>
     <div class="d-flex min-vh-100 bg-[#1a1b1e]">
     @include('components.sidebar')
     <x-header>
@@ -37,7 +8,6 @@
        <i class="bi bi-book-fill text-cyan-500"></i>Manage Books
       </h1>
     </x-header>
-            <!-- Controls -->
             <div class="p-6 w-100">
                 @if(session('success'))
                     <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-lg px-4 py-3 mb-4 flex items-center gap-3" role="alert">

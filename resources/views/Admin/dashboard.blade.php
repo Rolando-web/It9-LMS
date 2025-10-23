@@ -1,37 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<x-import>
   <title>Dashboard - Book Management System</title>
-  <meta name="description" content="Admin dashboard for book management system with dark theme interface">
-  <link rel="stylesheet" href="{{asset('css/style.css')}}" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="../image/willan.jpg" type="image/jpeg">
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            dark: {
-              primary: '#1a1b1e',
-              secondary: '#25262b',
-              card: '#2c2e33',
-              border: '#373a40',
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-
-<body class="bg-[#1a1b1e]">
+</x-import>
   <div class="d-flex min-vh-100 bg-[#1a1b1e]">
 
     @include('components.sidebar')
