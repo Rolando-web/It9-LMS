@@ -1,6 +1,8 @@
 <x-import>
   <title>Dashboard - Book Management System</title>
 </x-import>
+
+
   <div class="d-flex min-vh-100 bg-[#1a1b1e]">
 
     @include('components.sidebar')
@@ -12,6 +14,15 @@
 
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
+          <!-- Success Notification -->
+          @if (session('success'))
+          <div class="mb-6 bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 px-6 py-4 rounded-xl flex items-center gap-3 shadow-lg">
+            <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="font-medium">{{ session('success') }}</span>
+          </div>
+          @endif
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Books Card -->

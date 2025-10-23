@@ -46,7 +46,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful!');
+        return redirect()->route('login')->with('success', 'Account Created Successfully');
     }
 
     public function login(Request $request)
@@ -58,16 +58,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $request->session()->regenerate();
 
             if ($user->role === 'admin') {
-                $request->session()->regenerate();
-                return redirect()->intended('dashboard');
+                return redirect()->intended('dashboard')->with('success', 'Log in Successfully');
             } else if ($user->role === 'super_admin') {
-                $request->session()->regenerate();
-                return redirect()->intended('dashboard');
+                return redirect()->intended('dashboard')->with('success', 'Log in Successfully');
             } else {
-                $request->session()->regenerate();
-                return redirect()->intended('app');
+                return redirect()->intended('app')->with('success', 'Log in Successfully');
             }
         }
 

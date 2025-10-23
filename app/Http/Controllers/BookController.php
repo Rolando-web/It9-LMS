@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
@@ -49,7 +50,7 @@ class BookController extends Controller
             'publish_date' => $validated['publish_date'],
             'copies' => $validated['copies'],
             'image' => $imagePath,
-            'user_id' => auth()->id(), // Save the logged-in user's ID
+            'user_id' => Auth::id(), // Save the logged-in user's ID
         ]);
 
         return redirect()->route('books')->with('success', 'Book added successfully!');
