@@ -105,6 +105,7 @@
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 d-none d-lg-table-cell">ISBN</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 d-none d-md-table-cell">Publish Date</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 d-none d-lg-table-cell">Copies</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 d-none d-lg-table-cell">Added By</th>
                                     <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400">Actions</th>
                                 </tr>
                             </thead>
@@ -164,6 +165,21 @@
                                             <i class="bi bi-stack me-1.5"></i>{{ $book->copies }}
                                         </span>
                                     </td>
+
+                                    <!-- Added By Column -->
+                                    <td class="px-4 py-4 d-none d-lg-table-cell">
+                                        @if($book->user)
+                                        <div>
+                                            <div class="text-white font-medium text-sm">{{ $book->user->firstName }}</div>
+                                            <small class="text-gray-500 text-xs">{{ ucfirst(str_replace('_', ' ', $book->user->role)) }}</small>
+                                        </div>
+                                        <div class="text-gray-400 text-xs mt-1">
+                                            {{ $book->created_at->format('M d, Y') }}
+                                        </div>
+                                        @else
+                                        <span class="text-gray-500 text-xs">N/A</span>
+                                        @endif
+                                    </td>
                                     
                                     <!-- Actions Column -->
                                     <td class="px-4 py-4 text-end">
@@ -195,7 +211,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-12">
+                                    <td colspan="10" class="text-center py-12">
                                         <div class="flex flex-col items-center justify-center">
                                             <i class="bi bi-inbox text-6xl text-gray-600 mb-4"></i>
                                             <h5 class="text-white text-lg font-semibold mb-2">No Books Yet</h5>

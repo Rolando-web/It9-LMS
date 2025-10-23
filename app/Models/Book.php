@@ -18,5 +18,14 @@ class Book extends Model
         'publish_date',
         'copies',
         'image',
+        'user_id',
     ];
+
+    /**
+     * Get the user who added this book
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

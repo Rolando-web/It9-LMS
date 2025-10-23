@@ -8,29 +8,19 @@ use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $books = Book::latest()->get();
         return view('books.index', compact('books'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('books.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function saveBook(Request $request)
     {
-        // Validate the request
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
@@ -45,9 +35,9 @@ class BookController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('image'), $imageName);
-            $imagePath = 'image/' . $imageName;
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('storage/books'), $imageName);
+            $imagePath = 'storage/books/' . $imageName;
         }
 
         // Create the book
@@ -59,6 +49,7 @@ class BookController extends Controller
             'publish_date' => $validated['publish_date'],
             'copies' => $validated['copies'],
             'image' => $imagePath,
+            'user_id' => auth()->id(), // Save the logged-in user's ID
         ]);
 
         return redirect()->route('books')->with('success', 'Book added successfully!');
@@ -97,9 +88,9 @@ class BookController extends Controller
             }
 
             $image = $request->file('edit_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('image'), $imageName);
-            $imagePath = 'image/' . $imageName;
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('storage/books'), $imageName);
+            $imagePath = 'storage/books/' . $imageName;
         }
 
         $book->update([

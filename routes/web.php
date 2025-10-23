@@ -5,8 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 
-Route::get('/', function () {
-  return view('auth.login');
+// Guest Routes (for non-authenticated users only)
+Route::middleware(['guest'])->group(function () {
+  Route::get('/', [AuthController::class, 'showLoginForm']);
+  Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+  Route::post('/login', [AuthController::class, 'login']);
+  Route::get('/register', [NavController::class, 'register'])->name('register');
+  Route::post('/register', [AuthController::class, 'register']);
 });
 
 //User Routes (Protected by user middleware - regular users only)
@@ -36,20 +41,5 @@ Route::middleware(['super_admin'])->group(function () {
   Route::get('/user-admin', [NavController::class, 'useradmin'])->name('user-admin');
 });
 
-
-Route::post('/login', [AuthController::class, 'login']);
+// Logout route (accessible to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/register', [NavController::class, 'register'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-Route::get('/login', function () {
-  return view('auth.login');
-})->name('login');
-
-
-// Authentication Routes
-// Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-// Route::post('/register', [AuthController::class, 'register']);
-// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-// Route::post('/login', [AuthController::class, 'login']);
-// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -9,6 +9,24 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Show the login form
+     */
+    public function showLoginForm()
+    {
+        // If user is already logged in, redirect to appropriate page
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if ($user->role === 'admin' || $user->role === 'super_admin') {
+                return redirect()->route('dashboard');
+            } else {
+                return redirect()->route('home');
+            }
+        }
+
+        return view('auth.login');
+    }
 
     public function register(Request $request)
     {

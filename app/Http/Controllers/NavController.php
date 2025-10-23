@@ -59,7 +59,7 @@ class NavController extends Controller
 
     public function books()
     {
-        $books = Book::latest()->get();
+        $books = Book::with('user')->latest()->get();
         return view('Admin.books', compact('books'));
     }
     public function transactions()
