@@ -1,9 +1,11 @@
 <x-import>
   <title>Activity Logs - Book Management System</title>
 </x-import>
+
   <div class="d-flex min-vh-100 bg-[#1a1b1e]">
 
     @include('components.sidebar')
+
     <x-header>
       <h1 class="text-light mb-0 text-3xl flex items-center gap-2">
         <i class="bi bi-clock-history text-purple-500"></i>
@@ -315,9 +317,4 @@
 
 
 
-  <!-- Bootstrap JS for mobile sidebar toggle -->
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<x-import-footer/>

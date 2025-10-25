@@ -6,6 +6,7 @@
   <div class="d-flex min-vh-100 bg-[#1a1b1e]">
 
     @include('components.sidebar')
+
     <x-header>
   <h1 class="text-light mb-0 text-3xl">
        Dashboard
@@ -14,18 +15,7 @@
 
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
-          <!-- Success Notification -->
-          @if (session('success'))
-          <div class="mb-6 bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 px-6 py-4 rounded-xl flex items-center gap-3 shadow-lg">
-            <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            <span class="font-medium">{{ session('success') }}</span>
-          </div>
-          @endif
-          <!-- Stats Cards -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Books Card -->
             <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
@@ -105,12 +95,9 @@
                 <tbody>
                   @forelse($books->take(5) as $index => $book)
                   <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 {{ $index % 2 == 0 ? 'bg-[#2c2e33]' : 'bg-[#272931]' }}">
-                    <!-- ID Column -->
                     <td class="px-6 py-4">
                       <span class="text-white font-semibold text-base">{{ $book->id }}</span>
                     </td>
-                    
-                    <!-- Book Info Column -->
                     <td class="px-4 py-4">
                       <div class="flex items-center gap-3">
                         @if($book->image)
@@ -127,38 +114,27 @@
                         </div>
                       </div>
                     </td>
-                    
-                    <!-- Author Column -->
                     <td class="px-4 py-4">
                       <span class="text-gray-300 text-sm">{{ $book->author }}</span>
                     </td>
-                    
-                    <!-- Category Badge Column -->
                     <td class="px-4 py-4">
                       <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                         <i class="bi bi-tag-fill me-1.5"></i>{{ $book->category }}
                       </span>
                     </td>
-                    
-                    <!-- ISBN Column -->
                     <td class="px-4 py-4">
                       <span class="text-gray-400 text-sm font-mono">{{ $book->isbn }}</span>
                     </td>
-                    
-                    <!-- Date Column -->
                     <td class="px-4 py-4">
                       <div class="text-gray-300 text-sm">{{ \Carbon\Carbon::parse($book->publish_date)->format('M d, Y') }}</div>
                       <small class="text-gray-500 text-xs">{{ $book->created_at->diffForHumans() }}</small>
                     </td>
-                    
-                    <!-- Copies Badge Column -->
                     <td class="px-4 py-4">
                       <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         <i class="bi bi-stack me-1.5"></i>{{ $book->copies }}
                       </span>
                     </td>
                     
-                    <!-- Actions Column -->
                     <td class="px-4 py-4 text-end">
                       <div class="flex gap-2 justify-end">
                         <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 editBtn" 
@@ -248,9 +224,7 @@
       <!-- Bootstrap JS Bundle -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{ asset('js/book-modal.js') }}"></script>
-        <script src="{{ asset('js/admin.js') }}"></script>
-        <script src="{{ asset('js/active.js') }}"></script>
-        <script src="{{ asset('js/script.js') }}"></script>
+        <script src="{{ asset('js/sidebar.js') }}"></script>
 </body>
 
 </html>

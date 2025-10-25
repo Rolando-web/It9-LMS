@@ -82,7 +82,6 @@
                             <tbody>
                                 @forelse($books as $index => $book)
                                 <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 {{ $index % 2 == 0 ? 'bg-[#2c2e33]' : 'bg-[#272931]' }}">
-                                    <!-- Image Column -->
                                     <td class="px-4 py-4">
                                         @if($book->image)
                                             <img src="{{ asset($book->image) }}" alt="{{ $book->title }}" 
@@ -93,50 +92,34 @@
                                             </div>
                                         @endif
                                     </td>
-                                    
-                                    <!-- ID Column -->
                                     <td class="px-4 py-4">
                                         <span class="text-white font-semibold text-base">{{ $book->id }}</span>
                                     </td>
-                                    
-                                    <!-- Title Column -->
                                     <td class="px-4 py-4">
                                         <div>
                                             <div class="text-white font-semibold text-sm">{{ $book->title }}</div>
                                             <small class="text-gray-500 text-xs">{{ Str::limit($book->title, 40) }}</small>
                                         </div>
                                     </td>
-                                    
-                                    <!-- Author Column -->
                                     <td class="px-4 py-4 d-none d-sm-table-cell">
                                         <span class="text-gray-300 text-sm">{{ $book->author }}</span>
                                     </td>
-                                    
-                                    <!-- Category Column -->
                                     <td class="px-4 py-4">
                                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                                             <i class="bi bi-tag-fill me-1.5"></i>{{ $book->category }}
                                         </span>
                                     </td>
-                                    
-                                    <!-- ISBN Column -->
                                     <td class="px-4 py-4 d-none d-lg-table-cell">
                                         <span class="text-gray-400 text-sm font-mono">{{ $book->isbn }}</span>
                                     </td>
-                                    
-                                    <!-- Publish Date Column -->
                                     <td class="px-4 py-4 d-none d-md-table-cell">
                                         <span class="text-gray-300 text-sm">{{ \Carbon\Carbon::parse($book->publish_date)->format('M d, Y') }}</span>
                                     </td>
-                                    
-                                    <!-- Copies Column -->
                                     <td class="px-4 py-4 d-none d-lg-table-cell">
                                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                                             <i class="bi bi-stack me-1.5"></i>{{ $book->copies }}
                                         </span>
                                     </td>
-
-                                    <!-- Added By Column -->
                                     <td class="px-4 py-4 d-none d-lg-table-cell">
                                         @if($book->user)
                                         <div>
@@ -150,8 +133,6 @@
                                         <span class="text-gray-500 text-xs">N/A</span>
                                         @endif
                                     </td>
-                                    
-                                    <!-- Actions Column -->
                                     <td class="px-4 py-4 text-end">
                                         <div class="flex gap-2 justify-end">
                                             <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 editBtn" 
@@ -209,12 +190,9 @@
                         </div>
                         
                         <div class="flex items-center gap-2">
-                            <!-- Previous Button -->
                             <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <i class="bi bi-chevron-left"></i>
                             </button>
-                            
-                            <!-- Page Numbers -->
                             <button class="px-4 py-2 rounded-lg bg-cyan-500 text-white font-semibold">
                                 1
                             </button>
@@ -228,26 +206,19 @@
                                 3
                             </button>
                             @endif
-                            
-                            <!-- Next Button -->
                             <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
                                 <i class="bi bi-chevron-right"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+
                 {{-- Modal --}}
                 @include('components.book-modal')
                 {{-- Modal --}}
 
             </div>
               </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="{{ asset('js/book-modal.js') }}"></script>
-         <script src="{{ asset('js/admin.js') }}"></script>
-        <script src="{{ asset('js/active.js') }}"></script>
-        <script src="{{ asset('js/script.js') }}"></script>
-     
-</body>
 
-</html>
+   {{-- Footer --}}
+<x-import-footer/>
