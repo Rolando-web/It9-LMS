@@ -1,11 +1,6 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
+<x-import>
+  <title>Register - Book Management System</title>
+</x-import>
      <div class="flex min-h-screen items-center justify-center bg-[#1A1A1A] py-12 px-4">
     <div class="flex flex-col md:flex-row-reverse w-full max-w-4xl rounded-lg shadow-lg overflow-hidden md:h-[650px]">
 
@@ -54,13 +49,13 @@
             </div>
 
              <!-- Confirmed Password -->
-            <div>
-              <label for="password" class="block text-sm font-medium text-left">Password</label>
-              <input required type="password" id="password" name="password_confirmation" placeholder="Confirm Password" class="text-black mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div >
+              <label for="password" class="block text-sm font-medium text-left">Confirm Password</label>
+              <input required type="password" id="password" name="password_confirmation" placeholder="Confirm Password" class="text-black mt-1 mb-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="w-full cursor-pointer bg-white border text-black py-2 rounded-md hover:bg-[#1A2C2F] hover:border-[#1ED1E9] hover:text-white transition">Register</button>
+            <button type="submit" class="w-full cursor-pointer bg-[#131313] text-white border py-2 rounded-md hover:bg-[#1A2C2F] hover:border-[#1ED1E9] hover:text-white transition">Register</button>
 
             <!-- Login Redirect -->
             <p class="mt-6">
@@ -74,5 +69,4 @@
     </div>
   </div>
 
-  </body>
-</html>
+<x-import-footer/>

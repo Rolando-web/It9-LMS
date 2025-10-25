@@ -29,7 +29,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Total Users</p>
-              <p class="text-2xl font-bold text-white">8</p>
+              <p class="text-2xl font-bold text-white">{{ $totalUsers ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center">
               <i class="bi bi-people text-indigo-500 text-xl"></i>
@@ -41,7 +41,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Active Users</p>
-              <p class="text-2xl font-bold text-white">6</p>
+              <p class="text-2xl font-bold text-white">{{ $activeUsers ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
               <i class="bi bi-person-check text-emerald-500 text-xl"></i>
@@ -53,7 +53,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Admins</p>
-              <p class="text-2xl font-bold text-white">2</p>
+              <p class="text-2xl font-bold text-white">{{ $admins ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
               <i class="bi bi-shield-check text-purple-500 text-xl"></i>
@@ -64,8 +64,8 @@
         <div class="bg-[#2c2e33] border border-[#373a40] rounded-lg p-4 hover:border-blue-500/50 transition-all">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-400 text-sm mb-1">Librarians</p>
-              <p class="text-2xl font-bold text-white">2</p>
+              <p class="text-gray-400 text-sm mb-1">Super Admins</p>
+              <p class="text-2xl font-bold text-white">{{ $superAdmins ?? 0 }}</p>
             </div>
             <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
               <i class="bi bi-person-badge text-blue-500 text-xl"></i>
@@ -97,59 +97,70 @@
               </tr>
             </thead>
             <tbody>
-              <!-- User 1 - Admin -->
-              <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 bg-[#2c2e33]">
-                <td class="px-4 py-4">
-                  <span class="text-white font-semibold text-base">1</span>
-                </td>
-                <td class="px-4 py-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-500/10 rounded-full flex items-center justify-center">
-                      <i class="bi bi-person-fill text-indigo-500"></i>
+              @forelse($users as $user)
+                <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 bg-[#2c2e33]">
+                  <td class="px-4 py-4">
+                    <span class="text-white font-semibold text-base">{{ $user->id }}</span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-indigo-500/10 rounded-full flex items-center justify-center">
+                        <i class="bi bi-person-fill text-indigo-500"></i>
+                      </div>
+                      <div>
+                        <p class="text-white font-medium text-sm">{{ $user->firstName }} {{ $user->lastName }}</p>
+                        <small class="text-gray-500 text-xs">Joined {{ \Carbon\Carbon::parse($user->created_at)->format('M Y') }}</small>
+                      </div>
                     </div>
-                    <div>
-                      <p class="text-white font-medium text-sm">Rolando Luayon</p>
-                      <small class="text-gray-500 text-xs">Joined Oct 2024</small>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 py-4">
-                  <span class="text-gray-300 text-sm">09812565123</span>
-                </td>
-                <td class="px-4 py-4">
-                  <span class="text-gray-300 text-sm">lalo@gmail.com</span>
-                </td>
-                <td class="px-4 py-4">
-                  <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-500 border border-purple-500/20">
-                    <i class="bi bi-shield-fill-check me-1.5"></i>Admin
-                  </span>
-                </td>
-                <td class="px-4 py-4">
-                  <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500">
-                    <i class="bi bi-circle-fill me-1.5" style="font-size: 6px;"></i>Active
-                  </span>
-                </td>
-                <td class="px-4 py-4 text-end">
-                  <div class="flex gap-2 justify-end">
-                    <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200" 
-                            title="Edit User"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editUserModal">
-                      <i class="bi bi-pencil-square text-base"></i>
-                    </button>
-                    <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200" 
-                              title="Delete User">
-                        <i class="bi bi-trash text-base"></i>
+                  </td>
+                  <td class="px-4 py-4">
+                    <span class="text-gray-300 text-sm">{{ $user->contact ?? 'N/A' }}</span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <span class="text-gray-300 text-sm">{{ $user->email }}</span>
+                  </td>
+                  <td class="px-4 py-4">
+                    @php
+                      $role = $user->role;
+                      $badge = [
+                        'user' => ['bg' => 'bg-blue-500/10', 'text' => 'text-blue-500', 'border' => 'border-blue-500/20', 'icon' => 'bi-person'],
+                        'admin' => ['bg' => 'bg-purple-500/10', 'text' => 'text-purple-500', 'border' => 'border-purple-500/20', 'icon' => 'bi-shield-fill-check'],
+                        'super_admin' => ['bg' => 'bg-amber-500/10', 'text' => 'text-amber-500', 'border' => 'border-amber-500/20', 'icon' => 'bi-stars'],
+                      ][$role] ?? ['bg' => 'bg-gray-500/10', 'text' => 'text-gray-400', 'border' => 'border-gray-500/20', 'icon' => 'bi-question-circle'];
+                    @endphp
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold {{ $badge['bg'] }} {{ $badge['text'] }} border {{ $badge['border'] }}">
+                      <i class="bi {{ $badge['icon'] }} me-1.5"></i>{{ str_replace('_',' ', ucfirst($role)) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-500">
+                      <i class="bi bi-circle-fill me-1.5" style="font-size: 6px;"></i>Active
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-end">
+                    <div class="flex gap-2 justify-end">
+                      <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200" 
+                              title="Edit User"
+                              data-bs-toggle="modal"
+                              data-bs-target="#editUserModal">
+                        <i class="bi bi-pencil-square text-base"></i>
                       </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-
-
+                      <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200" 
+                                title="Delete User">
+                          <i class="bi bi-trash text-base"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="7" class="px-4 py-6 text-center text-gray-400">No users found.</td>
+                </tr>
+              @endforelse
             </tbody>
           </table>
         </div>
@@ -157,27 +168,10 @@
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-[#373a40] bg-[#25262b] flex items-center justify-between">
           <div class="text-sm text-gray-400">
-            Showing <span class="font-semibold text-white">1-5</span> of <span class="font-semibold text-white">8</span> users
+            Showing <span class="font-semibold text-white">{{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }}</span> of <span class="font-semibold text-white">{{ $users->total() ?? 0 }}</span> users
           </div>
-          
-          <div class="flex items-center gap-2">
-            <!-- Previous Button -->
-            <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-indigo-500/50 hover:text-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            
-            <!-- Page Numbers -->
-            <button class="px-4 py-2 rounded-lg bg-indigo-500 text-white font-semibold">
-              1
-            </button>
-            <button class="px-4 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-indigo-500/50 hover:text-white transition-all">
-              2
-            </button>
-            
-            <!-- Next Button -->
-            <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-indigo-500/50 hover:text-indigo-500 transition-all">
-              <i class="bi bi-chevron-right"></i>
-            </button>
+          <div>
+            {{ $users->links() }}
           </div>
         </div>
       </div>

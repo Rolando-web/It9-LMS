@@ -16,15 +16,13 @@ class UserMiddleware
    */
   public function handle(Request $request, Closure $next): Response
   {
-    // Check if the user is authenticated
+
     if (!Auth::check()) {
       return redirect()->route('login')->with('error', 'Please login to access this area.');
     }
 
-    // Get the authenticated user
     $user = Auth::user();
 
-    // Check if the user has 'user' role (regular user, not admin or super_admin)
     if (!$user || $user->role !== 'user') {
       abort(403, 'Unauthorized access. This area is for regular users only.');
     }

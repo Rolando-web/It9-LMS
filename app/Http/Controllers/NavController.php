@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Models\User;
 
 class NavController extends Controller
 {
@@ -47,7 +48,13 @@ class NavController extends Controller
 
     public function useradmin()
     {
-        return view('Admin.useradmin');
+        $users = User::orderByDesc('created_at')->paginate(5);
+        $totalUsers = User::count();
+        $admins = User::where('role', 'admin')->count();
+        $superAdmins = User::where('role', 'super_admin')->count();
+        $activeUsers = $totalUsers; // No status column; treat all as active for now
+
+        return view('Admin.useradmin', compact('users', 'totalUsers', 'admins', 'superAdmins', 'activeUsers'));
     }
 
     public function dashboard()

@@ -12,6 +12,12 @@ Route::middleware(['guest'])->group(function () {
   Route::post('/login', [AuthController::class, 'login']);
   Route::get('/register', [NavController::class, 'register'])->name('register');
   Route::post('/register', [AuthController::class, 'register']);
+
+  // Password Reset (Forgot Password)
+  Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+  Route::post('/forgot-password', [AuthController::class, 'checkEmail'])->name('password.check');
+  Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset');
+  Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
 //User Routes (Protected by user middleware - regular users only)
