@@ -55,7 +55,7 @@
                 </div>
 
                 <!-- Table -->
-                <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl shadow-xl overflow-hidden">
+                <div class="bg-[#2c2e33] rounded-xl shadow-xl overflow-hidden">
                     <div class="px-6 py-4 border-b border-[#373a40]">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                             <i class="bi bi-collection text-cyan-500"></i>
@@ -182,7 +182,6 @@
                             </tbody>
                         </table>
                     </div>
-
                     <!-- Pagination -->
                     <div class="px-6 py-4 border-t border-[#373a40] bg-[#25262b] flex items-center justify-between">
                         <div class="text-sm text-gray-400">
@@ -211,14 +210,12 @@
                             </button>
                         </div>
                     </div>
-                </div>
-
+            </div>
                 {{-- Modal --}}
                 @include('components.book-modal')
                 {{-- Modal --}}
 
             </div>
               </div>
-
    {{-- Footer --}}
 <x-import-footer/>

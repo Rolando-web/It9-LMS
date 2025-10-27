@@ -25,7 +25,7 @@
 
       <!-- User Stats -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-[#2c2e33] border border-[#373a40] rounded-lg p-4 hover:border-indigo-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-indigo-500/50 transition-all">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Total Users</p>
@@ -37,7 +37,7 @@
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] border border-[#373a40] rounded-lg p-4 hover:border-emerald-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-emerald-500/50 transition-all">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Active Users</p>
@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] border border-[#373a40] rounded-lg p-4 hover:border-purple-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-purple-500/50 transition-all">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Admins</p>
@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] border border-[#373a40] rounded-lg p-4 hover:border-blue-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-blue-500/50 transition-all">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-400 text-sm mb-1">Super Admins</p>
@@ -75,7 +75,7 @@
       </div>
 
       <!-- Users Table -->
-      <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl shadow-xl overflow-hidden">
+      <div class="bg-[#2c2e33] rounded-xl shadow-xl overflow-hidden">
         <div class="px-6 py-4 border-b border-[#373a40]">
           <h3 class="text-lg font-semibold text-white flex items-center gap-2">
             <i class="bi bi-list-ul text-indigo-500"></i>

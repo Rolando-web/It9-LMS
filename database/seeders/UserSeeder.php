@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
    */
   public function run(): void
   {
-    // Create Super Admin Account
+    // Super_Admin
     User::create([
       'firstName' => 'Rolando',
       'lastName' => 'Luayon',
@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
       'role' => 'super_admin',
     ]);
 
-    // Create Admin Account
+    // Admin
     User::create([
       'firstName' => 'Tiffany',
       'lastName' => 'Ocon',
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
       'role' => 'admin',
     ]);
 
-    // Create Regular User Account
+    // User
     User::create([
       'firstName' => 'test',
       'lastName' => 'user',
@@ -44,19 +44,19 @@ class UserSeeder extends Seeder
       'role' => 'user',
     ]);
 
-    echo "✅ Users seeded successfully!\n";
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    echo "Users seeded successfully Added Boss!\n";
+    echo "━\n";
     echo "Super Admin:\n";
-    echo "  Email: superadmin@library.com\n";
-    echo "  Password: superadmin123\n";
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    echo "  Email: Rolandoluayon@library.com\n";
+    echo "  Password: Luayon123\n";
+    echo "━\n";
     echo "Admin:\n";
     echo "  Email: admin@library.com\n";
-    echo "  Password: admin123\n";
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    echo "  Password: Luayon123\n";
+    echo "━\n";
     echo "User:\n";
     echo "  Email: user@library.com\n";
-    echo "  Password: user123\n";
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    echo "  Password: Luayon123\n";
+    echo "━\n";
   }
 }
