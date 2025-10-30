@@ -24,6 +24,8 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['user'])->group(function () {
   Route::get('/app', [NavController::class, 'home'])->name('home');
   Route::get('/book-collection', [NavController::class, 'collection'])->name('collection');
+  // AJAX endpoint to load more books
+  Route::get('/books/load-more', [NavController::class, 'loadMoreBooks'])->name('books.load');
   Route::get('/book-return', [NavController::class, 'book'])->name('book');
   Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
 });

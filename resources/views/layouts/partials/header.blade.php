@@ -45,17 +45,18 @@
           </a>
         </div>
 
+        @php $user = auth()->user(); @endphp
         <div class="hidden md:flex items-center flex-1 md:justify-end lg:justify-center text-white">
           <div class="relative flex items-center space-x-2">
             <div class="text-right">
               <div class="text-sm font-medium hidden lg:block">
-              <p>Rolando Luayon</p>
+                <p>{{ $user ? ($user->firstName . ' ' . ($user->lastName ?? '')) : 'Guest' }}</p>
               </div>
 
-              <div class="text-xs text-gray-400 hidden lg:block">Member</div>
+              <div class="text-xs text-gray-400 hidden lg:block">{{ $user ? ucfirst($user->role) : 'Visitor' }}</div>
             </div>
             <div class="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center ">
-              <img src="../image/willan.jpg" alt="profile" class="w-full h-full object-cover rounded-full">
+              <img src="{{ $user && $user->image ? asset($user->image) : asset('image/willan.jpg') }}" alt="profile" class="w-full h-full object-cover rounded-full">
             </div>
 
             <button id="dropdownButton" class="ml-2 p-1 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white">
@@ -101,15 +102,13 @@
           <div class="p-6">
             <div class="flex items-center space-x-3 mb-4 pb-6 border-b border-gray-800">
               <div class="w-12 h-12 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center">
-                <img src="../image/willan.jpg" alt="profile" class="w-full h-full object-cover rounded-full">
+                <img src="{{ $user && $user->image ? asset($user->image) : asset('image/willan.jpg') }}" alt="profile" class="w-full h-full object-cover rounded-full">
               </div>
               <div>
                 <div class="text-white font-medium">
-                
-                  <p>Rolando Luayon</p>
-                
+                  <p>{{ $user ? ($user->firstName . ' ' . ($user->lastName ?? '')) : 'Guest' }}</p>
                 </div>
-                <div class="text-gray-400 text-sm">Member</div>
+                <div class="text-gray-400 text-sm">{{ $user ? ucfirst($user->role) : 'Visitor' }}</div>
               </div>
             </div>
             <div class="p-4">

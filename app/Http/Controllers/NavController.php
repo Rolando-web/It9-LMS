@@ -20,7 +20,8 @@ class NavController extends Controller
 
     public function home()
     {
-        return view('layouts.app');
+        $books = \App\Models\Book::latest()->take(8)->get();
+        return view('layouts.app', compact('books'));
     }
 
     public function book()
@@ -28,9 +29,84 @@ class NavController extends Controller
         return view('pages.book-return');
     }
 
-    public function collection()
+    public function collection(Request $request)
     {
-        return view('pages.book-collection');
+        $perPage = 8;
+        $paginator = $this->buildBookQuery($request)->paginate($perPage)->appends($request->query());
+        $books = $paginator;
+        return view('pages.book-collection', compact('books'));
+    }
+
+    /**
+     * AJAX endpoint: returns JSON of next page of books
+     */
+    public function loadMoreBooks(Request $request)
+    {
+        $perPage = (int) $request->query('per_page', 8);
+        $page = (int) $request->query('page', 1);
+
+        $paginator = $this->buildBookQuery($request)->paginate($perPage, ['*'], 'page', $page);
+
+        // transform books to simple array for JSON
+        $books = $paginator->items();
+
+        $data = array_map(function ($b) {
+            return [
+                'id' => $b->id,
+                'title' => $b->title,
+                'author' => $b->author,
+                'publish_year' => optional($b->publish_date) ? \Carbon\Carbon::parse($b->publish_date)->format('Y') : null,
+                'image' => $b->image ? asset($b->image) : asset('image/default-book.jpg'),
+            ];
+        }, $books);
+
+        return response()->json([
+            'data' => $data,
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+        ]);
+    }
+
+    /**
+     * Build a Book query applying search, category and sort parameters from the request.
+     */
+    protected function buildBookQuery(Request $request)
+    {
+        $q = Book::query();
+
+        $search = $request->query('search', $request->input('search'));
+        if ($search) {
+            $q->where(function ($sub) use ($search) {
+                $sub->where('title', 'like', "%{$search}%")
+                    ->orWhere('author', 'like', "%{$search}%");
+            });
+        }
+
+        $category = $request->query('category', $request->input('category'));
+        if ($category && $category !== 'all') {
+            $q->where('category', $category);
+        }
+
+        $sort = $request->query('sort', $request->input('sort'));
+        if ($sort) {
+            switch ($sort) {
+                case 'title':
+                    $q->orderBy('title');
+                    break;
+                case 'author':
+                    $q->orderBy('author');
+                    break;
+                case 'year':
+                    $q->orderBy('publish_date', 'desc');
+                    break;
+                default:
+                    $q->latest();
+            }
+        } else {
+            $q->latest();
+        }
+
+        return $q;
     }
 
     public function transaction()

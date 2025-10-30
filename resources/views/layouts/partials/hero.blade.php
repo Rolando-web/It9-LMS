@@ -1,5 +1,5 @@
 
-<main class="relative z-0 flex-1 flex items-center justify-center">
+<main class="relative z-0 flex-1 flex items-center justify-center py-8">
   <div class="absolute inset-0 z-0 opacity-50" style="background-image: url({{ asset('image/wew.png') }}); background-size: cover; background-position: center;"></div>
 
   <div class="relative z-10 text-center max-w-3xl mx-auto mt-16 mb-29">

@@ -10,11 +10,12 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
+                        @php $user = auth()->user(); @endphp
                         <div class="d-none d-sm-block text-end me-3">
                             <div class="text-light">
-                               <h2>Rolando Luayon</h2>
+                               <h2>{{ $user ? ($user->firstName . ' ' . ($user->lastName ?? '')) : 'Guest' }}</h2>
                             </div>
-                            <small class="text-white opacity-50">Admin</small>
+                            <small class="text-white opacity-50">{{ $user ? ucfirst($user->role) : 'Visitor' }}</small>
                         </div>
                         <div class="dropdown d-sm-none">
                             <a
@@ -24,7 +25,7 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false">
                                 <img
-                                    src="../image/willan.jpg"
+                                    src="{{ $user && $user->image ? asset($user->image) : asset('image/willan.jpg') }}"
                                     alt="Profile"
                                     class="rounded-circle"
                                     width="40"
@@ -32,13 +33,13 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                                 <li><span class="dropdown-item-text fw-bold">
-                                         <h2>Rolando Luayon</h2>
+                                         <h2>{{ $user ? ($user->firstName . ' ' . ($user->lastName ?? '')) : 'Guest' }}</h2>
                                     </span></li>
-                                <li><span class="dropdown-item-text text-muted">Admin</span></li>
+                                <li><span class="dropdown-item-text text-muted">{{ $user ? ucfirst($user->role) : 'Visitor' }}</span></li>
                             </ul>
                         </div>
                         <img
-                            src="../image/willan.jpg"
+                            src="{{ $user && $user->image ? asset($user->image) : asset('image/willan.jpg') }}"
                             alt="Profile"
                             class="rounded-circle d-none d-sm-block"
                             width="40"
