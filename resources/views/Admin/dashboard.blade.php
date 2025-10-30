@@ -16,7 +16,7 @@
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
+            <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-book-fill text-blue-500 text-2xl"></i>
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Categories Card -->
-            <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
+            <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-tags-fill text-emerald-500 text-2xl"></i>
@@ -40,7 +40,7 @@
             </div>
 
             <!-- Available Copies Card -->
-            <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl p-6 hover:shadow-xl hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1">
+            <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-stack text-purple-500 text-2xl"></i>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Authors Card -->
-            <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl p-6 hover:shadow-xl hover:border-orange-500/50 transition-all duration-300 hover:-translate-y-1">
+            <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-orange-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-people-fill text-orange-500 text-2xl"></i>
@@ -65,7 +65,7 @@
           </div>
 
           <!-- Books Table -->
-          <div class="bg-[#2c2e33] border border-[#373a40] rounded-xl shadow-xl overflow-hidden">
+          <div class="bg-[#2c2e33]  rounded-xl shadow-xl overflow-hidden">
             <div class="px-6 py-4 border-b border-[#373a40]">
               <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -102,9 +102,9 @@
                       <div class="flex items-center gap-3">
                         @if($book->image)
                           <img src="{{ asset($book->image) }}" alt="{{ $book->title }}" 
-                               class="rounded-lg w-12 h-12 object-cover border border-[#373a40]" />
+                               class="rounded-lg w-12 h-12 object-cover " />
                         @else
-                          <div class="flex items-center justify-center bg-[#1a1b1e] rounded-lg w-12 h-12 border border-[#373a40]">
+                          <div class="flex items-center justify-center bg-[#1a1b1e] rounded-lg w-12 h-12 ">
                             <i class="bi bi-book text-gray-500 text-xl"></i>
                           </div>
                         @endif
@@ -188,7 +188,7 @@
               
               <div class="flex items-center gap-2">
                 <!-- Previous Button -->
-                <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                   <i class="bi bi-chevron-left"></i>
                 </button>
                 
@@ -197,18 +197,18 @@
                   1
                 </button>
                 @if($books->count() > 5)
-                <button class="px-4 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
+                <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
                   2
                 </button>
                 @endif
                 @if($books->count() > 10)
-                <button class="px-4 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
+                <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
                   3
                 </button>
                 @endif
                 
                 <!-- Next Button -->
-                <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
+                <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
                   <i class="bi bi-chevron-right"></i>
                 </button>
               </div>
