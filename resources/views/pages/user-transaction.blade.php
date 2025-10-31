@@ -14,7 +14,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold mb-2">1</div>
+        <div class="text-3xl font-bold mb-2">{{ $active->total() ?? 0 }}</div>
         <div class="text-sm opacity-80">Currently borrowed books</div>
       </div>
 
@@ -27,7 +27,7 @@
           </svg>
         </div>
         <div class="flex items-center space-x-2 mb-2">
-          <div class="text-3xl font-bold">1</div>
+          <div class="text-3xl font-bold">{{ $overdueCount ?? 0 }}</div>
         </div>
         <div class="text-sm text-white">Books past due date</div>
       </div>
@@ -54,7 +54,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold mb-2">1</div>
+        <div class="text-3xl font-bold mb-2">{{ $totalTransactions ?? 0 }}</div>
         <div class="text-sm text-white">All-time borrowings</div>
       </div>
     </div>
@@ -80,10 +80,36 @@
               <th class="text-left py-3 px-4 font-medium text-white">Due Date</th>
               <th class="text-left py-3 px-4 font-medium text-white">Status</th>
               <th class="text-left py-3 px-4 font-medium text-white">Fee</th>
+              <th class="text-left py-3 px-4 font-medium text-white">Cover</th>
             </tr>
           </thead>
           <tbody class="text-white">
-          
+            @forelse($active as $tx)
+              <tr class="border-b border-gray-100 hover:bg-[#101929] border-opacity-10">
+                <td class="py-4 px-4 font-medium">{{ $tx->id }}</td>
+                <td class="py-4 px-4">{{ $tx->book_id }}</td>
+                <td class="py-4 px-4 font-medium">{{ optional($tx->book)->title ?? '—' }}</td>
+                <td class="py-4 px-4">{{ optional($tx->book)->author ?? '—' }}</td>
+                <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
+                <td class="py-4 px-4">{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : '' }}</td>
+                <td class="py-4 px-4">{{ ucfirst($tx->status) }}</td>
+                <td class="py-4 px-4 font-medium text-[#e24545]">{{ number_format($tx->fee,2) }}</td>
+                <td class="py-4 px-4">
+                  @php
+                    $img = optional($tx->book)->image ?? null;
+                  @endphp
+                  @if($img)
+                    <img src="{{ asset($img) }}" alt="cover" class="w-12 h-16 object-cover rounded">
+                  @else
+                    <div class="w-12 h-16 bg-gray-700 rounded flex items-center justify-center text-xs text-gray-300">No Image</div>
+                  @endif
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="9" class="py-4 px-4 text-center text-gray-400">No active borrowings.</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
@@ -112,21 +138,71 @@
             </tr>
           </thead>
           <tbody class="text-white">
+            @forelse($history as $tx)
               <tr class="border-b border-gray-100 hover:bg-[#101929] border-opacity-10">
-                <td class="py-4 px-4 font-medium">wewtd>
-                <td class="py-4 px-4">11</td>
-                <td class="py-4 px-4 font-medium">wew</td>
-                <td class="py-4 px-4">11</td>
-                <td class="py-4 px-4">2004</td>
-                <td class="py-4 px-4">N/A</td>
-                <td class="py-4 px-4 font-medium text-[#e24545] ">
-                  50
-                </td>
+                <td class="py-4 px-4 font-medium">{{ $tx->id }}</td>
+                <td class="py-4 px-4">{{ $tx->book_id }}</td>
+                <td class="py-4 px-4 font-medium">{{ optional($tx->book)->title ?? '—' }}</td>
+                <td class="py-4 px-4">{{ optional($tx->book)->author ?? '—' }}</td>
+                <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
+                <td class="py-4 px-4">{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'N/A' }}</td>
+                <td class="py-4 px-4 font-medium text-[#e24545]">{{ number_format($tx->fee,2) }}</td>
               </tr>
+            @empty
+              <tr>
+                <td colspan="7" class="py-4 px-4 text-center text-gray-400">No transaction history.</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
     </div>
+     <script>
+       // expose CSRF token
+       window.Laravel = window.Laravel || {};
+       window.Laravel.csrfToken = '{{ csrf_token() }}';
+
+       document.addEventListener('click', function(e){
+         const btn = e.target.closest && e.target.closest('.return-btn');
+         if(!btn) return;
+         const id = btn.dataset.txId;
+         if(!confirm('Confirm return for transaction #' + id + '?')) return;
+
+         fetch('/return/' + id, {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'X-CSRF-TOKEN': window.Laravel.csrfToken,
+             'X-Requested-With': 'XMLHttpRequest'
+           },
+           credentials: 'same-origin'
+         })
+         .then(async r => {
+           const ct = r.headers.get('content-type') || '';
+           let body = null;
+           if (ct.indexOf('application/json') !== -1) {
+             try { body = await r.json(); } catch(e) { body = null; }
+           } else {
+             try { body = await r.text(); } catch(e) { body = null; }
+           }
+
+           if (r.ok) {
+             // prefer JSON fee, else show generic
+             const fee = body && typeof body === 'object' && typeof body.fee !== 'undefined' ? body.fee : null;
+             alert('Return processed.' + (fee !== null ? (' Fee: ' + fee) : ''));
+             location.reload();
+           } else {
+             let msg = 'Unable to return';
+             if (body && typeof body === 'object' && body.message) msg = body.message;
+             else if (body && typeof body === 'string') {
+               const stripped = body.replace(/<[^>]*>?/gm, '').trim();
+               msg = stripped.length ? (stripped.length > 300 ? stripped.slice(0,300) + '...' : stripped) : msg;
+             }
+             alert(msg);
+           }
+         }).catch(err => alert(err.message || 'Network error'));
+       });
+     </script>
   </main>
      <script src="{{ asset('js/user.js') }}"></script>
   </body>

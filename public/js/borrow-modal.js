@@ -86,9 +86,89 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (confirmBorrow) {
         confirmBorrow.addEventListener("click", function () {
-            // TODO: call backend to create borrow transaction. For now, show success UI.
-            borrowModal.classList.add("hidden");
-            if (successModal) successModal.classList.remove("hidden");
+            // call backend to create borrow transaction
+            const bookId = borrowModal.dataset.currentBookId || 0;
+            const duration = borrowDuration ? borrowDuration.value : 3;
+            const due = returnDate ? returnDate.value : null;
+
+            if (!bookId) {
+                const err = document.getElementById("errorMessage");
+                if (err) err.innerText = "No book selected.";
+                document
+                    .getElementById("errorModal")
+                    .classList.remove("hidden");
+                return;
+            }
+
+            fetch("/borrow", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": window.Laravel
+                        ? window.Laravel.csrfToken
+                        : "",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify({
+                    book_id: bookId,
+                    duration: duration,
+                    due_date: due,
+                }),
+                credentials: "same-origin",
+            })
+                .then(async (res) => {
+                    const contentType = res.headers.get("content-type") || "";
+                    let body = null;
+                    if (contentType.indexOf("application/json") !== -1) {
+                        try {
+                            body = await res.json();
+                        } catch (e) {
+                            body = null;
+                        }
+                    } else {
+                        // not JSON (likely an HTML login/CSRF error page) — capture text for display
+                        try {
+                            body = await res.text();
+                        } catch (e) {
+                            body = null;
+                        }
+                    }
+
+                    if (res.ok) {
+                        borrowModal.classList.add("hidden");
+                        if (successModal)
+                            successModal.classList.remove("hidden");
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        const errEl = document.getElementById("errorMessage");
+                        // prefer JSON message, else plain text or generic
+                        let msg = "Unable to borrow";
+                        if (body && typeof body === "object" && body.message)
+                            msg = body.message;
+                        else if (body && typeof body === "string") {
+                            // if it's HTML, try to extract a short message, otherwise show generic
+                            const stripped = body
+                                .replace(/<[^>]*>?/gm, "")
+                                .trim();
+                            msg = stripped.length
+                                ? stripped.length > 300
+                                    ? stripped.slice(0, 300) + "..."
+                                    : stripped
+                                : msg;
+                        }
+                        if (errEl) errEl.innerText = msg;
+                        document
+                            .getElementById("errorModal")
+                            .classList.remove("hidden");
+                    }
+                })
+                .catch((err) => {
+                    const em = document.getElementById("errorMessage");
+                    if (em) em.innerText = err.message || "Network error";
+                    document
+                        .getElementById("errorModal")
+                        .classList.remove("hidden");
+                });
         });
     }
 

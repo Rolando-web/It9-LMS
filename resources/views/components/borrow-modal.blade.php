@@ -75,3 +75,8 @@
 </div>
 
 <script src="{{ asset('js/borrow-modal.js') }}"></script>
+<script>
+  // expose CSRF token for JS
+  window.Laravel = window.Laravel || {};
+  window.Laravel.csrfToken = '{{ csrf_token() }}';
+</script>

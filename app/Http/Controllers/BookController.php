@@ -6,6 +6,7 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\ActivityLog;
 
 class BookController extends Controller
 {
@@ -51,6 +52,16 @@ class BookController extends Controller
             'copies' => $validated['copies'],
             'image' => $imagePath,
             'user_id' => Auth::id(), // Save the logged-in user's ID
+        ]);
+
+        // Log activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user() ? Auth::user()->firstName . ' ' . Auth::user()->lastName : null,
+            'role' => Auth::user() ? Auth::user()->role : null,
+            'action' => 'Add Book',
+            'details' => 'Added new book: ' . $validated['title'],
+            'status' => 'success',
         ]);
 
         return redirect()->route('books')->with('success', 'Book added successfully!');
@@ -104,6 +115,16 @@ class BookController extends Controller
             'image' => $imagePath,
         ]);
 
+        // Log activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user() ? Auth::user()->firstName . ' ' . Auth::user()->lastName : null,
+            'role' => Auth::user() ? Auth::user()->role : null,
+            'action' => 'Update Book',
+            'details' => 'Updated book: ' . $book->title,
+            'status' => 'success',
+        ]);
+
         return redirect()->route('books')->with('success', 'Book updated successfully!');
     }
 
@@ -116,6 +137,16 @@ class BookController extends Controller
         }
 
         $book->delete();
+
+        // Log activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'user_name' => Auth::user() ? Auth::user()->firstName . ' ' . Auth::user()->lastName : null,
+            'role' => Auth::user() ? Auth::user()->role : null,
+            'action' => 'Delete Book',
+            'details' => 'Deleted book: ' . $book->title,
+            'status' => 'success',
+        ]);
 
         return redirect()->route('books')->with('success', 'Book deleted successfully!');
     }

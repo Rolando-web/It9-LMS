@@ -16,42 +16,42 @@ class UserSeeder extends Seeder
   {
     // Use idempotent updateOrCreate so rerunning the seeder doesn't cause duplicate key errors
     $super = User::updateOrCreate(
-      ['email' => 'superadmin@library.com'],
+      ['email' => 'rolandoluayon4@gmail.com'],
       [
         'firstName' => 'Rolando',
         'lastName' => 'Luayon',
         'contact' => '09123456789',
-        'password' => Hash::make('superadmin123'),
+        'password' => Hash::make('Luayon123'),
         'role' => 'super_admin',
       ]
     );
 
     $admin = User::updateOrCreate(
-      ['email' => 'admin@library.com'],
+      ['email' => 'tluayon7@gmail.com'],
       [
         'firstName' => 'Tiffany',
         'lastName' => 'Ocon',
         'contact' => '09234567890',
-        'password' => Hash::make('admin123'),
+        'password' => Hash::make('Luayon123'),
         'role' => 'admin',
       ]
     );
 
     $user = User::updateOrCreate(
-      ['email' => 'user@library.com'],
+      ['email' => 'user@gmail.com'],
       [
         'firstName' => 'Test',
         'lastName' => 'User',
         'contact' => '09345678901',
-        'password' => Hash::make('user123'),
+        'password' => Hash::make('Luayon123'),
         'role' => 'user',
       ]
     );
 
     // Informational output
     echo "Users seeded successfully.\n";
-    echo "Super Admin: superadmin@library.com / superadmin123\n";
-    echo "Admin: admin@library.com / admin123\n";
-    echo "User: user@library.com / user123\n";
+    echo "Super Admin: rolandoluayon4@gmail.com / Luayon123\n";
+    echo "Admin: tluayon7@gmail.com / Luayon123\n";
+    echo "User: user@gmail.com / Luayon123\n";
   }
 }

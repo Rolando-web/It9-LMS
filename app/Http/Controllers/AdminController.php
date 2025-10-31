@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\ActivityLog;
 
 class AuthController extends Controller
 {
@@ -23,6 +24,16 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+        ]);
+
+        // Log admin creation
+        ActivityLog::create([
+            'user_id' => null,
+            'user_name' => $request->firstName . ' ' . $request->lastName,
+            'role' => $request->role,
+            'action' => 'Create User',
+            'details' => 'Admin created user: ' . $request->email,
+            'status' => 'success',
         ]);
 
         return redirect('login')->back()->with('success', 'User created successfully!');

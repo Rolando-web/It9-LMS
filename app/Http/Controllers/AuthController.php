@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password; // kept but not used in simplified flow
 use Illuminate\Validation\ValidationException; // kept for potential future use
 use App\Models\User;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth as AuthFacade;
 
 class AuthController extends Controller
 {
@@ -46,6 +48,16 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'contact' => $validated['contact'],
             'password' => Hash::make($validated['password']),
+        ]);
+
+        // Log registration
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'user_name' => $user->firstName . ' ' . $user->lastName,
+            'role' => $user->role ?? 'user',
+            'action' => 'Register',
+            'details' => 'Created new account',
+            'status' => 'success',
         ]);
 
         return redirect()->route('login')->with('success', 'Account Created Successfully');
@@ -133,6 +145,16 @@ class AuthController extends Controller
             $user = Auth::user();
             $request->session()->regenerate();
 
+            // Log login
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'user_name' => $user->firstName . ' ' . $user->lastName,
+                'role' => $user->role,
+                'action' => 'Login',
+                'details' => 'User logged in',
+                'status' => 'success',
+            ]);
+
             if ($user->role === 'admin') {
                 return redirect()->intended('dashboard')->with('success', 'Log in Successfully');
             } else if ($user->role === 'super_admin') {
@@ -149,6 +171,20 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+
+        $user = Auth::user();
+
+        // Log logout
+        if ($user) {
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'user_name' => $user->firstName . ' ' . $user->lastName,
+                'role' => $user->role,
+                'action' => 'Logout',
+                'details' => 'User logged out',
+                'status' => 'success',
+            ]);
+        }
 
         Auth::logout();
         $request->session()->invalidate();

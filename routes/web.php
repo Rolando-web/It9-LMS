@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NavController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
@@ -28,6 +29,9 @@ Route::middleware(['user'])->group(function () {
   Route::get('/books/load-more', [NavController::class, 'loadMoreBooks'])->name('books.load');
   Route::get('/book-return', [NavController::class, 'book'])->name('book');
   Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
+  // Borrow and return actions available to regular users
+  Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
+  Route::post('/return/{id}', [TransactionController::class, 'return'])->middleware('auth');
 });
 
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)
@@ -37,6 +41,7 @@ Route::middleware(['admin'])->group(function () {
   Route::get('/transaction', [NavController::class, 'transactions'])->name('transactions');
   Route::get('/categories', [NavController::class, 'categories'])->name('categories');
   Route::get('/activity-log', [NavController::class, 'activitylog'])->name('activity-log');
+
 
   // Book Management Routes
   Route::post('/create-book', [BookController::class, 'saveBook'])->name('create');

@@ -21,6 +21,78 @@
       <h1 class="text-4xl font-light text-white mb-2">Borrowed Collection</h1>
       <p class="text-gray-400 text-lg">Kindly return borrowed books on or before the due date to prevent extra charges for overdue days.</p>
     </div>
+    <script>
+      // expose CSRF token
+      window.Laravel = window.Laravel || {};
+      window.Laravel.csrfToken = '{{ csrf_token() }}';
+
+      // simple toast (top-right)
+      (function(){
+        if (!document.getElementById('simpleToast')){
+          const t = document.createElement('div');
+          t.id = 'simpleToast';
+          t.className = 'fixed top-10 right-6 z-50 hidden';
+          t.innerHTML = '<div id="simpleToastInner" class="bg-green-600 text-white px-8 py-3 rounded shadow-lg max-w-xs">\n              <div id="simpleToastMsg" class="font-medium">Book Returned Successfully</div>\n              <div id="simpleToastSub" class="text-sm opacity-80"></div>\n            </div>';
+          document.body.appendChild(t);
+        }
+
+        function showSimpleToast(message, sub){
+          const t = document.getElementById('simpleToast');
+          const inner = document.getElementById('simpleToastInner');
+          const msg = document.getElementById('simpleToastMsg');
+          const subEl = document.getElementById('simpleToastSub');
+          msg.innerText = message;
+          subEl.innerText = sub || '';
+          t.classList.remove('hidden');
+          t.style.opacity = '0';
+          requestAnimationFrame(()=>{ t.style.transition='opacity 200ms'; t.style.opacity='1'; });
+          setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=> t.classList.add('hidden'), 220); }, 3000);
+        }
+
+        document.addEventListener('click', function(e){
+          const btn = e.target.closest && e.target.closest('.return-btn');
+          if(!btn) return;
+          const id = btn.dataset.txId;
+          if(!confirm('Confirm return for transaction #' + id + '?')) return;
+
+          // disable button and show small spinner
+          btn.disabled = true;
+          const original = btn.innerHTML;
+          btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 align-middle"></span>Processing...';
+
+          fetch('/return/' + id, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': window.Laravel.csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+          })
+          .then(async r => {
+            const ct = r.headers.get('content-type') || '';
+            let body = null;
+            if (ct.indexOf('application/json') !== -1) { try { body = await r.json(); } catch(e){ body = null; } }
+            else { try { body = await r.text(); } catch(e){ body = null; } }
+
+            if (r.ok) {
+              const fee = body && typeof body === 'object' && typeof body.fee !== 'undefined' ? body.fee : null;
+              const sub = fee !== null ? ('Overdue fee: ₱' + fee) : '';
+              showSimpleToast('Book Returned Successfully', sub);
+              setTimeout(()=> location.reload(), 900);
+            } else {
+              let msg = 'Unable to return';
+              if (body && typeof body === 'object' && body.message) msg = body.message;
+              else if (body && typeof body === 'string') { const stripped = body.replace(/<[^>]*>?/gm, '').trim(); msg = stripped || msg; }
+              showSimpleToast(msg);
+              btn.disabled = false;
+              btn.innerHTML = original;
+            }
+          })
+          .catch(err => { showSimpleToast(err.message || 'Network error'); btn.disabled = false; btn.innerHTML = original; });
+        });
+      })();
+    </script>
 
     <!-- Filters and Controls -->
     <div class="bg-gray-800 rounded-xl p-6 mb-8">
@@ -40,38 +112,36 @@
 
     <!-- Books Grid -->
     <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+      @forelse($borrowed as $tx)
+        @php $book = optional($tx->book); @endphp
         <div class="bg-gray-800 rounded-xl p-2 hover:bg-gray-750 transition-colors group">
-          <div class="swiper-slide">
-            <div class="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors group">
-              <div class="mb-4">
-                <div class="w-full h-48 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
-                  <img src="#"
-                    alt="wew"
-                    class="w-full h-full object-cover rounded-lg">
-                </div>
+          <div class="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors group">
+            <div class="mb-4">
+              <div class="w-full h-48 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
+                @if($book && $book->image)
+                  <img src="{{ asset($book->image) }}" alt="{{ $book->title ?? 'Cover' }}" class="w-full h-full object-cover rounded-lg">
+                @else
+                  <div class="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                @endif
               </div>
-              <div class="space-y-2">
-                <h3 class="text-white font-medium text-lg leading-tight">wew</h3>
-                <p class="text-gray-400 text-sm">wew</p>
-                <div class="flex items-center space-x-2">
-                  <div class="flex items-center space-x-1">
-                    <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 01.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 01-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 01-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 01-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 01.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span class="text-yellow-400 text-sm font-medium">4.8</span>
-                  </div>
-                  <span class="text-gray-500 text-sm">wew</span>
+            </div>
+            <div class="space-y-2">
+              <h3 class="text-white font-medium text-lg leading-tight">{{ $book->title ?? 'Unknown Title' }}</h3>
+              <p class="text-gray-400 text-sm">{{ $book->author ?? 'Unknown Author' }}</p>
+              <div class="text-sm text-gray-400">Borrowed: {{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</div>
+              <div class="text-sm text-gray-400">Due: {{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : '' }}</div>
+              <div class="text-sm text-{{ $tx->status === 'overdue' ? 'red-400' : 'green-400' }}">Status: {{ ucfirst($tx->status) }}</div>
+              @if($tx->status !== 'returned')
+                <div class="mt-3">
+                  <button data-tx-id="{{ $tx->id }}" class="return-btn w-full bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">Return</button>
                 </div>
-                <form method="POST" id="returnForm" action="user-return.php">
-                  <input type="hidden" name="transaction_id" value="1">
-                  <button type="button" class="openReturnModal w-full bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors mt-4">
-                    Return Book
-                  </button>
-                </form>
-              </div>
+              @endif
             </div>
           </div>
         </div>
+      @empty
+        <div class="col-span-full text-center text-gray-400">You have no borrowed books at the moment.</div>
+      @endforelse
     </div>
 
 

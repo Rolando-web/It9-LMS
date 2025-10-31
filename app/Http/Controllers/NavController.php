@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\User;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
+use App\Models\BookTransaction;
 
 class NavController extends Controller
 {
@@ -26,7 +29,18 @@ class NavController extends Controller
 
     public function book()
     {
-        return view('pages.book-return');
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $borrowed = BookTransaction::with('book')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['borrowed', 'overdue'])
+            ->orderByDesc('borrowed_at')
+            ->get();
+
+        return view('pages.book-return', compact('borrowed'));
     }
 
     public function collection(Request $request)
@@ -111,7 +125,30 @@ class NavController extends Controller
 
     public function transaction()
     {
-        return view('pages.user-transaction');
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $perPage = 10;
+
+        $active = BookTransaction::with('book')
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['borrowed', 'overdue'])
+            ->orderByDesc('borrowed_at')
+            ->paginate($perPage, ['*'], 'active_page');
+
+        $history = BookTransaction::with('book')
+            ->where('user_id', $user->id)
+            ->where('status', 'returned')
+            ->orderByDesc('borrowed_at')
+            ->paginate($perPage, ['*'], 'history_page');
+
+        $totalTransactions = BookTransaction::where('user_id', $user->id)->count();
+        $overdueCount = BookTransaction::where('user_id', $user->id)->where('status', 'overdue')->count();
+        $outstandingFees = BookTransaction::where('user_id', $user->id)->where('status', 'overdue')->sum('fee');
+
+        return view('pages.user-transaction', compact('active', 'history', 'totalTransactions', 'overdueCount', 'outstandingFees'));
     }
 
 
@@ -119,7 +156,15 @@ class NavController extends Controller
 
     public function activitylog()
     {
-        return view('Admin.activitylog');
+        $perPage = 15;
+        $activities = ActivityLog::with('user')->latest()->paginate($perPage);
+
+        $totalActivities = ActivityLog::count();
+        $userLogins = ActivityLog::where('action', 'Login')->count();
+        $bookActions = ActivityLog::where('action', 'like', '%Book%')->count();
+        $todaysActivity = ActivityLog::whereDate('created_at', now()->toDateString())->count();
+
+        return view('Admin.activitylog', compact('activities', 'totalActivities', 'userLogins', 'bookActions', 'todaysActivity'));
     }
 
     public function useradmin()
@@ -128,7 +173,7 @@ class NavController extends Controller
         $totalUsers = User::count();
         $admins = User::where('role', 'admin')->count();
         $superAdmins = User::where('role', 'super_admin')->count();
-        $activeUsers = $totalUsers; // No status column; treat all as active for now
+        $activeUsers = $totalUsers;
 
         return view('Admin.useradmin', compact('users', 'totalUsers', 'admins', 'superAdmins', 'activeUsers'));
     }
