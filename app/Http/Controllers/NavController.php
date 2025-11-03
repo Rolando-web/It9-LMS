@@ -21,6 +21,17 @@ class NavController extends Controller
         return view('auth.register');
     }
 
+    public function staff()
+    {
+        // load pending borrow requests for admin approval
+        $transactions = BookTransaction::with('book', 'user')
+            ->where('status', 'pending')
+            ->orderByDesc('borrowed_at')
+            ->get();
+
+        return view('Admin.staff', compact('transactions'));
+    }
+
     public function home()
     {
         $books = \App\Models\Book::latest()->take(8)->get();

@@ -106,4 +106,72 @@ class TransactionController extends Controller
 
     return response()->json(['message' => 'Book returned', 'fee' => $fee, 'transaction' => $tx]);
   }
+
+  // Admin approves a pending transaction
+  public function adminApprove(Request $request, $id)
+  {
+    // auth and admin middleware should protect route, still check
+    $user = Auth::user();
+    if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
+      return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $tx = BookTransaction::with('book')->findOrFail($id);
+
+    if ($tx->status === 'approved' || $tx->status === 'borrowed') {
+      return response()->json(['message' => 'Already approved'], 422);
+    }
+
+    // set borrowed_at if not set
+    if (!$tx->borrowed_at) $tx->borrowed_at = now();
+
+    // decrement copies if available and if this approval means checkout
+    $book = Book::find($tx->book_id);
+    if ($book && $book->copies > 0) {
+      $book->decrement('copies');
+    }
+
+    $tx->status = 'borrowed';
+    $tx->save();
+
+    ActivityLog::create([
+      'user_id' => $user->id,
+      'user_name' => $user->firstName . ' ' . $user->lastName,
+      'role' => $user->role,
+      'action' => 'Approve Borrow',
+      'details' => 'Approved transaction: ' . $tx->id,
+      'status' => 'success',
+    ]);
+
+    return response()->json(['message' => 'Transaction approved', 'transaction' => $tx]);
+  }
+
+  // Admin rejects a pending transaction
+  public function adminReject(Request $request, $id)
+  {
+    $user = Auth::user();
+    if (!$user || !in_array($user->role, ['admin', 'super_admin'])) {
+      return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $tx = BookTransaction::findOrFail($id);
+
+    if ($tx->status === 'rejected') {
+      return response()->json(['message' => 'Already rejected'], 422);
+    }
+
+    $tx->status = 'rejected';
+    $tx->save();
+
+    ActivityLog::create([
+      'user_id' => $user->id,
+      'user_name' => $user->firstName . ' ' . $user->lastName,
+      'role' => $user->role,
+      'action' => 'Reject Borrow',
+      'details' => 'Rejected transaction: ' . $tx->id,
+      'status' => 'success',
+    ]);
+
+    return response()->json(['message' => 'Transaction rejected', 'transaction' => $tx]);
+  }
 }

@@ -14,6 +14,7 @@ Route::middleware(['guest'])->group(function () {
   Route::get('/register', [NavController::class, 'register'])->name('register');
   Route::post('/register', [AuthController::class, 'register']);
 
+
   // Password Reset (Forgot Password)
   Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
   Route::post('/forgot-password', [AuthController::class, 'checkEmail'])->name('password.check');
@@ -21,15 +22,13 @@ Route::middleware(['guest'])->group(function () {
   Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
-//User Routes (Protected by user middleware - regular users only)
+//User Routes 
 Route::middleware(['user'])->group(function () {
   Route::get('/app', [NavController::class, 'home'])->name('home');
   Route::get('/book-collection', [NavController::class, 'collection'])->name('collection');
-  // AJAX endpoint to load more books
   Route::get('/books/load-more', [NavController::class, 'loadMoreBooks'])->name('books.load');
   Route::get('/book-return', [NavController::class, 'book'])->name('book');
   Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
-  // Borrow and return actions available to regular users
   Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
   Route::post('/return/{id}', [TransactionController::class, 'return'])->middleware('auth');
 });
@@ -41,6 +40,11 @@ Route::middleware(['admin'])->group(function () {
   Route::get('/transaction', [NavController::class, 'transactions'])->name('transactions');
   Route::get('/categories', [NavController::class, 'categories'])->name('categories');
   Route::get('/activity-log', [NavController::class, 'activitylog'])->name('activity-log');
+  Route::get('/staff', [NavController::class, 'staff'])->name('staff');
+
+  // Admin approve/reject endpoints for borrow requests
+  Route::post('/admin/transactions/{id}/approve', [TransactionController::class, 'adminApprove'])->name('admin.transactions.approve');
+  Route::post('/admin/transactions/{id}/reject', [TransactionController::class, 'adminReject'])->name('admin.transactions.reject');
 
 
   // Book Management Routes

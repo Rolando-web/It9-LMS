@@ -79,7 +79,6 @@
               <tr>
                   <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">ID</th>
                   <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">User</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Action</th>
                   <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Details</th>
                   <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Timestamp</th>
                   <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400">Status</th>
@@ -101,11 +100,6 @@
                       <small class="text-gray-500 text-xs">{{ $activity->role ?? 'N/A' }}</small>
                     </div>
                   </div>
-                </td>
-                <td class="px-4 py-4">
-                  <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    {{ $activity->action }}
-                  </span>
                 </td>
                 <td class="px-4 py-4">
                   <span class="text-gray-300 text-sm">{{ $activity->details }}</span>
