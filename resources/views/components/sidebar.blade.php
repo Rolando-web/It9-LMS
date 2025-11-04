@@ -51,7 +51,7 @@
                 <a class="{{ request()->is('staff') ? 'bg-white/10 shadow-sm rounded-lg':'text-white' }} nav-link flex items-center p-3 text-white transition-all duration-300
                         hover:bg-white/10 hover:pl-4 hover:-translate-x-0.5 hover:shadow-sm rounded-lg"
                 href="{{ route('staff') }}">
-                <i class="bi bi-journal-text mr-2 transition-transform duration-300 hover:scale-110"></i>
+                <i class="bi bi-person-badge mr-2 transition-transform duration-300 hover:scale-110"></i>
                 Staff
               </a>
 

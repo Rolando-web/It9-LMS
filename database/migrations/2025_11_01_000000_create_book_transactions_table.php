@@ -14,7 +14,7 @@ return new class extends Migration {
       $table->timestamp('borrowed_at')->nullable();
       $table->date('due_date')->nullable();
       $table->timestamp('returned_at')->nullable();
-      $table->string('status')->default('borrowed'); // borrowed, returned, overdue
+      $table->string('status')->default('borrowed');
       $table->integer('days_overdue')->default(0);
       $table->decimal('fee', 10, 2)->default(0);
       $table->timestamps();

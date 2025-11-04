@@ -2,7 +2,6 @@
   Transaction Overview
 </x-page-header>
 
- @include('layouts.partials.header')
 
 <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-6 py-8">
@@ -33,17 +32,35 @@
       </div>
 
       <!-- Outstanding Fees -->
-      <div class="bg-[#1E2939] rounded-xl p-6 text-white">
+      <div class="bg-[#1E2939] rounded-xl p-6 text-white" style="border: 3px solid red;">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-sm font-medium text-white">Outstanding Fees</h3>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
           </svg>
         </div>
-{{-- 
-    get user overduefees --}}
-
-
+        <div class="text-3xl font-bold mb-3 text-red-400">₱{{ number_format($outstandingFees ?? 0, 2) }}</div>
+        <div class="text-sm text-white opacity-80 mb-3">Total fees to pay</div>
+        
+        <div style="background: red; color: yellow; padding: 20px; font-size: 24px; font-weight: bold; text-align: center; border: 5px solid yellow;">
+          🚨 CAN YOU SEE THIS RED BOX? 🚨
+        </div>
+        
+        <!-- TEST BUTTON - ALWAYS VISIBLE -->
+        <button style="display: block !important; width: 100%; background-color: #16a34a; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 500; margin-top: 10px;">
+          💰 Pay Now (Test)
+        </button>
+        
+        <!-- CONDITIONAL BUTTON -->
+        @if(($outstandingFees ?? 0) > 0)
+          <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition-colors mt-2" style="display: block !important;">
+            💳 PAY NOW - ₱{{ number_format($outstandingFees, 2) }}
+          </button>
+        @else
+          <div class="bg-yellow-600 text-white p-2 rounded mt-2">
+            ⚠️ No fees (Value: {{ $outstandingFees ?? 'null' }})
+          </div>
+        @endif
       </div>
 
       <!-- Total Transactions -->
@@ -135,6 +152,7 @@
               <th class="text-left py-3 px-4 font-medium text-white">Borrowed Date</th>
               <th class="text-left py-3 px-4 font-medium text-white">Return Date</th>
               <th class="text-left py-3 px-4 font-medium text-white">Final Fee</th>
+              <th class="text-center py-3 px-4 font-medium text-white">Action</th>
             </tr>
           </thead>
           <tbody class="text-white">
@@ -146,64 +164,37 @@
                 <td class="py-4 px-4">{{ optional($tx->book)->author ?? '—' }}</td>
                 <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'N/A' }}</td>
-                <td class="py-4 px-4 font-medium text-[#e24545]">{{ number_format($tx->fee,2) }}</td>
+                <td class="py-4 px-4 font-medium text-[#e24545]">₱{{ number_format($tx->fee,2) }}</td>
+                <td class="py-4 px-4 text-center">
+                  <button class="view-user-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200"
+                          data-bs-toggle="modal" 
+                          data-bs-target="#bookModal"
+                          data-tx-id="{{ $tx->id }}"
+                          data-book-title="{{ optional($tx->book)->title ?? 'N/A' }}"
+                          data-book-author="{{ optional($tx->book)->author ?? 'N/A' }}"
+                          data-book-image="{{ optional($tx->book)->image ? asset($tx->book->image) : asset('image/default-book.jpg') }}"
+                          data-user-name="{{ auth()->user()->firstName }} {{ auth()->user()->lastName }}"
+                          data-borrow-date="{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : 'N/A' }}"
+                          data-due-date="{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : 'N/A' }}"
+                          data-return-date="{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'Not returned' }}"
+                          data-status="{{ ucfirst($tx->status) }}"
+                          data-fee="{{ number_format($tx->fee ?? 0, 2) }}">
+                    <i class="bi bi-eye text-base"></i>
+                  </button>
+                </td>
               </tr>
             @empty
               <tr>
-                <td colspan="7" class="py-4 px-4 text-center text-gray-400">No transaction history.</td>
+                <td colspan="8" class="py-4 px-4 text-center text-gray-400">No transaction history.</td>
               </tr>
             @endforelse
           </tbody>
         </table>
       </div>
     </div>
-     <script>
-       // expose CSRF token
-       window.Laravel = window.Laravel || {};
-       window.Laravel.csrfToken = '{{ csrf_token() }}';
-
-       document.addEventListener('click', function(e){
-         const btn = e.target.closest && e.target.closest('.return-btn');
-         if(!btn) return;
-         const id = btn.dataset.txId;
-         if(!confirm('Confirm return for transaction #' + id + '?')) return;
-
-         fetch('/return/' + id, {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-             'X-CSRF-TOKEN': window.Laravel.csrfToken,
-             'X-Requested-With': 'XMLHttpRequest'
-           },
-           credentials: 'same-origin'
-         })
-         .then(async r => {
-           const ct = r.headers.get('content-type') || '';
-           let body = null;
-           if (ct.indexOf('application/json') !== -1) {
-             try { body = await r.json(); } catch(e) { body = null; }
-           } else {
-             try { body = await r.text(); } catch(e) { body = null; }
-           }
-
-           if (r.ok) {
-             // prefer JSON fee, else show generic
-             const fee = body && typeof body === 'object' && typeof body.fee !== 'undefined' ? body.fee : null;
-             alert('Return processed.' + (fee !== null ? (' Fee: ' + fee) : ''));
-             location.reload();
-           } else {
-             let msg = 'Unable to return';
-             if (body && typeof body === 'object' && body.message) msg = body.message;
-             else if (body && typeof body === 'string') {
-               const stripped = body.replace(/<[^>]*>?/gm, '').trim();
-               msg = stripped.length ? (stripped.length > 300 ? stripped.slice(0,300) + '...' : stripped) : msg;
-             }
-             alert(msg);
-           }
-         }).catch(err => alert(err.message || 'Network error'));
-       });
-     </script>
+          <x-transaction-modal/>
   </main>
      <script src="{{ asset('js/user.js') }}"></script>
+      <script src="{{ asset('js/user-transaction.js') }}"></script>
   </body>
 </html>

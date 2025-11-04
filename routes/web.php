@@ -31,6 +31,10 @@ Route::middleware(['user'])->group(function () {
   Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
   Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
   Route::post('/return/{id}', [TransactionController::class, 'return'])->middleware('auth');
+
+  // Notification routes
+  Route::get('/notifications', [NavController::class, 'getNotifications'])->name('notifications.get');
+  Route::post('/notifications/{id}/read', [NavController::class, 'markNotificationAsRead'])->name('notifications.read');
 });
 
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)
@@ -46,6 +50,8 @@ Route::middleware(['admin'])->group(function () {
   Route::post('/admin/transactions/{id}/approve', [TransactionController::class, 'adminApprove'])->name('admin.transactions.approve');
   Route::post('/admin/transactions/{id}/reject', [TransactionController::class, 'adminReject'])->name('admin.transactions.reject');
 
+  // Download transaction receipt PDF
+  Route::get('/admin/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('admin.transaction.receipt');
 
   // Book Management Routes
   Route::post('/create-book', [BookController::class, 'saveBook'])->name('create');

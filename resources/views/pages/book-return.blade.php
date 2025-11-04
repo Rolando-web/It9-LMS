@@ -130,7 +130,17 @@
               <p class="text-gray-400 text-sm">{{ $book->author ?? 'Unknown Author' }}</p>
               <div class="text-sm text-gray-400">Borrowed: {{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</div>
               <div class="text-sm text-gray-400">Due: {{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : '' }}</div>
-              <div class="text-sm text-{{ $tx->status === 'overdue' ? 'red-400' : 'green-400' }}">Status: {{ ucfirst($tx->status) }}</div>
+              <div class="mt-2">
+                @if($tx->status === 'pending')
+                  <h3>Status: <span class="py-1 rounded text-md text-yellow-600">Pending</span></h3>
+                @elseif($tx->status === 'borrowed')
+                  <h3>Status: <span class="py-1 rounded text-md text-green-600">Borrowed</span></h3>
+                @elseif($tx->status === 'overdue')
+                  <h3>Status: <span class="py-1 rounded text-md text-red-600">Overdue</span></h3>
+                @else
+                  <h3>Status: <span class="py-1 rounded text-md text-gray-600">{{ ucfirst($tx->status) }}</span></h3>
+                @endif
+              </div>
               @if($tx->status !== 'returned')
                 <div class="mt-3">
                   <button data-tx-id="{{ $tx->id }}" class="return-btn w-full bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">Return</button>

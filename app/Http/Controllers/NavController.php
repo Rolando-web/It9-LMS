@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BookTransaction;
+use App\Models\Notification;
 
 class NavController extends Controller
 {
@@ -45,9 +46,10 @@ class NavController extends Controller
             return redirect()->route('login');
         }
 
+        // include pending transactions so user can see requests awaiting approval
         $borrowed = BookTransaction::with('book')
             ->where('user_id', $user->id)
-            ->whereIn('status', ['borrowed', 'overdue'])
+            ->whereIn('status', ['pending', 'borrowed', 'overdue'])
             ->orderByDesc('borrowed_at')
             ->get();
 
@@ -59,7 +61,18 @@ class NavController extends Controller
         $perPage = 8;
         $paginator = $this->buildBookQuery($request)->paginate($perPage)->appends($request->query());
         $books = $paginator;
-        return view('pages.book-collection', compact('books'));
+
+        // Get user's currently borrowed book IDs (pending, borrowed, or overdue status)
+        $user = Auth::user();
+        $borrowedBookIds = [];
+        if ($user) {
+            $borrowedBookIds = BookTransaction::where('user_id', $user->id)
+                ->whereIn('status', ['pending', 'borrowed', 'overdue'])
+                ->pluck('book_id')
+                ->toArray();
+        }
+
+        return view('pages.book-collection', compact('books', 'borrowedBookIds'));
     }
 
     /**
@@ -72,16 +85,28 @@ class NavController extends Controller
 
         $paginator = $this->buildBookQuery($request)->paginate($perPage, ['*'], 'page', $page);
 
+        // Get user's currently borrowed book IDs
+        $user = Auth::user();
+        $borrowedBookIds = [];
+        if ($user) {
+            $borrowedBookIds = BookTransaction::where('user_id', $user->id)
+                ->whereIn('status', ['pending', 'borrowed', 'overdue'])
+                ->pluck('book_id')
+                ->toArray();
+        }
+
         // transform books to simple array for JSON
         $books = $paginator->items();
 
-        $data = array_map(function ($b) {
+        $data = array_map(function ($b) use ($borrowedBookIds) {
             return [
                 'id' => $b->id,
                 'title' => $b->title,
                 'author' => $b->author,
                 'publish_year' => optional($b->publish_date) ? \Carbon\Carbon::parse($b->publish_date)->format('Y') : null,
                 'image' => $b->image ? asset($b->image) : asset('image/default-book.jpg'),
+                'copies' => $b->copies ?? 0,
+                'is_borrowed' => in_array($b->id, $borrowedBookIds),
             ];
         }, $books);
 
@@ -157,7 +182,11 @@ class NavController extends Controller
 
         $totalTransactions = BookTransaction::where('user_id', $user->id)->count();
         $overdueCount = BookTransaction::where('user_id', $user->id)->where('status', 'overdue')->count();
-        $outstandingFees = BookTransaction::where('user_id', $user->id)->where('status', 'overdue')->sum('fee');
+
+        // Calculate outstanding fees: sum of all fees from returned books + current overdue books
+        $outstandingFees = BookTransaction::where('user_id', $user->id)
+            ->whereIn('status', ['returned', 'overdue'])
+            ->sum('fee');
 
         return view('pages.user-transaction', compact('active', 'history', 'totalTransactions', 'overdueCount', 'outstandingFees'));
     }
@@ -203,11 +232,69 @@ class NavController extends Controller
     }
     public function transactions()
     {
-        return view('Admin.transaction');
+        // Get all transactions with user and book relationships (paginated to 7 per page)
+        $transactions = BookTransaction::with(['user', 'book'])
+            ->orderByDesc('created_at')
+            ->paginate(7);
+
+        // Calculate statistics
+        $totalBorrowed = BookTransaction::whereIn('status', ['pending', 'borrowed', 'overdue'])->count();
+        $totalReturned = BookTransaction::where('status', 'returned')->count();
+        $totalOverdue = BookTransaction::where('status', 'overdue')->count();
+        $totalFees = BookTransaction::sum('fee');
+
+        return view('Admin.transaction', compact(
+            'transactions',
+            'totalBorrowed',
+            'totalReturned',
+            'totalOverdue',
+            'totalFees'
+        ));
     }
 
     public function categories()
     {
         return view('Admin.categories');
+    }
+
+    // Get user's notifications
+    public function getNotifications()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount
+        ]);
+    }
+
+    // Mark notification as read
+    public function markNotificationAsRead($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $notification = Notification::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $notification->is_read = true;
+        $notification->save();
+
+        return response()->json(['message' => 'Notification marked as read']);
     }
 }
