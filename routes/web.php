@@ -5,6 +5,8 @@ use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\NotifController;
+use App\Http\Controllers\StaffController;
 
 // Guest Routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
@@ -33,8 +35,8 @@ Route::middleware(['user'])->group(function () {
   Route::post('/return/{id}', [TransactionController::class, 'return'])->middleware('auth');
 
   // Notification routes
-  Route::get('/notifications', [NavController::class, 'getNotifications'])->name('notifications.get');
-  Route::post('/notifications/{id}/read', [NavController::class, 'markNotificationAsRead'])->name('notifications.read');
+  Route::get('/notifications', [NotifController::class, 'getNotifications'])->name('notifications.get');
+  Route::post('/notifications/{id}/read', [NotifController::class, 'markNotificationAsRead'])->name('notifications.read');
 
   // Download transaction receipt PDF (User)
   Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt');
@@ -50,8 +52,8 @@ Route::middleware(['admin'])->group(function () {
   Route::get('/staff', [NavController::class, 'staff'])->name('staff');
 
   // Admin approve/reject endpoints for borrow requests
-  Route::post('/admin/transactions/{id}/approve', [TransactionController::class, 'adminApprove'])->name('admin.transactions.approve');
-  Route::post('/admin/transactions/{id}/reject', [TransactionController::class, 'adminReject'])->name('admin.transactions.reject');
+  Route::post('/admin/transactions/{id}/approve', [StaffController::class, 'adminApprove'])->name('admin.transactions.approve');
+  Route::post('/admin/transactions/{id}/reject', [StaffController::class, 'adminReject'])->name('admin.transactions.reject');
 
   // Download transaction receipt PDF
   Route::get('/admin/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('admin.transaction.receipt');
