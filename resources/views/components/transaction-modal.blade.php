@@ -43,37 +43,37 @@
             <hr class="my-4" style="border-color: #373a40;">
             <div class="row g-3">
               <div class="col-md-4">
-                <div class="bg-[#1a1b1e] rounded-lg p-3 border" style="border-color: #373a40;">
+                <div class="bg-[#1a1b1e] rounded-lg p-3 " style="border-color: #373a40;">
                   <p class="text-gray-400 text-xs mb-1">Transaction ID</p>
                   <p id="modalTxId" class="text-white font-bold text-lg">--</p>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="bg-[#1a1b1e] rounded-lg p-3 border" style="border-color: #373a40;">
+                <div class="bg-[#1a1b1e] rounded-lg p-3 " style="border-color: #373a40;">
                   <p class="text-gray-400 text-xs mb-1">Borrow Date</p>
                   <p id="modalBorrowDate" class="text-white font-bold text-lg">--</p>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="bg-[#1a1b1e] rounded-lg p-3 border" style="border-color: #373a40;">
+                <div class="bg-[#1a1b1e] rounded-lg p-3 " style="border-color: #373a40;">
                   <p class="text-gray-400 text-xs mb-1">Due Date</p>
                   <p id="modalDueDate" class="text-white font-bold text-lg">--</p>
                 </div>
               </div>
               <div class="col-md-6">
-                <div id="modalReturnDateBox" class="bg-gray-500/10 rounded-lg p-3 border border-gray-500/20">
+                <div id="modalReturnDateBox" class="bg-gray-500/10 rounded-lg p-3">
                   <p class="text-gray-400 text-xs mb-1">Return Date</p>
                   <p id="modalReturnDate" class="text-gray-400 font-bold text-lg">--</p>
                 </div>
               </div>
               <div class="col-md-6">
-                <div id="modalStatusBox" class="bg-gray-500/10 rounded-lg p-3 border border-gray-500/20">
+                <div id="modalStatusBox" class="bg-gray-500/10 rounded-lg p-3">
                   <p id="modalStatusLabel" class="text-gray-400 text-xs mb-1">Status</p>
                   <p id="modalStatus" class="text-gray-400 font-bold text-lg">--</p>
                 </div>
               </div>
               <div class="col-md-12">
-                <div class="bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
+                <div class="bg-amber-500/10 rounded-lg p-3 border-amber-500/20">
                   <p class="text-amber-500 text-xs mb-1">Fee</p>
                   <p id="modalFee" class="text-amber-500 font-bold text-lg">₱--</p>
                 </div>

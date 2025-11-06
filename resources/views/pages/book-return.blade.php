@@ -167,7 +167,7 @@
   </main>
 
      <script src="{{ asset('js/user.js') }}"></script>
-
+     <script src="{{ asset('js/notification.js') }}"></script>
 
 </body>
 

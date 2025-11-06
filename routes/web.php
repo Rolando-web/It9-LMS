@@ -35,6 +35,9 @@ Route::middleware(['user'])->group(function () {
   // Notification routes
   Route::get('/notifications', [NavController::class, 'getNotifications'])->name('notifications.get');
   Route::post('/notifications/{id}/read', [NavController::class, 'markNotificationAsRead'])->name('notifications.read');
+
+  // Download transaction receipt PDF (User)
+  Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt');
 });
 
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)

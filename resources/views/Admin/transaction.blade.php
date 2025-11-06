@@ -226,9 +226,4 @@
     </div>
 
 <x-transaction-modal/>
-
-      </div>
-    </div>
-  </div>
-
 <x-import-footer/>

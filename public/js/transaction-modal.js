@@ -29,8 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modalFee").textContent = "₱" + fee;
 
             // Update download receipt button URL
-            document.getElementById("downloadReceiptBtn").href =
-                "/admin/transaction/" + txId + "/receipt";
+            // Check if we're on admin page or user page
+            const isAdminPage =
+                window.location.pathname.includes("/transaction") ||
+                window.location.pathname.includes("/admin");
+            const receiptUrl = isAdminPage
+                ? "/admin/transaction/" + txId + "/receipt"
+                : "/transaction/" + txId + "/receipt";
+            document.getElementById("downloadReceiptBtn").href = receiptUrl;
 
             // Update status box and return date box colors based on status
             const statusBox = document.getElementById("modalStatusBox");

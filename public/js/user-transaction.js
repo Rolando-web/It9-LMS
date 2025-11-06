@@ -4,8 +4,11 @@ function getCsrfToken() {
     return token ? token.getAttribute("content") : "";
 }
 
-// Handle user transaction modal data population
+// Handle user transaction modal data population (NOT USED - using transaction-modal.js instead)
+// Keeping this file for the return button functionality only
+
 document.addEventListener("DOMContentLoaded", function () {
+    // Note: Eye button now uses .view-transaction-btn class handled by transaction-modal.js
     const viewButtons = document.querySelectorAll(".view-user-transaction-btn");
 
     viewButtons.forEach((button) => {
@@ -35,36 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modalFee").textContent = "₱" + fee;
 
             // Update download receipt button URL
-            const modalFooter = document.querySelector(
-                "#bookModal .modal-footer"
-            );
-            if (modalFooter) {
-                // Check if download button already exists
-                let downloadBtn = modalFooter.querySelector(
-                    ".download-receipt-btn"
-                );
-
-                if (!downloadBtn) {
-                    // Create download button if it doesn't exist
-                    downloadBtn = document.createElement("a");
-                    downloadBtn.className =
-                        "btn btn-success rounded-lg download-receipt-btn";
-                    downloadBtn.innerHTML =
-                        '<i class="bi bi-download me-2"></i>Download Receipt';
-                    downloadBtn.target = "_blank";
-
-                    // Insert before close button
-                    const closeBtn = modalFooter.querySelector(
-                        '[data-bs-dismiss="modal"]'
-                    );
-                    if (closeBtn) {
-                        modalFooter.insertBefore(downloadBtn, closeBtn);
-                    } else {
-                        modalFooter.appendChild(downloadBtn);
-                    }
-                }
-
-                // Update the href
+            const downloadBtn = document.getElementById("downloadReceiptBtn");
+            if (downloadBtn) {
                 downloadBtn.href = "/transaction/" + txId + "/receipt";
             }
 
@@ -82,14 +57,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 returnDateBox &&
                 returnDateText
             ) {
-                // Remove all color classes
                 statusBox.className = "rounded-lg p-3 border";
                 statusLabel.className = "text-xs mb-1";
                 statusText.className = "font-bold text-lg";
                 returnDateBox.className = "rounded-lg p-3 border";
                 returnDateText.className = "font-bold text-lg";
 
-                // Add appropriate color based on status
                 if (status.toLowerCase() === "returned") {
                     statusBox.classList.add(
                         "bg-emerald-500/10",

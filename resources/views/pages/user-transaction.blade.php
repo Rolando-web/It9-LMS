@@ -1,6 +1,7 @@
 <x-page-header>
   Transaction Overview
 </x-page-header>
+ @include('layouts.partials.header')
 
 
 <!-- Main Content -->
@@ -32,35 +33,30 @@
       </div>
 
       <!-- Outstanding Fees -->
-      <div class="bg-[#1E2939] rounded-xl p-6 text-white" style="border: 3px solid red;">
+      <div class="bg-[#1E2939] rounded-xl p-6 text-white">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-medium text-white">Outstanding Fees</h3>
+          <h3 class="text-sm font-medium text-white">Total Fees</h3>
           <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
           </svg>
         </div>
-        <div class="text-3xl font-bold mb-3 text-red-400">₱{{ number_format($outstandingFees ?? 0, 2) }}</div>
-        <div class="text-sm text-white opacity-80 mb-3">Total fees to pay</div>
-        
-        <div style="background: red; color: yellow; padding: 20px; font-size: 24px; font-weight: bold; text-align: center; border: 5px solid yellow;">
-          🚨 CAN YOU SEE THIS RED BOX? 🚨
+        <div class="text-3xl font-bold mb-2 {{ abs($outstandingFees ?? 0) > 0 ? 'text-red-400' : 'text-emerald-400' }}">
+          ₱{{ number_format(abs($outstandingFees ?? 0), 2) }}
         </div>
+        <div class="text-sm text-white opacity-80 mb-4">Total fees to pay</div>
         
-        <!-- TEST BUTTON - ALWAYS VISIBLE -->
-        <button style="display: block !important; width: 100%; background-color: #16a34a; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 500; margin-top: 10px;">
-          💰 Pay Now (Test)
-        </button>
-        
-        <!-- CONDITIONAL BUTTON -->
-        @if(($outstandingFees ?? 0) > 0)
-          <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition-colors mt-2" style="display: block !important;">
-            💳 PAY NOW - ₱{{ number_format($outstandingFees, 2) }}
+        @if(abs($outstandingFees ?? 0) > 0)
+          <button class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors duration-200">
+            <i class="bi bi-credit-card text-xs"></i>
+            <span>Pay Now</span>
           </button>
         @else
-          <div class="bg-yellow-600 text-white p-2 rounded mt-2">
-            ⚠️ No fees (Value: {{ $outstandingFees ?? 'null' }})
+          <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium px-3 py-2 rounded-lg">
+            <i class="bi bi-check-circle-fill text-xs"></i>
+            <span>No Fees</span>
           </div>
         @endif
+        
       </div>
 
       <!-- Total Transactions -->
@@ -110,7 +106,7 @@
                 <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ ucfirst($tx->status) }}</td>
-                <td class="py-4 px-4 font-medium text-[#e24545]">{{ number_format($tx->fee,2) }}</td>
+                <td class="py-4 px-4 font-medium text-[#e24545]">₱{{ number_format(abs($tx->fee ?? 0), 2) }}</td>
                 <td class="py-4 px-4">
                   @php
                     $img = optional($tx->book)->image ?? null;
@@ -164,9 +160,9 @@
                 <td class="py-4 px-4">{{ optional($tx->book)->author ?? '—' }}</td>
                 <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'N/A' }}</td>
-                <td class="py-4 px-4 font-medium text-[#e24545]">₱{{ number_format($tx->fee,2) }}</td>
+                <td class="py-4 px-4 font-medium text-[#e24545]">₱{{ number_format(abs($tx->fee ?? 0), 2) }}</td>
                 <td class="py-4 px-4 text-center">
-                  <button class="view-user-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200"
+                  <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200"
                           data-bs-toggle="modal" 
                           data-bs-target="#bookModal"
                           data-tx-id="{{ $tx->id }}"
@@ -192,9 +188,6 @@
         </table>
       </div>
     </div>
-          <x-transaction-modal/>
   </main>
-     <script src="{{ asset('js/user.js') }}"></script>
-      <script src="{{ asset('js/user-transaction.js') }}"></script>
-  </body>
-</html>
+      <x-transaction-modal/>
+<x-import-footer/>

@@ -114,7 +114,9 @@
   </main>
 
   @include('components.borrow-modal')
+  
   <script src="{{ asset('js/collection.js') }}"></script>
   <script src="{{ asset('js/user.js') }}"></script>
+  <script src="{{ asset('js/notification.js') }}"></script>
   </body>
 </html>
