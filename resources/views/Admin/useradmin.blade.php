@@ -13,6 +13,41 @@
     </x-header>
 
     <div class="flex-grow-1 p-6">
+      <!-- Success/Error Messages -->
+      @if(session('success'))
+        <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-lg px-4 py-3 mb-4 flex items-center gap-3" role="alert">
+          <i class="bi bi-check-circle-fill text-xl"></i>
+          <span>{{ session('success') }}</span>
+          <button type="button" class="ml-auto text-emerald-500 hover:text-emerald-400" data-bs-dismiss="alert" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      @endif
+
+      @if(session('error'))
+        <div class="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg px-4 py-3 mb-4 flex items-center gap-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+          <span>{{ session('error') }}</span>
+          <button type="button" class="ml-auto text-red-500 hover:text-red-400" data-bs-dismiss="alert" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      @endif
+
+      @if($errors->any())
+        <div class="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg px-4 py-3 mb-4" role="alert">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+            <strong>Validation Errors:</strong>
+          </div>
+          <ul class="ml-7 list-disc">
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
       <div class="mb-4">
         <button
           type="button"
@@ -123,12 +158,12 @@
                     @php
                       $role = $user->role;
                       $badge = [
-                        'user' => ['bg' => 'bg-blue-500/10', 'text' => 'text-blue-500', 'border' => 'border-blue-500/20', 'icon' => 'bi-person'],
-                        'admin' => ['bg' => 'bg-purple-500/10', 'text' => 'text-purple-500', 'border' => 'border-purple-500/20', 'icon' => 'bi-shield-fill-check'],
-                        'super_admin' => ['bg' => 'bg-amber-500/10', 'text' => 'text-amber-500', 'border' => 'border-amber-500/20', 'icon' => 'bi-stars'],
-                      ][$role] ?? ['bg' => 'bg-gray-500/10', 'text' => 'text-gray-400', 'border' => 'border-gray-500/20', 'icon' => 'bi-question-circle'];
+                        'user' => ['bg' => 'bg-blue-500/10', 'text' => 'text-blue-500', 'icon' => 'bi-person'],
+                        'admin' => ['bg' => 'bg-purple-500/10', 'text' => 'text-purple-500', 'icon' => 'bi-shield-fill-check'],
+                        'super_admin' => ['bg' => 'bg-amber-500/10', 'text' => 'text-amber-500', 'icon' => 'bi-stars'],
+                      ][$role] ?? ['bg' => 'bg-gray-500/10', 'text' => 'text-gray-400', 'icon' => 'bi-question-circle'];
                     @endphp
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold {{ $badge['bg'] }} {{ $badge['text'] }} border {{ $badge['border'] }}">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold {{ $badge['bg'] }} {{ $badge['text'] }}">
                       <i class="bi {{ $badge['icon'] }} me-1.5"></i>{{ str_replace('_',' ', ucfirst($role)) }}
                     </span>
                   </td>
@@ -139,19 +174,23 @@
                   </td>
                   <td class="px-4 py-4 text-end">
                     <div class="flex gap-2 justify-end">
-                      <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200" 
+                     <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200">
+                       <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500" 
                               title="Edit User"
                               data-bs-toggle="modal"
                               data-bs-target="#editUserModal">
                         <i class="bi bi-pencil-square text-base"></i>
                       </button>
+                     </div>
                       <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200" 
+                     <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200">
+                         <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-red-500/20 text-red-500" 
                                 title="Delete User">
                           <i class="bi bi-trash text-base"></i>
                         </button>
+                     </div>
                       </form>
                     </div>
                   </td>
@@ -178,4 +217,6 @@
     </div>
   </div>
 
+
+<x-add-user-modal/>
 <x-import-footer/>

@@ -69,10 +69,25 @@ document.addEventListener("DOMContentLoaded", function () {
             .map((notification) => {
                 const isRead = notification.is_read;
                 const bgColor = isRead ? "bg-gray-800" : "bg-gray-700";
-                const typeIcon =
-                    notification.type === "borrow_approved"
-                        ? '<i class="bi bi-check-circle-fill text-green-500"></i>'
-                        : '<i class="bi bi-x-circle-fill text-red-500"></i>';
+
+                // Determine icon based on notification type
+                let typeIcon;
+                if (
+                    notification.type === "borrow_approved" ||
+                    notification.type === "return_approved"
+                ) {
+                    typeIcon =
+                        '<i class="bi bi-check-circle-fill text-green-500"></i>';
+                } else if (
+                    notification.type === "borrow_rejected" ||
+                    notification.type === "return_rejected"
+                ) {
+                    typeIcon =
+                        '<i class="bi bi-x-circle-fill text-red-500"></i>';
+                } else {
+                    typeIcon =
+                        '<i class="bi bi-info-circle-fill text-blue-500"></i>';
+                }
 
                 const timeAgo = formatTimeAgo(notification.created_at);
 

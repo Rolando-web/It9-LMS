@@ -53,6 +53,22 @@
                     <span class="info-value">{{ optional($transaction->user)->email ?? 'N/A' }}</span>
                 </div>
             </div>
+
+               <div class="receipt-info">
+                <h2>Staff Information</h2>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ optional($transaction->approver)->firstName }} {{ optional($transaction->approver)->lastName }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ optional($transaction->approver)->email ?? 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Role:</span>
+                    <span class="info-value">{{ optional($transaction->approver)->role ? ucfirst(str_replace('_', ' ', $transaction->approver->role)) : 'N/A' }}</span>
+                </div>
+            </div>
         </div>
 
         <div class="column">

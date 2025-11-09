@@ -66,10 +66,36 @@
 
       <div class="bg-[#2c2e33] rounded-xl shadow-xl overflow-hidden">
         <div class="px-6 py-4 border-b border-[#373a40]">
-          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-            <i class="bi bi-list-ul text-orange-500"></i>
-            Recent Transactions
-          </h3>
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+              <i class="bi bi-list-ul text-orange-500"></i>
+              Recent Transactions
+            </h3>
+            
+            <!-- Filter Dropdown -->
+            <div class="flex items-center gap-3">
+              <label for="statusFilter" class="text-gray-400 text-sm font-medium flex items-center gap-2">
+                <i class="bi bi-funnel"></i>
+                Filter:
+              </label>
+              <div class="relative">
+                <select id="statusFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all cursor-pointer appearance-none">
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="borrowed">Borrowed</option>
+                  <option value="returned">Returned</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="return_pending">Return Pending</option>
+                  <option value="damaged">Damaged</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+                <i class="bi bi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+              </div>
+              <button id="clearFilter" class="hidden text-gray-400 hover:text-red-500 transition-colors" title="Clear filter">
+                <i class="bi bi-x-circle text-xl"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -117,28 +143,36 @@
                   </td>
                   <td class="px-4 py-4">
                     @if($transaction->status === 'returned')
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                         <i class="bi bi-check-circle-fill me-1.5"></i>Returned
                       </span>
                     @elseif($transaction->status === 'overdue')
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 border border-red-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 border-red-500/20">
                         <i class="bi bi-exclamation-triangle-fill me-1.5"></i>Overdue
                       </span>
                     @elseif($transaction->status === 'borrowed')
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border-blue-500/20">
                         <i class="bi bi-book-fill me-1.5"></i>Borrowed
                       </span>
                     @elseif($transaction->status === 'pending')
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-500 border-amber-500/20">
                         <i class="bi bi-clock-fill me-1.5"></i>Pending
                       </span>
+                    @elseif($transaction->status === 'return_pending')
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/10 text-orange-500 border-purple-500/20">
+                        <i class="bi bi-arrow-return-left me-1.5"></i>Return Pending
+                      </span>
+                    @elseif($transaction->status === 'damaged')
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500/10 text-orange-500 border-orange-500/20">
+                        <i class="bi bi-exclamation-octagon-fill me-1.5"></i>Damaged
+                      </span>
                     @elseif($transaction->status === 'rejected')
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-500/10 text-gray-500 border border-gray-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-500/10 text-gray-500 border-gray-500/20">
                         <i class="bi bi-x-circle-fill me-1.5"></i>Rejected
                       </span>
                     @else
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-500/10 text-gray-500 border border-gray-500/20">
-                        {{ ucfirst($transaction->status) }}
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-500/10 text-gray-500 border-gray-500/20">
+                        {{ ucfirst(str_replace('_', ' ', $transaction->status)) }}
                       </span>
                     @endif
                   </td>
@@ -146,21 +180,37 @@
                     <span class="text-gray-300 text-sm">₱{{ number_format($transaction->fee ?? 0, 2) }}</span>
                   </td>
                   <td class="px-4 py-4 text-end">
-                    <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#bookModal"
-                            data-tx-id="{{ $transaction->id }}"
-                            data-book-title="{{ optional($transaction->book)->title ?? 'N/A' }}"
-                            data-book-author="{{ optional($transaction->book)->author ?? 'N/A' }}"
-                            data-book-image="{{ optional($transaction->book)->image ? asset($transaction->book->image) : asset('image/default-book.jpg') }}"
-                            data-user-name="{{ optional($transaction->user)->firstName }} {{ optional($transaction->user)->lastName }}"
-                            data-borrow-date="{{ $transaction->borrowed_at ? \Carbon\Carbon::parse($transaction->borrowed_at)->format('M d, Y') : 'N/A' }}"
-                            data-due-date="{{ $transaction->due_date ? \Carbon\Carbon::parse($transaction->due_date)->format('M d, Y') : 'N/A' }}"
-                            data-return-date="{{ $transaction->returned_at ? \Carbon\Carbon::parse($transaction->returned_at)->format('M d, Y') : 'Not returned' }}"
-                            data-status="{{ ucfirst($transaction->status) }}"
-                            data-fee="{{ number_format($transaction->fee ?? 0, 2) }}">
-                      <i class="bi bi-eye text-base"></i>
-                    </button>
+                    <div class="inline-flex items-center gap-2">
+                      @if($transaction->status === 'return_pending')
+                        <button class="approve-return-btn inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-all duration-200 text-xs font-semibold"
+                                data-tx-id="{{ $transaction->id }}">
+                          <i class="bi bi-check-circle me-1"></i>Approve
+                        </button>
+                        <button class="reject-return-btn inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all duration-200 text-xs font-semibold"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectReturnModal"
+                                data-tx-id="{{ $transaction->id }}">
+                          <i class="bi bi-x-circle me-1"></i>Reject
+                        </button>
+                      @endif
+                      <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 rounded-md">
+                        <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500"
+                              data-bs-toggle="modal" 
+                              data-bs-target="#bookModal"
+                              data-tx-id="{{ $transaction->id }}"
+                              data-book-title="{{ optional($transaction->book)->title ?? 'N/A' }}"
+                              data-book-author="{{ optional($transaction->book)->author ?? 'N/A' }}"
+                              data-book-image="{{ optional($transaction->book)->image ? asset($transaction->book->image) : asset('image/default-book.jpg') }}"
+                              data-user-name="{{ optional($transaction->user)->firstName }} {{ optional($transaction->user)->lastName }}"
+                              data-borrow-date="{{ $transaction->borrowed_at ? \Carbon\Carbon::parse($transaction->borrowed_at)->format('M d, Y') : 'N/A' }}"
+                              data-due-date="{{ $transaction->due_date ? \Carbon\Carbon::parse($transaction->due_date)->format('M d, Y') : 'N/A' }}"
+                              data-return-date="{{ $transaction->returned_at ? \Carbon\Carbon::parse($transaction->returned_at)->format('M d, Y') : 'Not returned' }}"
+                              data-status="{{ ucfirst(str_replace('_', ' ', $transaction->status)) }}"
+                              data-fee="{{ number_format($transaction->fee ?? 0, 2) }}">
+                        <i class="bi bi-eye text-base"></i>
+                      </button>
+                  </div>
+                    </div>
                   </td>
                 </tr>
               @empty
@@ -175,7 +225,7 @@
           </table>
         </div>
 
-        <!-- Pagination -->
+
         @if($transactions->hasPages())
         <div class="px-6 py-4 border-t border-[#373a40]">
           <div class="flex items-center justify-between">
@@ -183,7 +233,6 @@
               Showing {{ $transactions->firstItem() }} to {{ $transactions->lastItem() }} of {{ $transactions->total() }} transactions
             </div>
             <div class="flex gap-2">
-              {{-- Previous Button --}}
               @if ($transactions->onFirstPage())
                 <span class="px-4 py-2 text-sm font-medium text-gray-500 bg-[#25262b] border border-[#373a40] rounded-lg cursor-not-allowed">
                   <i class="bi bi-chevron-left"></i> Previous
@@ -193,8 +242,6 @@
                   <i class="bi bi-chevron-left"></i> Previous
                 </a>
               @endif
-
-              {{-- Page Numbers --}}
               @foreach ($transactions->getUrlRange(1, $transactions->lastPage()) as $page => $url)
                 @if ($page == $transactions->currentPage())
                   <span class="px-4 py-2 text-sm font-medium text-white bg-cyan-500 border border-cyan-500 rounded-lg">
@@ -206,8 +253,6 @@
                   </a>
                 @endif
               @endforeach
-
-              {{-- Next Button --}}
               @if ($transactions->hasMorePages())
                 <a href="{{ $transactions->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-white bg-[#25262b] border border-[#373a40] rounded-lg hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all">
                   Next <i class="bi bi-chevron-right"></i>
@@ -226,4 +271,129 @@
     </div>
 
 <x-transaction-modal/>
+
+<!-- Reject Return Modal -->
+<div class="modal fade" id="rejectReturnModal" tabindex="-1" aria-labelledby="rejectReturnModalLabel" aria-hidden="true" style="z-index: 9999;">
+  <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
+    <div class="modal-content bg-[#2c2e33] border border-[#373a40]">
+      <div class="modal-header border-b border-[#373a40]">
+        <h5 class="modal-title text-white d-flex align-items-center gap-2" id="rejectReturnModalLabel">
+          <i class="bi bi-x-circle text-red-500"></i>
+          Reject Book Return
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="rejectReturnForm">
+          <input type="hidden" id="rejectTransactionId" name="transaction_id">
+          
+          <div class="mb-3">
+            <label for="rejectReason" class="form-label text-gray-300">
+              <i class="bi bi-file-text me-1"></i>Rejection Reason
+            </label>
+            <textarea 
+              class="form-control bg-[#1a1b1e] border-[#373a40] text-white" 
+              id="rejectReason" 
+              name="reason" 
+              rows="3" 
+              placeholder="Describe the damage or reason for rejection..."
+              required
+              style="resize: none;"></textarea>
+            <small class="text-gray-400 d-block mt-1">Explain why the book is being rejected</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="damageFee" class="form-label text-gray-300">
+              <i class="bi bi-currency-dollar me-1"></i>Damage Fee (₱)
+            </label>
+            <input 
+              type="number" 
+              class="form-control bg-[#1a1b1e] border-[#373a40] text-white" 
+              id="damageFee" 
+              name="damage_fee" 
+              min="0" 
+              step="0.01"
+              value="50.00"
+              placeholder="Enter damage fee"
+              required>
+            <small class="text-gray-400 d-block mt-1">Standard damage fee is ₱50.00</small>
+          </div>
+
+          <div class="alert alert-warning bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-0" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <small>This will charge the user for book damage and mark the transaction as "damaged".</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-t border-[#373a40]">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancel
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmRejectBtn">
+          <i class="bi bi-check-circle me-1"></i>Confirm Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ asset('js/staff.js') }}"></script>
+<script src="{{ asset('js/transaction-filter.js') }}"></script>
+
+<script>
+    // Enhanced modal debugging and testing
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("=== MODAL DEBUG ===");
+        console.log("Bootstrap available:", typeof bootstrap !== 'undefined');
+        
+        const modal = document.getElementById('rejectReturnModal');
+        console.log("Modal element found:", modal !== null);
+        
+        if (modal) {
+            console.log("Modal display:", window.getComputedStyle(modal).display);
+            console.log("Modal visibility:", window.getComputedStyle(modal).visibility);
+            console.log("Modal z-index:", window.getComputedStyle(modal).zIndex);
+            
+            // Add event listeners to track modal events
+            modal.addEventListener('show.bs.modal', function() {
+                console.log("✅ Modal SHOW event triggered!");
+            });
+            
+            modal.addEventListener('shown.bs.modal', function() {
+                console.log("✅ Modal SHOWN event triggered!");
+            });
+            
+            modal.addEventListener('hide.bs.modal', function() {
+                console.log("⚠️ Modal HIDE event triggered!");
+            });
+        }
+        
+        // Check buttons
+        const rejectButtons = document.querySelectorAll('.reject-return-btn');
+        console.log("Reject buttons found:", rejectButtons.length);
+        
+        // Add click listener to see if button is clicked
+        rejectButtons.forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                console.log(`🔴 Reject button ${index + 1} clicked!`);
+                console.log("Button data-tx-id:", this.getAttribute('data-tx-id'));
+                console.log("Button data-bs-target:", this.getAttribute('data-bs-target'));
+            });
+        });
+        
+        // Create manual test function
+        window.openRejectModal = function() {
+            if (typeof bootstrap !== 'undefined' && modal) {
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+                console.log("✅ Manual modal.show() called");
+            } else {
+                console.error("❌ Cannot open modal - Bootstrap or modal element missing");
+            }
+        };
+        
+        console.log("💡 Type openRejectModal() in console to test modal manually");
+    });
+</script>
 <x-import-footer/>
+

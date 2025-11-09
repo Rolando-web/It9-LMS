@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\NotifController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\UserController;
 
 // Guest Routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
@@ -55,6 +56,10 @@ Route::middleware(['admin'])->group(function () {
   Route::post('/admin/transactions/{id}/approve', [StaffController::class, 'adminApprove'])->name('admin.transactions.approve');
   Route::post('/admin/transactions/{id}/reject', [StaffController::class, 'adminReject'])->name('admin.transactions.reject');
 
+  // Admin approve/reject endpoints for return requests
+  Route::post('/admin/transactions/{id}/approve-return', [StaffController::class, 'approveReturn'])->name('admin.transactions.approve-return');
+  Route::post('/admin/transactions/{id}/reject-return', [StaffController::class, 'rejectReturn'])->name('admin.transactions.reject-return');
+
   // Download transaction receipt PDF
   Route::get('/admin/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('admin.transaction.receipt');
 
@@ -67,6 +72,7 @@ Route::middleware(['admin'])->group(function () {
 //Super Admin Only Routes (Protected by super_admin middleware)
 Route::middleware(['super_admin'])->group(function () {
   Route::get('/user-admin', [NavController::class, 'useradmin'])->name('user-admin');
+  Route::post('/user-admin/add', [UserController::class, 'store'])->name('user.store');
 });
 
 // Logout route (accessible to all authenticated users)

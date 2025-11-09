@@ -17,12 +17,15 @@ class BookTransaction extends Model
     'borrowed_at',
     'due_date',
     'returned_at',
+    'return_requested_at',
     'status',
     'days_overdue',
     'fee',
+    'approved_by',
+    'return_approved_by',
   ];
 
-  protected $dates = ['borrowed_at', 'returned_at', 'due_date', 'created_at', 'updated_at'];
+  protected $dates = ['borrowed_at', 'returned_at', 'return_requested_at', 'due_date', 'created_at', 'updated_at'];
 
   public function user()
   {
@@ -32,5 +35,15 @@ class BookTransaction extends Model
   public function book()
   {
     return $this->belongsTo(Book::class);
+  }
+
+  public function approver()
+  {
+    return $this->belongsTo(User::class, 'approved_by');
+  }
+
+  public function returnApprover()
+  {
+    return $this->belongsTo(User::class, 'return_approved_by');
   }
 }

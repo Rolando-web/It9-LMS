@@ -132,6 +132,15 @@ class BookController extends Controller
     {
         $book = Book::findOrFail($id);
 
+        // Check if book is currently borrowed
+        $isBorrowed = \App\Models\BookTransaction::where('book_id', $id)
+            ->whereIn('status', ['borrowed', 'overdue', 'pending', 'return_pending'])
+            ->exists();
+
+        if ($isBorrowed) {
+            return redirect()->route('books')->with('error', 'Cannot delete this book. It is currently borrowed by a user.');
+        }
+
         if ($book->image && file_exists(public_path($book->image))) {
             unlink(public_path($book->image));
         }

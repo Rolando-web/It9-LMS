@@ -105,7 +105,7 @@
                                         <span class="text-gray-300 text-sm">{{ $book->author }}</span>
                                     </td>
                                     <td class="px-4 py-4">
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border-blue-500/20">
                                             <i class="bi bi-tag-fill me-1.5"></i>{{ $book->category }}
                                         </span>
                                     </td>
@@ -116,7 +116,7 @@
                                         <span class="text-gray-300 text-sm">{{ \Carbon\Carbon::parse($book->publish_date)->format('M d, Y') }}</span>
                                     </td>
                                     <td class="px-4 py-4 d-none d-lg-table-cell">
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                                             <i class="bi bi-stack me-1.5"></i>{{ $book->copies }}
                                         </span>
                                     </td>
@@ -133,9 +133,10 @@
                                         <span class="text-gray-500 text-xs">N/A</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-4 text-end">
-                                        <div class="flex gap-2 justify-end">
-                                            <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 editBtn" 
+                                    <td class="px-4 py-4 text-end ">
+                                        <div class="flex gap-2 justify-end ">
+                                           <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200">
+                                             <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500 editBtn" 
                                                     title="Edit Book"
                                                     data-id="{{ $book->id }}"
                                                     data-title="{{ $book->title }}"
@@ -149,13 +150,16 @@
                                                     data-bs-target="#editBookModal">
                                                 <i class="bi bi-pencil-square text-base"></i>
                                             </button>
+                                           </div>
                                             <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this book?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200" 
+                                               <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all">
+                                                 <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-red-500/20 text-red-500" 
                                                         title="Delete Book">
                                                     <i class="bi bi-trash text-base"></i>
                                                 </button>
+                                               </div>        
                                             </form>
                                         </div>
                                     </td>
@@ -189,23 +193,23 @@
                         </div>
                         
                         <div class="flex items-center gap-2">
-                            <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                                 <i class="bi bi-chevron-left"></i>
                             </button>
                             <button class="px-4 py-2 rounded-lg bg-cyan-500 text-white font-semibold">
                                 1
                             </button>
                             @if($books->count() > 5)
-                            <button class="px-4 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
+                            <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
                                 2
                             </button>
                             @endif
                             @if($books->count() > 10)
-                            <button class="px-4 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
+                            <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
                                 3
                             </button>
                             @endif
-                            <button class="px-3 py-2 rounded-lg bg-[#2c2e33] border border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
+                            <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  border-[#373a40] text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
                                 <i class="bi bi-chevron-right"></i>
                             </button>
                         </div>
@@ -217,5 +221,57 @@
 
             </div>
               </div>
+
+  {{-- Toast Notification --}}
+  <div id="adminToast" class="fixed top-6 right-6 z-50 hidden">
+    <div id="adminToastInner" class="bg-green-600 text-white px-4 py-3 rounded shadow max-w-xs">
+      <div id="adminToastMsg" class="font-medium">Action completed</div>
+      <div id="adminToastSub" class="text-sm opacity-80"></div>
+    </div>
+  </div>
+
    {{-- Footer --}}
 <x-import-footer/>
+
+<script>
+    // Toast notification function
+    function showAdminToast(message, sub, isError = false) {
+        const t = document.getElementById("adminToast");
+        const inner = document.getElementById("adminToastInner");
+        const msg = document.getElementById("adminToastMsg");
+        const subEl = document.getElementById("adminToastSub");
+
+        if (!t || !msg || !subEl || !inner) return;
+
+        // Set colors based on success or error
+        if (isError) {
+            inner.className = "bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-xs border border-red-500";
+        } else {
+            inner.className = "bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-xs border border-green-500";
+        }
+
+        msg.innerText = message;
+        subEl.innerText = sub || "";
+        t.classList.remove("hidden");
+        t.style.opacity = "0";
+        requestAnimationFrame(() => {
+            t.style.transition = "opacity 200ms";
+            t.style.opacity = "1";
+        });
+        setTimeout(() => {
+            t.style.opacity = "0";
+            setTimeout(() => t.classList.add("hidden"), 220);
+        }, 4000);
+    }
+
+    // Show toast on page load if there's a session message
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('error'))
+            showAdminToast("{{ session('error') }}", "This book cannot be deleted", true);
+        @endif
+
+        @if(session('success'))
+            showAdminToast("{{ session('success') }}", "Operation completed successfully", false);
+        @endif
+    });
+</script>

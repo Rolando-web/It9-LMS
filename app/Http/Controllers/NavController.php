@@ -170,7 +170,7 @@ class NavController extends Controller
 
         $active = BookTransaction::with('book')
             ->where('user_id', $user->id)
-            ->whereIn('status', ['borrowed', 'overdue'])
+            ->whereIn('status', ['borrowed', 'overdue', 'return_pending'])
             ->orderByDesc('borrowed_at')
             ->paginate($perPage, ['*'], 'active_page');
 
@@ -183,7 +183,6 @@ class NavController extends Controller
         $totalTransactions = BookTransaction::where('user_id', $user->id)->count();
         $overdueCount = BookTransaction::where('user_id', $user->id)->where('status', 'overdue')->count();
 
-        // Calculate outstanding fees: sum of all fees from returned books + current overdue books
         $outstandingFees = BookTransaction::where('user_id', $user->id)
             ->whereIn('status', ['returned', 'overdue'])
             ->sum('fee');

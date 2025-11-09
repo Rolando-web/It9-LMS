@@ -105,7 +105,21 @@
                 <td class="py-4 px-4">{{ optional($tx->book)->author ?? '—' }}</td>
                 <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->format('M d, Y') : '' }}</td>
-                <td class="py-4 px-4">{{ ucfirst($tx->status) }}</td>
+                <td class="py-4 px-4">
+                  @php
+                    $statusClasses = [
+                      'borrowed' => 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                      'overdue' => 'bg-red-500/20 text-red-400 border-red-500/30',
+                      'return_pending' => 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                      'damaged' => 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+                      'returned' => 'bg-green-500/20 text-green-400 border-green-500/30',
+                    ];
+                    $class = $statusClasses[$tx->status] ?? 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                  @endphp
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border {{ $class }}">
+                    {{ ucfirst(str_replace('_', ' ', $tx->status)) }}
+                  </span>
+                </td>
                 <td class="py-4 px-4 font-medium text-[#e24545]">₱{{ number_format(abs($tx->fee ?? 0), 2) }}</td>
                 <td class="py-4 px-4">
                   @php
