@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Toggle notification dropdown
-    if (notificationBtn) {
+    if (notificationBtn && notificationDropdown) {
         notificationBtn.addEventListener("click", function (e) {
             e.stopPropagation();
             notificationDropdown.classList.toggle("hidden");
@@ -24,33 +24,39 @@ document.addEventListener("DOMContentLoaded", function () {
                 loadNotifications();
             }
         });
-    }
 
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (e) {
-        if (
-            !notificationBtn.contains(e.target) &&
-            !notificationDropdown.contains(e.target)
-        ) {
-            notificationDropdown.classList.add("hidden");
-        }
-    });
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+            if (
+                !notificationBtn.contains(e.target) &&
+                !notificationDropdown.contains(e.target)
+            ) {
+                notificationDropdown.classList.add("hidden");
+            }
+        });
+    }
 
     // Load notifications from server
     function loadNotifications() {
+        if (!notificationList) return;
+
         fetch("/notifications")
             .then((response) => response.json())
             .then((data) => {
-                displayNotifications(data.notifications);
-                updateBadge(data.unread_count);
+                if (data && data.notifications) {
+                    displayNotifications(data.notifications);
+                    updateBadge(data.unread_count || 0);
+                }
             })
             .catch((error) => {
                 console.error("Error loading notifications:", error);
-                notificationList.innerHTML = `
-                    <div class="p-4 text-center text-gray-400">
-                        <p>Failed to load notifications</p>
-                    </div>
-                `;
+                if (notificationList) {
+                    notificationList.innerHTML = `
+                        <div class="p-4 text-center text-gray-400">
+                            <p>Failed to load notifications</p>
+                        </div>
+                    `;
+                }
             });
     }
 
@@ -157,6 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update notification badge
     function updateBadge(count) {
+        if (!notificationBadge) return;
+
         if (count > 0) {
             notificationBadge.textContent = count > 9 ? "9+" : count;
             notificationBadge.classList.remove("hidden");
@@ -179,9 +187,11 @@ document.addEventListener("DOMContentLoaded", function () {
         return date.toLocaleDateString();
     }
 
-    // Load initial notification count
-    loadNotifications();
+    // Load initial notification count (only if elements exist)
+    if (notificationBtn && notificationDropdown && notificationList) {
+        loadNotifications();
 
-    // Poll for new notifications every 30 seconds
-    setInterval(loadNotifications, 30000);
+        // Poll for new notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+    }
 });

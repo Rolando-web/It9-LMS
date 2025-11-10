@@ -181,18 +181,6 @@
                   </td>
                   <td class="px-4 py-4 text-end">
                     <div class="inline-flex items-center gap-2">
-                      @if($transaction->status === 'return_pending')
-                        <button class="approve-return-btn inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-all duration-200 text-xs font-semibold"
-                                data-tx-id="{{ $transaction->id }}">
-                          <i class="bi bi-check-circle me-1"></i>Approve
-                        </button>
-                        <button class="reject-return-btn inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20 transition-all duration-200 text-xs font-semibold"
-                                data-bs-toggle="modal"
-                                data-bs-target="#rejectReturnModal"
-                                data-tx-id="{{ $transaction->id }}">
-                          <i class="bi bi-x-circle me-1"></i>Reject
-                        </button>
-                      @endif
                       <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 rounded-md">
                         <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500"
                               data-bs-toggle="modal" 
@@ -273,59 +261,60 @@
 <x-transaction-modal/>
 
 <!-- Reject Return Modal -->
-<div class="modal fade" id="rejectReturnModal" tabindex="-1" aria-labelledby="rejectReturnModalLabel" aria-hidden="true" style="z-index: 9999;">
-  <div class="modal-dialog modal-dialog-centered" style="z-index: 10000;">
-    <div class="modal-content bg-[#2c2e33] border border-[#373a40]">
-      <div class="modal-header border-b border-[#373a40]">
-        <h5 class="modal-title text-white d-flex align-items-center gap-2" id="rejectReturnModalLabel">
-          <i class="bi bi-x-circle text-red-500"></i>
+<div class="modal fade" id="rejectReturnModal" tabindex="-1" role="dialog" aria-labelledby="rejectReturnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="background-color: #2c2e33; border: 1px solid #373a40;">
+      <div class="modal-header" style="border-bottom: 1px solid #373a40;">
+        <h5 class="modal-title text-white" id="rejectReturnModalLabel">
+          <i class="bi bi-x-circle text-danger me-2"></i>
           Reject Book Return
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body p-4">
+      <div class="modal-body">
         <form id="rejectReturnForm">
           <input type="hidden" id="rejectTransactionId" name="transaction_id">
           
           <div class="mb-3">
-            <label for="rejectReason" class="form-label text-gray-300">
+            <label for="rejectReason" class="form-label text-white">
               <i class="bi bi-file-text me-1"></i>Rejection Reason
             </label>
             <textarea 
-              class="form-control bg-[#1a1b1e] border-[#373a40] text-white" 
+              class="form-control" 
               id="rejectReason" 
               name="reason" 
               rows="3" 
               placeholder="Describe the damage or reason for rejection..."
               required
-              style="resize: none;"></textarea>
-            <small class="text-gray-400 d-block mt-1">Explain why the book is being rejected</small>
+              style="background-color: #1a1b1e; border-color: #373a40; color: white;"></textarea>
+            <small class="text-muted">Explain why the book is being rejected</small>
           </div>
 
           <div class="mb-3">
-            <label for="damageFee" class="form-label text-gray-300">
+            <label for="damageFee" class="form-label text-white">
               <i class="bi bi-currency-dollar me-1"></i>Damage Fee (₱)
             </label>
             <input 
               type="number" 
-              class="form-control bg-[#1a1b1e] border-[#373a40] text-white" 
+              class="form-control" 
               id="damageFee" 
               name="damage_fee" 
               min="0" 
               step="0.01"
               value="50.00"
               placeholder="Enter damage fee"
-              required>
-            <small class="text-gray-400 d-block mt-1">Standard damage fee is ₱50.00</small>
+              required
+              style="background-color: #1a1b1e; border-color: #373a40; color: white;">
+            <small class="text-muted">Standard damage fee is ₱50.00</small>
           </div>
 
-          <div class="alert alert-warning bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-0" role="alert">
+          <div class="alert alert-warning" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <small>This will charge the user for book damage and mark the transaction as "damaged".</small>
+            This will charge the user for book damage and mark the transaction as "damaged".
           </div>
         </form>
       </div>
-      <div class="modal-footer border-t border-[#373a40]">
+      <div class="modal-footer" style="border-top: 1px solid #373a40;">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancel
         </button>
@@ -337,63 +326,8 @@
   </div>
 </div>
 
-<script src="{{ asset('js/staff.js') }}"></script>
-<script src="{{ asset('js/transaction-filter.js') }}"></script>
-
-<script>
-    // Enhanced modal debugging and testing
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("=== MODAL DEBUG ===");
-        console.log("Bootstrap available:", typeof bootstrap !== 'undefined');
-        
-        const modal = document.getElementById('rejectReturnModal');
-        console.log("Modal element found:", modal !== null);
-        
-        if (modal) {
-            console.log("Modal display:", window.getComputedStyle(modal).display);
-            console.log("Modal visibility:", window.getComputedStyle(modal).visibility);
-            console.log("Modal z-index:", window.getComputedStyle(modal).zIndex);
-            
-            // Add event listeners to track modal events
-            modal.addEventListener('show.bs.modal', function() {
-                console.log("✅ Modal SHOW event triggered!");
-            });
-            
-            modal.addEventListener('shown.bs.modal', function() {
-                console.log("✅ Modal SHOWN event triggered!");
-            });
-            
-            modal.addEventListener('hide.bs.modal', function() {
-                console.log("⚠️ Modal HIDE event triggered!");
-            });
-        }
-        
-        // Check buttons
-        const rejectButtons = document.querySelectorAll('.reject-return-btn');
-        console.log("Reject buttons found:", rejectButtons.length);
-        
-        // Add click listener to see if button is clicked
-        rejectButtons.forEach((btn, index) => {
-            btn.addEventListener('click', function() {
-                console.log(`🔴 Reject button ${index + 1} clicked!`);
-                console.log("Button data-tx-id:", this.getAttribute('data-tx-id'));
-                console.log("Button data-bs-target:", this.getAttribute('data-bs-target'));
-            });
-        });
-        
-        // Create manual test function
-        window.openRejectModal = function() {
-            if (typeof bootstrap !== 'undefined' && modal) {
-                const bsModal = new bootstrap.Modal(modal);
-                bsModal.show();
-                console.log("✅ Manual modal.show() called");
-            } else {
-                console.error("❌ Cannot open modal - Bootstrap or modal element missing");
-            }
-        };
-        
-        console.log("💡 Type openRejectModal() in console to test modal manually");
-    });
-</script>
 <x-import-footer/>
+<script src="{{ asset('js/staff.js') }}"></script>
+<script src="{{ asset('js/return-modal.js') }}"></script>
+<script src="{{ asset('js/transaction-filter.js') }}"></script>
 

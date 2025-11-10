@@ -36,7 +36,17 @@ class NavController extends Controller
     public function home()
     {
         $books = \App\Models\Book::latest()->take(8)->get();
-        return view('layouts.app', compact('books'));
+
+        // Get book counts by category
+        $categories = \App\Models\Book::select('category', \DB::raw('count(*) as count'))
+            ->groupBy('category')
+            ->orderBy('count', 'desc')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->category => $item->count];
+            });
+
+        return view('layouts.app', compact('books', 'categories'));
     }
 
     public function book()

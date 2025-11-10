@@ -16,6 +16,55 @@ document.addEventListener("DOMContentLoaded", function () {
             const status = this.getAttribute("data-status");
             const fee = this.getAttribute("data-fee");
 
+            // Show/hide return approval buttons based on status
+            const returnApprovalButtons = document.getElementById(
+                "returnApprovalButtons"
+            );
+            if (status.toLowerCase() === "return pending") {
+                returnApprovalButtons.classList.remove("d-none");
+                // Store transaction ID for approval buttons
+                document
+                    .getElementById("approveReturnBtnModal")
+                    .setAttribute("data-tx-id", txId);
+                document
+                    .getElementById("rejectReturnBtnModal")
+                    .setAttribute("data-tx-id", txId);
+            } else {
+                returnApprovalButtons.classList.add("d-none");
+            }
+
+            // Show/hide Pay Now button based on fee amount (user page only)
+            const payNowBtn = document.getElementById("payNowBtn");
+            const payNowAmount = document.getElementById("payNowAmount");
+            const feeAmount = parseFloat(fee.replace(/,/g, ""));
+            const isUserPage =
+                window.location.pathname.includes("/user-transaction");
+
+            console.log("=== Pay Now Button Debug ===");
+            console.log("Fee:", fee);
+            console.log("Fee Amount:", feeAmount);
+            console.log("Is User Page:", isUserPage);
+            console.log("Current Path:", window.location.pathname);
+            console.log("Pay Now Btn exists:", payNowBtn !== null);
+
+            if (feeAmount > 0 && isUserPage) {
+                console.log("Showing Pay Now button");
+                payNowBtn.classList.remove("d-none");
+                payNowBtn.setAttribute("data-tx-id", txId);
+                payNowBtn.setAttribute("data-fee", feeAmount);
+                if (payNowAmount) {
+                    payNowAmount.textContent = feeAmount.toFixed(2);
+                }
+            } else {
+                console.log(
+                    "Hiding Pay Now button - Fee:",
+                    feeAmount,
+                    "IsUserPage:",
+                    isUserPage
+                );
+                payNowBtn.classList.add("d-none");
+            }
+
             // Update modal content
             document.getElementById("modalTxId").textContent = txId;
             document.getElementById("modalBookTitle").textContent = bookTitle;
@@ -90,6 +139,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
                 statusLabel.classList.add("text-amber-500");
                 statusText.classList.add("text-amber-500");
+                returnDateBox.classList.add(
+                    "bg-gray-500/10",
+                    "border-gray-500/20"
+                );
+                returnDateText.classList.add("text-gray-400");
+            } else if (status.toLowerCase() === "return pending") {
+                statusBox.classList.add(
+                    "bg-orange-500/10",
+                    "border-orange-500/20"
+                );
+                statusLabel.classList.add("text-orange-500");
+                statusText.classList.add("text-orange-500");
                 returnDateBox.classList.add(
                     "bg-gray-500/10",
                     "border-gray-500/20"

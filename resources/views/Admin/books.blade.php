@@ -105,7 +105,7 @@
                                         <span class="text-gray-300 text-sm">{{ $book->author }}</span>
                                     </td>
                                     <td class="px-4 py-4">
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border-blue-500/20">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 ">
                                             <i class="bi bi-tag-fill me-1.5"></i>{{ $book->category }}
                                         </span>
                                     </td>
@@ -135,7 +135,7 @@
                                     </td>
                                     <td class="px-4 py-4 text-end ">
                                         <div class="flex gap-2 justify-end ">
-                                           <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200">
+                                           <div class="rounded-md  hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200">
                                              <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500 editBtn" 
                                                     title="Edit Book"
                                                     data-id="{{ $book->id }}"
@@ -154,7 +154,7 @@
                                             <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this book?');">
                                                 @csrf
                                                 @method('DELETE')
-                                               <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all">
+                                               <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all rounded-md">
                                                  <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-red-500/20 text-red-500" 
                                                         title="Delete Book">
                                                     <i class="bi bi-trash text-base"></i>

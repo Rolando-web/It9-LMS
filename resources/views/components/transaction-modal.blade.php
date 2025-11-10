@@ -81,6 +81,21 @@
             </div>
           </div>
           <div class="modal-footer border-0" style="border-top: 1px solid #373a40 !important;">
+            <!-- Return Approval Buttons (only shown for return_pending status) -->
+            <div id="returnApprovalButtons" class="d-none me-auto">
+              <button type="button" class="btn btn-success me-2 approve-return-btn-modal" id="approveReturnBtnModal">
+                <i class="bi bi-check-circle me-1"></i>Approve Return
+              </button>
+              <button type="button" class="btn btn-danger reject-return-btn-modal" id="rejectReturnBtnModal">
+                <i class="bi bi-x-circle me-1"></i>Reject Return
+              </button>
+            </div>
+            
+            <!-- Pay Now Button (only shown when there's a fee for users) -->
+            <button type="button" id="payNowBtn" class="btn btn-warning rounded-lg d-none me-auto" data-tx-id="" data-fee="">
+              <i class="bi bi-credit-card me-2"></i>Pay Now ₱<span id="payNowAmount">0.00</span>
+            </button>
+            
             <a id="downloadReceiptBtn" href="#" class="btn btn-success rounded-lg" target="_blank">
               <i class="bi bi-download me-2"></i>Download Receipt
             </a>
