@@ -99,7 +99,7 @@
     <div class="fee-box">
         <div class="label">Transaction Fee</div>
         @if($transaction->fee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
-            <div class="amount" style="color: #10b981; font-weight: bold; font-size: 24px;">PAID</div>
+            <div class="amount">₱{{ number_format($transaction->original_fee ?? 0, 2) }}/<span style="color: #10b981; font-weight: bold;">PAID</span></div>
             <p style="margin: 5px 0 0 0; font-size: 10px; color: #10b981;">All fees have been paid</p>
         @else
             <div class="amount">₱{{ number_format($transaction->fee ?? 0, 2) }}</div>

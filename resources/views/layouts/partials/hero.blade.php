@@ -38,7 +38,7 @@
               </svg>
             </div>
             <div class="text-4xl font-light text-white mb-2">
-              <h1>2</h1>
+              <h1>{{ $totalBooks ?? 0 }}</h1>
             </div>
             <div class="text-gray-400">Books Available</div>
           </div>
@@ -50,7 +50,7 @@
               </svg>
             </div>
             <div class="text-4xl font-light text-white mb-2">
-             <h1>2</h1>
+             <h1>{{ $activeMembers ?? 0 }}</h1>
             </div>
             <div class="text-gray-400">Active Members</div>
           </div>
@@ -63,7 +63,7 @@
               </svg>
             </div>
             <div class="text-4xl font-light text-white mb-2">
-              <h1>2</h1></div>
+              <h1>{{ $totalAdmins ?? 0 }}</h1></div>
             <div class="text-gray-400">Admin Available</div>
           </div>
         </div>

@@ -1,22 +1,23 @@
 <?php
 
-use App\Http\Controllers\NavController;
-use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\NotifController;
-use App\Http\Controllers\StaffController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ReturnTransactionController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PayMongoController;
+use App\Http\Controllers\ReturnTransactionController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 
 // Guest Routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
   Route::get('/', [AuthController::class, 'showLoginForm']);
   Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
   Route::post('/login', [AuthController::class, 'login']);
-  Route::get('/register', [NavController::class, 'register'])->name('register');
+  Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
   Route::post('/register', [AuthController::class, 'register']);
 
 
@@ -29,17 +30,17 @@ Route::middleware(['guest'])->group(function () {
 
 //User Routes 
 Route::middleware(['user'])->group(function () {
-  Route::get('/app', [NavController::class, 'home'])->name('home');
-  Route::get('/book-collection', [NavController::class, 'collection'])->name('collection');
-  Route::get('/books/load-more', [NavController::class, 'loadMoreBooks'])->name('books.load');
-  Route::get('/book-return', [NavController::class, 'book'])->name('book');
-  Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
+  Route::get('/app', [AuthController::class, 'home'])->name('home');
+  Route::get('/book-collection', [BookController::class, 'collection'])->name('collection');
+  Route::get('/books/load-more', [BookController::class, 'loadMoreBooks'])->name('books.load');
+  Route::get('/book-return', [TransactionController::class, 'bookReturn'])->name('book');
+  Route::get('/user-transaction', [TransactionController::class, 'userTransactions'])->name('user-transaction');
   Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
   Route::post('/return/{id}', [ReturnTransactionController::class, 'request'])->name('transactions.return.request')->middleware('auth');
 
   // Notification routes
-  Route::get('/notifications', [NotifController::class, 'getNotifications'])->name('notifications.get');
-  Route::post('/notifications/{id}/read', [NotifController::class, 'markNotificationAsRead'])->name('notifications.read');
+  Route::get('/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
+  Route::post('/notifications/{id}/read', [NotificationController::class, 'markNotificationAsRead'])->name('notifications.read');
 
   // Download transaction receipt PDF (User)
   Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt');
@@ -52,12 +53,12 @@ Route::middleware(['user'])->group(function () {
 
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)
 Route::middleware(['admin'])->group(function () {
-  Route::get('/dashboard', [NavController::class, 'dashboard'])->name('dashboard');
-  Route::get('/books', [NavController::class, 'books'])->name('books');
-  Route::get('/transaction', [NavController::class, 'transactions'])->name('transactions');
-  Route::get('/categories', [NavController::class, 'categories'])->name('categories');
-  Route::get('/activity-log', [NavController::class, 'activitylog'])->name('activity-log');
-  Route::get('/staff', [NavController::class, 'staff'])->name('staff');
+  Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+  Route::get('/books', [BookController::class, 'adminBooks'])->name('books');
+  Route::get('/transaction', [TransactionController::class, 'adminTransactions'])->name('transactions');
+  Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
+  Route::get('/activity-log', [DashboardController::class, 'activitylog'])->name('activity-log');
+  Route::get('/staff', [DashboardController::class, 'staff'])->name('staff');
 
   // Admin approve/reject endpoints for borrow requests
   Route::post('/admin/transactions/{id}/approve', [StaffController::class, 'adminApprove'])->name('admin.transactions.approve');
@@ -74,11 +75,15 @@ Route::middleware(['admin'])->group(function () {
   Route::post('/create-book', [BookController::class, 'saveBook'])->name('create');
   Route::post('/update-book', [BookController::class, 'updateBook'])->name('update-book');
   Route::delete('/delete-book/{id}', [BookController::class, 'destroy'])->name('delete-book');
+
+  // Category API Routes
+  Route::get('/api/categories', [CategoryController::class, 'getAllCategories'])->name('categories.all');
+  Route::get('/api/categories/filter', [CategoryController::class, 'getCategoriesForFilter'])->name('categories.filter');
 });
 
 //Super Admin Only Routes (Protected by super_admin middleware)
 Route::middleware(['super_admin'])->group(function () {
-  Route::get('/user-admin', [NavController::class, 'useradmin'])->name('user-admin');
+  Route::get('/user-admin', [DashboardController::class, 'useradmin'])->name('user-admin');
   Route::post('/user-admin/add', [UserController::class, 'store'])->name('user.store');
 });
 

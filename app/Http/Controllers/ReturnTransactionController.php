@@ -10,7 +10,7 @@ use App\Models\ActivityLog;
 
 class ReturnTransactionController extends Controller
 {
-  // User requests a return (freezes fee at request time)
+  // User requests a return
   public function request(Request $request, $id)
   {
     $user = Auth::user();
@@ -36,6 +36,7 @@ class ReturnTransactionController extends Controller
     $tx->return_requested_at = now();
     $tx->days_overdue = $daysOver;
     $tx->fee = $fee;
+    $tx->original_fee = $fee;
     $tx->status = 'return_pending';
     $tx->save();
 
@@ -50,7 +51,6 @@ class ReturnTransactionController extends Controller
       'status' => 'success',
     ]);
 
-    // Notify admins about return request
     \App\Http\Controllers\NotificationController::returnRequestToAdmins(
       $tx->id,
       $book ? $book->title : 'Book',
@@ -85,17 +85,15 @@ class ReturnTransactionController extends Controller
       return response()->json(['message' => 'Not a pending return request'], 422);
     }
 
-    // Use frozen overdue metrics and fee captured at request time.
+    // Use frozen overdue metrics and fee 
     $now = now();
-    $existingFee = is_null($tx->fee) ? 0 : (float)$tx->fee; // frozen fee (may be 0 if older request)
+    $existingFee = is_null($tx->fee) ? 0 : (float)$tx->fee; 
 
-    // If frozen fee wasn't stored properly, reconstruct a non-escalating fee from request time
+    // If frozen fee wasn't stored properly
     if ($existingFee <= 0) {
-      // 1) Prefer stored days_overdue
       if (!is_null($tx->days_overdue) && $tx->days_overdue > 0) {
         $existingFee = $tx->days_overdue * 50;
       } elseif ($tx->return_requested_at && $tx->due_date) {
-        // 2) Fallback: compute based on the day the return was requested (frozen snapshot)
         $reqDay = \Carbon\Carbon::parse($tx->return_requested_at)->startOfDay();
         $dueDay = \Carbon\Carbon::parse($tx->due_date)->startOfDay();
         $frozenDays = $reqDay->greaterThan($dueDay) ? $dueDay->diffInDays($reqDay) : 0;
@@ -104,7 +102,6 @@ class ReturnTransactionController extends Controller
           $tx->days_overdue = $frozenDays;
         }
       } else {
-        // 3) Last resort: compute at approval time (may slightly escalate if no prior data exists)
         $dueDay = $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->startOfDay() : null;
         $today = $dueDay ? now()->startOfDay() : null;
         $liveDays = ($dueDay && $today && $today->greaterThan($dueDay)) ? $dueDay->diffInDays($today) : 0;
@@ -116,7 +113,8 @@ class ReturnTransactionController extends Controller
     }
 
     $tx->fee = max(0, $existingFee);
-    // days_overdue already set during request or reconstructed above; keep as-is (do not escalate further)
+    $tx->original_fee = max(0, $existingFee);
+    // days_overdue 
     if (is_null($tx->days_overdue)) {
       $tx->days_overdue = 0;
     }
@@ -124,7 +122,6 @@ class ReturnTransactionController extends Controller
     $tx->status = $tx->days_overdue > 0 ? 'overdue' : 'returned';
     $tx->return_approved_by = $user->id;
     $tx->save();
-
     // Increment book copies
     $book = Book::find($tx->book_id);
     if ($book) {
@@ -140,7 +137,6 @@ class ReturnTransactionController extends Controller
       'status' => 'success',
     ]);
 
-    // Notify user
     \App\Http\Controllers\NotificationController::returnApproved(
       $tx->user_id,
       $tx->id,
@@ -152,7 +148,7 @@ class ReturnTransactionController extends Controller
     return response()->json(['message' => 'Return approved', 'transaction' => $tx]);
   }
 
-  // Admin rejects a return request (book damaged)
+  // Admin rejects a return request 
   public function reject(Request $request, $id)
   {
     $user = Auth::user();
@@ -174,11 +170,11 @@ class ReturnTransactionController extends Controller
     $reason = $request->input('reason');
     $damageFee = (float) $request->input('damage_fee');
 
-    // Do NOT escalate overdue after request; use frozen overdue fee.
+    // Do NOT escalate overdue after request
     $now = now();
     $existingFee = is_null($tx->fee) ? 0 : (float)$tx->fee;
 
-    // If frozen overdue fee wasn't captured, reconstruct from stored days or request date
+    // If frozen overdue fee wasn't captured
     if ($existingFee <= 0) {
       if (!is_null($tx->days_overdue) && $tx->days_overdue > 0) {
         $existingFee = $tx->days_overdue * 50;
@@ -200,10 +196,10 @@ class ReturnTransactionController extends Controller
     $tx->returned_at = $now;
     $tx->status = 'damaged';
     $tx->fee = $existingFee + $damageFee;
+    $tx->original_fee = $existingFee + $damageFee;
     $tx->return_approved_by = $user->id;
     $tx->save();
 
-    // Increment book copies (even if damaged)
     $book = Book::find($tx->book_id);
     if ($book) {
       $book->increment('copies');
@@ -217,9 +213,7 @@ class ReturnTransactionController extends Controller
       'details' => 'Rejected return for transaction: ' . $tx->id . ' | Reason: ' . $reason . ' | Days overdue: ' . ($tx->days_overdue ?? 0) . ' | Total Fee: ₱' . number_format($tx->fee, 2) . ' (includes ₱' . number_format($damageFee, 2) . ' damage fee)',
       'status' => 'success',
     ]);
-
-    // Notify user with fee breakdown
-    $overdueFeeBeforeDamage = $existingFee; // frozen overdue portion
+    $overdueFeeBeforeDamage = $existingFee;
     \App\Http\Controllers\NotificationController::returnRejectedDamaged(
       $tx->user_id,
       $tx->id,

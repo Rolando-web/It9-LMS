@@ -39,6 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const returnDate = this.getAttribute("data-return-date");
             const status = this.getAttribute("data-status");
             const fee = this.getAttribute("data-fee");
+            const originalFee = this.getAttribute("data-original-fee") || fee;
+            const isPaid = this.getAttribute("data-is-paid") === "1";
 
             // Update modal content
             document.getElementById("modalTxId").textContent = txId;
@@ -50,7 +52,18 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modalDueDate").textContent = dueDate;
             document.getElementById("modalReturnDate").textContent = returnDate;
             document.getElementById("modalStatus").textContent = status;
-            document.getElementById("modalFee").textContent = "₱" + fee;
+
+            // Display fee with PAID badge if applicable
+            const modalFeeElement = document.getElementById("modalFee");
+            if (isPaid) {
+                const feeNum = parseFloat(originalFee) || 0;
+                modalFeeElement.innerHTML =
+                    "₱" +
+                    feeNum.toFixed(2) +
+                    '/<span style="color: #10b981; font-weight: bold; padding: 2px 8px; background: rgba(16, 185, 129, 0.1); border-radius: 4px; font-size: 0.85em;">PAID</span>';
+            } else {
+                modalFeeElement.textContent = "₱" + fee;
+            }
 
             // Update download receipt button URL
             const downloadBtn = document.getElementById("downloadReceiptBtn");

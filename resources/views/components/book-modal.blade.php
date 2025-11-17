@@ -85,39 +85,7 @@
   </div>
 </div>
 
-                <!-- Edit Modal -->
-                <div class="modal fade" id="editBookModal" tabindex="-1">
-                  <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <form method="POST" action="{{route('update-book')}}" enctype="multipart/form-data" class="modal-content border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
-                      @csrf
-                      <!-- Modal Header -->
-                      <div class="modal-header" style="background: linear-gradient(135deg, #0b2a2f, #12343b);">
-                        <h5 class="modal-title text-white fw-bold">
-                          <i class="bi bi-pencil-square me-2"></i>Edit Book Details
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                      </div>
-                      
-                      <!-- Modal Body -->
-                      <div class="modal-body p-4" style="background-color: #f8f9fa;">
-                        <input type="hidden" id="edit_id" name="edit_id">
-                        <input type="hidden" id="edit_current_image" name="edit_current_image">
-
-                        <div class="row g-4">
-                          <div class="col-md-6">
-                            <div class="modal-body p-4" style="background-color: #1a1b1e;">
-                              <div class="card-body">
-                                <h6 class="text-muted mb-3 fw-bold text-uppercase" style="font-size: 0.85rem;">
-                                  <i class="bi bi-info-circle me-2"></i>Book Information
-                                </h6>
-                                
-                                  <div class="card border-0 shadow-sm h-100" style="background-color:#25262b; color:#e5e7eb;">
-                                  <label for="edit_title" class="form-label fw-semibold">
-                                    <i class="bi bi-bookmark-fill text-primary me-1"></i>Title
-                                  </label>
-                                  <input type="text" id="edit_title" name="edit_title" class="form-control form-control-lg" 
-                                         placeholder="Enter book title" required
-                        <!-- Edit Book Modal -->
+<!-- Edit Book Modal -->
                         <div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered modal-lg">
                             <form method="POST" action="{{ route('update-book') }}" enctype="multipart/form-data" class="modal-content bg-[#2c2e33] border border-[#373a40]">

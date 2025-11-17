@@ -5,6 +5,7 @@
         <script src="{{ asset('js/damage-return.js') }}"></script>
         <script src="{{ asset('js/user-transaction.js') }}"></script>
         <script src="{{ asset('js/notification.js') }}"></script>
+        <script src="{{ asset('js/user.js') }}"></script>
 </body>
 
 </html>

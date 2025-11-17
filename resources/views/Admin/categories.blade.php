@@ -33,7 +33,7 @@
         <!-- Categories Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <!-- Arts Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-purple-500/50">
+          <a href="{{ route('books', ['category' => 'Arts']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-purple-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/arts.jpg')}}" 
                    alt="Arts & Culture"
@@ -50,7 +50,7 @@
           </a>
 
           <!-- Biology Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-green-500/50">
+          <a href="{{ route('books', ['category' => 'Biology']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-green-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/biology.jpg')}}" 
                    alt="Biology"
@@ -67,7 +67,7 @@
           </a>
 
           <!-- Business Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-blue-500/50">
+          <a href="{{ route('books', ['category' => 'Business']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-blue-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/business.jpg')}}" 
                    alt="Business"
@@ -84,7 +84,7 @@
           </a>
 
           <!-- Fiction Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-pink-500/50">
+          <a href="{{ route('books', ['category' => 'Fiction']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-pink-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/fiction.jpg')}}" 
                    alt="Fiction"
@@ -101,7 +101,7 @@
           </a>
 
           <!-- History Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-amber-500/50">
+          <a href="{{ route('books', ['category' => 'History']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-amber-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/history.jpg')}}" 
                    alt="History"
@@ -118,7 +118,7 @@
           </a>
 
           <!-- Technology Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-cyan-500/50">
+          <a href="{{ route('books', ['category' => 'Technology']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-cyan-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/technology.jpg')}}" 
                    alt="Technology"
@@ -135,7 +135,7 @@
           </a>
 
           <!-- Philosophy Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-indigo-500/50">
+          <a href="{{ route('books', ['category' => 'Philosophy']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-indigo-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/philosophy.jpg')}}" 
                    alt="Philosophy"
@@ -152,7 +152,7 @@
           </a>
 
           <!-- Science Category -->
-          <a href="{{ route('books') }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-emerald-500/50">
+          <a href="{{ route('books', ['category' => 'Science']) }}" class="group relative overflow-hidden cursor-pointer rounded-xl bg-[#2c2e33] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-emerald-500/50">
             <div class="aspect-[5/4] overflow-hidden">
               <img src="{{asset('category/science.jpg')}}" 
                    alt="Science"

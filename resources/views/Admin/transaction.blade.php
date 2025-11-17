@@ -182,6 +182,7 @@
                     // - For return_pending: prefer frozen stored fee; fallback to live if missing
                     // - For returned/overdue/damaged (finalized): always show stored fee (persisted at approval)
                     $displayFee = $transaction->fee ?? 0;
+                    $originalFee = max(0, (float) ($transaction->original_fee ?? 0));
                     
                     if (in_array($transaction->status, ['borrowed','overdue']) && is_null($transaction->returned_at) && !empty($transaction->due_date)) {
                       // Active overdue: compute live
@@ -210,30 +211,14 @@
                         $displayFee = $live;
                       }
                     } else {
-                      // For returned, overdue (with returned_at set), or damaged: prefer stored fee.
-                      // Fallback: if stored fee is 0/missing but the book was returned late, compute based on returned_at vs due_date.
-                      $storedFinal = max(0, (float) ($transaction->fee ?? 0));
-                      if ($storedFinal > 0) {
-                        $displayFee = $storedFinal;
-                      } else {
-                        $fallback = 0;
-                        if (!empty($transaction->due_date) && !empty($transaction->returned_at)) {
-                          $due = \Carbon\Carbon::parse($transaction->due_date)->startOfDay();
-                          $ret = \Carbon\Carbon::parse($transaction->returned_at)->startOfDay();
-                          if ($ret->greaterThan($due)) {
-                            $fallback = max(0, $due->diffInDays($ret) * 50);
-                          }
-                        }
-                        $displayFee = $fallback;
-                      }
+                      // For returned, overdue (with returned_at set), or damaged: always use stored fee
+                      // This fee is set when return is approved and reduced when payments are made
+                      $displayFee = max(0, (float) ($transaction->fee ?? 0));
                     }
                   @endphp
                   <td class="px-4 py-4">
                     @if($displayFee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-semibold">
-                        <i class="bi bi-check-circle-fill"></i>
-                        PAID
-                      </span>
+                      <span class="text-gray-400 text-sm">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-xs font-semibold"><i class="bi bi-check-circle-fill"></i>PAID</span>
                     @else
                       <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
                     @endif
@@ -254,7 +239,9 @@
                               data-due-raw="{{ $transaction->due_date ? \Carbon\Carbon::parse($transaction->due_date)->toDateString() : '' }}"
                               data-return-date="{{ $transaction->returned_at ? \Carbon\Carbon::parse($transaction->returned_at)->format('M d, Y') : 'Not returned' }}"
                               data-status="{{ ucfirst(str_replace('_', ' ', $transaction->status)) }}"
-                              data-fee="{{ $displayFee < 0 ? 0 : $displayFee }}">
+                              data-fee="{{ $displayFee < 0 ? 0 : $displayFee }}"
+                              data-original-fee="{{ $originalFee }}"
+                              data-is-paid="{{ $displayFee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at) ? '1' : '0' }}">
                         <i class="bi bi-eye text-base"></i>
                       </button>
                   </div>

@@ -110,7 +110,7 @@
               <div class="col-md-12">
                 <div class="bg-amber-500/10 rounded-lg p-3 border-amber-500/20">
                   <p class="text-amber-500 text-xs mb-1">Fee</p>
-                  <p id="modalFee" class="text-amber-500 font-bold text-lg">₱--</p>
+                  <p id="modalFee" class="text-amber-500 font-bold text-lg" style="display: flex; align-items: center; gap: 4px;">₱--</p>
                 </div>
               </div>
             </div>

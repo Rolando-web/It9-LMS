@@ -73,15 +73,11 @@
               <div class="text-sm font-medium hidden lg:block">
                 <p>{{ $user ? ($user->firstName . ' ' . ($user->lastName ?? '')) : 'Guest' }}</p>
               </div>
-
               <div class="text-xs text-gray-400 hidden lg:block">{{ $user ? ucfirst($user->role) : 'Visitor' }}</div>
             </div>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center ">
+            <button id="dropdownButton" class="relative w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center hover:ring-2 hover:ring-white focus:outline-none focus:ring-2 focus:ring-white transition-all">
               <img src="{{ $user && $user->image ? asset($user->image) : asset('image/willan.jpg') }}" alt="profile" class="w-full h-full object-cover rounded-full">
-            </div>
-
-            <button id="dropdownButton" class="ml-2 p-1 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute -bottom-1 -right-1 w-4 h-4 text-white bg-gray-800 rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>

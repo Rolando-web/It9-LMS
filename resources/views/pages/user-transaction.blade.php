@@ -51,7 +51,7 @@
         </div>
         <div class="text-sm text-white opacity-80">Total outstanding balance</div>
         @if(($outstandingFees ?? 0) == 0)
-          <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium px-3 py-2 rounded-lg mt-2">
+          <div class="inline-flex items-center gap-2 bg-emerald-500/10  border-emerald-500/20 text-emerald-400 text-sm font-medium px-3 py-2 rounded-lg mt-2">
             <i class="bi bi-check-circle-fill text-xs"></i>
             <span>No Fees</span>
           </div>
@@ -215,6 +215,7 @@
               @php
                 // Use the stored fee from database (which is 0 after payment)
                 $finalFee = max(0, (float) ($tx->fee ?? 0));
+                $originalFee = max(0, (float) ($tx->original_fee ?? 0));
                 $status = strtolower($tx->status ?? '');
               @endphp
               <tr class="border-b border-gray-100 hover:bg-[#101929] border-opacity-10">
@@ -226,10 +227,7 @@
                 <td class="py-4 px-4">{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'N/A' }}</td>
                 <td class="py-4 px-4 font-medium">
                   @if($finalFee == 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at))
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                      PAID
-                    </span>
+                    <span class="text-gray-400">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold">PAID</span>
                   @elseif($finalFee > 0)
                     <span class="text-[#e24545]">₱{{ number_format($finalFee, 2) }}</span>
                   @else
@@ -250,7 +248,9 @@
         data-due-raw="{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->toDateString() : '' }}"
                           data-return-date="{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'Not returned' }}"
         data-status="{{ ucfirst($tx->status) }}"
-        data-fee="{{ $finalFee < 0 ? 0 : $finalFee }}">
+        data-fee="{{ $finalFee < 0 ? 0 : $finalFee }}"
+        data-original-fee="{{ $originalFee }}"
+        data-is-paid="{{ $finalFee == 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at) ? '1' : '0' }}">
                     <i class="bi bi-eye text-base"></i>
                   </button>
                 </td>

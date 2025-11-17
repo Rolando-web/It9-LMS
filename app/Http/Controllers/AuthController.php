@@ -32,6 +32,33 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    /**
+     * Show the register form
+     */
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Home page view
+     */
+    public function home()
+    {
+        $books = \App\Models\Book::latest()->take(8)->get();
+
+        // Get category statistics from CategoryController
+        $categoryController = new \App\Http\Controllers\CategoryController();
+        $categories = $categoryController->getCategoryStats();
+
+        // Get statistics for hero section
+        $totalBooks = \App\Models\Book::sum('copies'); // Total available copies
+        $activeMembers = \App\Models\User::where('role', 'user')->count();
+        $totalAdmins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->count();
+
+        return view('layouts.app', compact('books', 'categories', 'totalBooks', 'activeMembers', 'totalAdmins'));
+    }
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -60,7 +87,12 @@ class AuthController extends Controller
             'status' => 'success',
         ]);
 
-        return redirect()->route('login')->with('success', 'Account Created Successfully');
+        // Automatically log in the user after registration
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Redirect to user dashboard (home)
+        return redirect()->route('home')->with('success', 'Account Created Successfully! Welcome to the Library Management System.');
     }
 
     /**

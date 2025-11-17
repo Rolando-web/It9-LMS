@@ -22,7 +22,7 @@ class PayMongoController extends Controller
         }
 
         // Ensure PayMongo secret key is configured
-        $secret = env('PAYMONGO_SECRET_KEY') ?: env('PAYMONGO_SECRET');
+        $secret = config('paymongo.secret_key');
         if (empty($secret) || !is_string($secret)) {
             return response()->json([
                 'message' => 'PayMongo secret key is not configured. Please set PAYMONGO_SECRET_KEY in your .env file.'
@@ -37,7 +37,6 @@ class PayMongoController extends Controller
         $txId = $request->transaction_id;
         $amount = (float) $request->amount;
 
-        // Verify transaction belongs to user and has outstanding fee
         $tx = BookTransaction::where('id', $txId)
             ->where('user_id', $user->id)
             ->first();
@@ -51,10 +50,8 @@ class PayMongoController extends Controller
             return response()->json(['message' => 'Payment amount exceeds outstanding fee'], 422);
         }
 
-        // Convert amount to cents (PayMongo uses smallest currency unit)
         $amountCents = (int) ($amount * 100);
 
-        // Create PayMongo Checkout Session (allows user to choose GCash or PayMaya)
         $response = Http::withBasicAuth($secret, '')
             ->post('https://api.paymongo.com/v1/checkout_sessions', [
                 'data' => [
@@ -125,7 +122,7 @@ class PayMongoController extends Controller
         }
 
         // Verify checkout session status
-        $secret = env('PAYMONGO_SECRET_KEY') ?: env('PAYMONGO_SECRET');
+        $secret = config('paymongo.secret_key');
         if (empty($secret) || !is_string($secret)) {
             return redirect('/user-transaction')->with('error', 'PayMongo secret key is not configured.');
         }
@@ -161,7 +158,6 @@ class PayMongoController extends Controller
                     ]);
                 }
 
-                // Clear session
                 session()->forget('paymongo_session_' . $txId);
 
                 return redirect('/user-transaction')->with('success', "Payment of ₱" . number_format($amountPaid, 2) . " successful! Remaining balance: ₱" . number_format($newFee, 2));
@@ -174,6 +170,7 @@ class PayMongoController extends Controller
     /**
      * Handle failed payment
      */
+
     public function paymentFailed(Request $request)
     {
         $txId = $request->query('transaction_id');
@@ -183,15 +180,9 @@ class PayMongoController extends Controller
         return redirect('/user-transaction')->with('error', 'Payment failed or was cancelled.');
     }
 
-    /**
-     * Webhook handler for PayMongo events (optional for production)
-     */
     public function handleWebhook(Request $request)
     {
         $payload = $request->all();
-
-        // Verify webhook signature (recommended for production)
-        // $signature = $request->header('paymongo-signature');
 
         $eventType = $payload['data']['attributes']['type'] ?? null;
 
