@@ -60,50 +60,50 @@
 
       <!-- User Stats -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-indigo-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-indigo-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Total Users</p>
-              <p class="text-2xl font-bold text-white">{{ $totalUsers ?? 0 }}</p>
+            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-people text-indigo-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-people text-indigo-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalUsers ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Total Users</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-emerald-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Active Users</p>
-              <p class="text-2xl font-bold text-white">{{ $activeUsers ?? 0 }}</p>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-person-check text-emerald-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-person-check text-emerald-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $activeUsers ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Active Users</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-purple-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Admins</p>
-              <p class="text-2xl font-bold text-white">{{ $admins ?? 0 }}</p>
+            <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-shield-check text-purple-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-shield-check text-purple-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $admins ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Admins</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-blue-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Super Admins</p>
-              <p class="text-2xl font-bold text-white">{{ $superAdmins ?? 0 }}</p>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-person-badge text-blue-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-person-badge text-blue-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $superAdmins ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Super Admins</p>
             </div>
           </div>
         </div>

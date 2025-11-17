@@ -15,50 +15,50 @@
 
     <div class="flex-grow-1 p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-blue-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Total Activities</p>
-              <p class="text-2xl font-bold text-white">{{ $totalActivities ?? 0 }}</p>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-activity text-blue-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-activity text-blue-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalActivities ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Total Activities</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-emerald-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">User Logins</p>
-              <p class="text-2xl font-bold text-white">{{ $userLogins ?? 0 }}</p>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-box-arrow-in-right text-emerald-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-box-arrow-in-right text-emerald-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $userLogins ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">User Logins</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-purple-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Book Actions</p>
-              <p class="text-2xl font-bold text-white">{{ $bookActions ?? 0 }}</p>
+            <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-book text-purple-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-book text-purple-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $bookActions ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Book Actions</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-amber-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Today's Activity</p>
-              <p class="text-2xl font-bold text-white">{{ $todaysActivity ?? 0 }}</p>
+            <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-calendar-check text-amber-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-calendar-check text-amber-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $todaysActivity ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Today's Activity</p>
             </div>
           </div>
         </div>

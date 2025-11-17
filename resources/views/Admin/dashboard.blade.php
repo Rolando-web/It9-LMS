@@ -17,50 +17,54 @@
         <div class="px-8 py-6">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between">
                 <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-book-fill text-blue-500 text-2xl"></i>
                 </div>
-                <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+12%</span>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-white mb-1">{{ $totalBooks }}</p>
+                  <p class="text-sm text-gray-400 font-medium">Total Books</p>
+                </div>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $totalBooks }}</p>
-              <p class="text-sm text-gray-400 font-medium">Total Books</p>
             </div>
 
             <!-- Categories Card -->
             <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between">
                 <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-tags-fill text-emerald-500 text-2xl"></i>
                 </div>
-                <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+8%</span>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-white mb-1">{{ $categoriesCount }}</p>
+                  <p class="text-sm text-gray-400 font-medium">Categories</p>
+                </div>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $categoriesCount }}</p>
-              <p class="text-sm text-gray-400 font-medium">Categories</p>
             </div>
 
             <!-- Available Copies Card -->
             <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1">
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between">
                 <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-stack text-purple-500 text-2xl"></i>
                 </div>
-                <span class="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-semibold rounded-full">0%</span>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-white mb-1">{{ $availableCopies }}</p>
+                  <p class="text-sm text-gray-400 font-medium">Available Copies</p>
+                </div>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $availableCopies }}</p>
-              <p class="text-sm text-gray-400 font-medium">Available Copies</p>
             </div>
 
             <!-- Authors Card -->
             <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-orange-500/50 transition-all duration-300 hover:-translate-y-1">
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between">
                 <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center">
                   <i class="bi bi-people-fill text-orange-500 text-2xl"></i>
                 </div>
-                <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+5%</span>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-white mb-1">{{ $authorsCount }}</p>
+                  <p class="text-sm text-gray-400 font-medium">Authors</p>
+                </div>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $authorsCount }}</p>
-              <p class="text-sm text-gray-400 font-medium">Authors</p>
             </div>
           </div>
 

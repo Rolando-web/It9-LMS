@@ -15,50 +15,50 @@
 
     <div class="flex-grow-1 p-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-blue-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Total Borrowed</p>
-              <p class="text-2xl font-bold text-white">{{ $totalBorrowed ?? 0 }}</p>
+            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-book text-blue-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-book text-blue-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalBorrowed ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Total Borrowed</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-emerald-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Returned</p>
-              <p class="text-2xl font-bold text-white">{{ $totalReturned ?? 0 }}</p>
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-check-circle text-emerald-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-check-circle text-emerald-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalReturned ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Returned</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-red-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-red-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Overdue</p>
-              <p class="text-2xl font-bold text-white">{{ $totalOverdue ?? 0 }}</p>
+            <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-exclamation-triangle text-red-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-exclamation-triangle text-red-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalOverdue ?? 0 }}</p>
+              <p class="text-sm text-gray-400 font-medium">Overdue</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-[#2c2e33] rounded-lg p-4 hover:border-amber-500/50 transition-all">
+        <div class="bg-[#2c2e33] rounded-xl p-6 hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-400 text-sm mb-1">Total Fees</p>
-              <p class="text-2xl font-bold text-white">₱{{ number_format($totalFees ?? 0, 2) }}</p>
+            <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center">
+              <i class="bi bi-currency-dollar text-amber-500 text-2xl"></i>
             </div>
-            <div class="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
-              <i class="bi bi-currency-dollar text-amber-500 text-xl"></i>
+            <div class="text-right">
+              <p class="text-3xl font-bold text-white mb-1">₱{{ number_format($totalFees ?? 0, 2) }}</p>
+              <p class="text-sm text-gray-400 font-medium">Total Fees</p>
             </div>
           </div>
         </div>
