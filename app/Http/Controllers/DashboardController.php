@@ -22,12 +22,44 @@ class DashboardController extends Controller
         // Recently added books, paginated (5 per page)
         $recentBooks = Book::latest()->paginate(5);
 
+        // Chart data: Return Status Comparison (Returned vs Damaged)
+        $returnedWell = BookTransaction::where('status', 'returned')->count();
+        $returnedDamaged = BookTransaction::where('status', 'damaged')->count();
+
+        // Chart data: Total Borrowed by Month (last 6 months)
+        $borrowedByMonth = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $borrowedByMonth[] = [
+                'month' => $date->format('M'),
+                'count' => BookTransaction::whereMonth('borrowed_at', $date->month)
+                    ->whereYear('borrowed_at', $date->year)
+                    ->count()
+            ];
+        }
+
+        // Chart data: Total Activities by Month (last 6 months)
+        $activitiesByMonth = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $activitiesByMonth[] = [
+                'month' => $date->format('M'),
+                'count' => ActivityLog::whereMonth('created_at', $date->month)
+                    ->whereYear('created_at', $date->year)
+                    ->count()
+            ];
+        }
+
         return view('Admin.dashboard', compact(
             'recentBooks',
             'totalBooks',
             'categoriesCount',
             'availableCopies',
-            'authorsCount'
+            'authorsCount',
+            'returnedWell',
+            'returnedDamaged',
+            'borrowedByMonth',
+            'activitiesByMonth'
         ));
     }
 

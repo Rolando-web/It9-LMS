@@ -68,6 +68,74 @@
             </div>
           </div>
 
+          <!-- Charts Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Return Status Chart -->
+            <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                  <i class="bi bi-pie-chart text-emerald-500"></i>
+                  Return Status
+                </h3>
+              </div>
+              <div class="flex items-center justify-center" style="height: 250px;">
+                <canvas id="returnStatusChart"></canvas>
+              </div>
+              <div class="mt-4 space-y-2">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                    <span class="text-gray-400">Returned Well</span>
+                  </div>
+                  <span class="text-white font-semibold">{{ $returnedWell }}</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-gray-400">Damaged</span>
+                  </div>
+                  <span class="text-white font-semibold">{{ $returnedDamaged }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Borrowed Chart -->
+            <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                  <i class="bi bi-bar-chart text-blue-500"></i>
+                  Total Borrowed
+                </h3>
+                <select id="borrowedFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
+                  <option value="6">Last 6 Months</option>
+                  <option value="3">Last 3 Months</option>
+                  <option value="1">This Month</option>
+                </select>
+              </div>
+              <div style="height: 250px;">
+                <canvas id="borrowedChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Total Activities Chart -->
+            <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                  <i class="bi bi-activity text-purple-500"></i>
+                  Total Activities
+                </h3>
+                <select id="activitiesFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-purple-500">
+                  <option value="6">Last 6 Months</option>
+                  <option value="3">Last 3 Months</option>
+                  <option value="1">This Month</option>
+                </select>
+              </div>
+              <div style="height: 250px;">
+                <canvas id="activitiesChart"></canvas>
+              </div>
+            </div>
+          </div>
+
           <!-- Books Table -->
           <div class="bg-[#2c2e33]  rounded-xl shadow-xl overflow-hidden">
             <div class="px-6 py-4 border-b border-[#373a40]">
@@ -222,11 +290,185 @@
 
       <!-- Include Book Modal Component -->
       <x-book-modal />
+      <x-notification-modal/>
 
       <!-- Bootstrap JS Bundle -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="{{ asset('js/book-modal.js') }}"></script>
         <script src="{{ asset('js/sidebar.js') }}"></script>
+
+<script>
+// Chart.js Configuration
+const borrowedData = @json($borrowedByMonth);
+const activitiesData = @json($activitiesByMonth);
+
+// Return Status Pie Chart
+const returnStatusCtx = document.getElementById('returnStatusChart').getContext('2d');
+const returnStatusChart = new Chart(returnStatusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Returned Well', 'Damaged'],
+        datasets: [{
+            data: [{{ $returnedWell }}, {{ $returnedDamaged }}],
+            backgroundColor: ['#10b981', '#ef4444'],
+            borderColor: ['#059669', '#dc2626'],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: '#1a1b1e',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#373a40',
+                borderWidth: 1
+            }
+        }
+    }
+});
+
+// Total Borrowed Line Chart
+const borrowedCtx = document.getElementById('borrowedChart').getContext('2d');
+let borrowedChart = new Chart(borrowedCtx, {
+    type: 'line',
+    data: {
+        labels: borrowedData.map(d => d.month),
+        datasets: [{
+            label: 'Books Borrowed',
+            data: borrowedData.map(d => d.count),
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: '#3b82f6',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#1e3a8a',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: '#1a1b1e',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#373a40',
+                borderWidth: 1
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: '#9ca3af',
+                    stepSize: 1
+                },
+                grid: {
+                    color: '#373a40'
+                }
+            },
+            x: {
+                ticks: {
+                    color: '#9ca3af'
+                },
+                grid: {
+                    color: '#373a40'
+                }
+            }
+        }
+    }
+});
+
+// Total Activities Line Chart
+const activitiesCtx = document.getElementById('activitiesChart').getContext('2d');
+let activitiesChart = new Chart(activitiesCtx, {
+    type: 'line',
+    data: {
+        labels: activitiesData.map(d => d.month),
+        datasets: [{
+            label: 'Activities',
+            data: activitiesData.map(d => d.count),
+            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+            borderColor: '#a855f7',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#a855f7',
+            pointBorderColor: '#6b21a8',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: '#1a1b1e',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#373a40',
+                borderWidth: 1
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: '#9ca3af',
+                    stepSize: 1
+                },
+                grid: {
+                    color: '#373a40'
+                }
+            },
+            x: {
+                ticks: {
+                    color: '#9ca3af'
+                },
+                grid: {
+                    color: '#373a40'
+                }
+            }
+        }
+    }
+});
+
+// Filter handlers
+document.getElementById('borrowedFilter').addEventListener('change', function(e) {
+    const months = parseInt(e.target.value);
+    const filteredData = borrowedData.slice(-months);
+    borrowedChart.data.labels = filteredData.map(d => d.month);
+    borrowedChart.data.datasets[0].data = filteredData.map(d => d.count);
+    borrowedChart.update();
+});
+
+document.getElementById('activitiesFilter').addEventListener('change', function(e) {
+    const months = parseInt(e.target.value);
+    const filteredData = activitiesData.slice(-months);
+    activitiesChart.data.labels = filteredData.map(d => d.month);
+    activitiesChart.data.datasets[0].data = filteredData.map(d => d.count);
+    activitiesChart.update();
+});
+</script>
 
 <script>
 // Handle delete book confirmation
