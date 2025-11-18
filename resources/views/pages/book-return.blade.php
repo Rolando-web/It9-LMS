@@ -21,78 +21,7 @@
       <h1 class="text-4xl font-light text-white mb-2">Borrowed Collection</h1>
       <p class="text-gray-400 text-lg">Kindly return borrowed books on or before the due date to prevent extra charges for overdue days.</p>
     </div>
-    <script>
-      // expose CSRF token
-      window.Laravel = window.Laravel || {};
-      window.Laravel.csrfToken = '{{ csrf_token() }}';
 
-      // simple toast (top-right)
-      (function(){
-        if (!document.getElementById('simpleToast')){
-          const t = document.createElement('div');
-          t.id = 'simpleToast';
-          t.className = 'fixed top-10 right-6 z-50 hidden';
-          t.innerHTML = '<div id="simpleToastInner" class="bg-green-600 text-white px-8 py-3 rounded shadow-lg max-w-xs">\n              <div id="simpleToastMsg" class="font-medium">Book Returned Successfully</div>\n              <div id="simpleToastSub" class="text-sm opacity-80"></div>\n            </div>';
-          document.body.appendChild(t);
-        }
-
-        function showSimpleToast(message, sub){
-          const t = document.getElementById('simpleToast');
-          const inner = document.getElementById('simpleToastInner');
-          const msg = document.getElementById('simpleToastMsg');
-          const subEl = document.getElementById('simpleToastSub');
-          msg.innerText = message;
-          subEl.innerText = sub || '';
-          t.classList.remove('hidden');
-          t.style.opacity = '0';
-          requestAnimationFrame(()=>{ t.style.transition='opacity 200ms'; t.style.opacity='1'; });
-          setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=> t.classList.add('hidden'), 220); }, 3000);
-        }
-
-        document.addEventListener('click', function(e){
-          const btn = e.target.closest && e.target.closest('.return-btn');
-          if(!btn) return;
-          const id = btn.dataset.txId;
-          if(!confirm('Confirm return for transaction #' + id + '?')) return;
-
-          // disable button and show small spinner
-          btn.disabled = true;
-          const original = btn.innerHTML;
-          btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 align-middle"></span>Processing...';
-
-          fetch('/return/' + id, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': window.Laravel.csrfToken,
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-          })
-          .then(async r => {
-            const ct = r.headers.get('content-type') || '';
-            let body = null;
-            if (ct.indexOf('application/json') !== -1) { try { body = await r.json(); } catch(e){ body = null; } }
-            else { try { body = await r.text(); } catch(e){ body = null; } }
-
-            if (r.ok) {
-              const fee = body && typeof body === 'object' && typeof body.fee !== 'undefined' ? body.fee : null;
-              const sub = fee !== null ? ('Overdue fee: ₱' + fee) : '';
-              showSimpleToast('Book Returned Successfully', sub);
-              setTimeout(()=> location.reload(), 900);
-            } else {
-              let msg = 'Unable to return';
-              if (body && typeof body === 'object' && body.message) msg = body.message;
-              else if (body && typeof body === 'string') { const stripped = body.replace(/<[^>]*>?/gm, '').trim(); msg = stripped || msg; }
-              showSimpleToast(msg);
-              btn.disabled = false;
-              btn.innerHTML = original;
-            }
-          })
-          .catch(err => { showSimpleToast(err.message || 'Network error'); btn.disabled = false; btn.innerHTML = original; });
-        });
-      })();
-    </script>
 
     <!-- Filters and Controls -->
     <div class="bg-gray-800 rounded-xl p-6 mb-8">
@@ -166,8 +95,51 @@
     </div>
   </main>
 
+<x-notification-modal/>
+
      <script src="{{ asset('js/user.js') }}"></script>
      <script src="{{ asset('js/notification.js') }}"></script>
+     
+     <script>
+      document.addEventListener('click', function(e){
+        const btn = e.target.closest('.return-btn');
+        if(!btn) return;
+        
+        const id = btn.dataset.txId;
+        if(!confirm('Are you sure you want to request return for this transaction?')) return;
+
+        btn.disabled = true;
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 align-middle"></span>Processing...';
+
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        
+        fetch('/return/' + id, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+          }
+        })
+        .then(r => {
+          if (r.ok) {
+            alert('Return request submitted successfully!');
+            location.reload();
+          } else {
+            return r.json().then(data => {
+              alert('Error: ' + (data.message || 'Failed to process return'));
+              btn.disabled = false;
+              btn.innerHTML = original;
+            });
+          }
+        })
+        .catch(err => { 
+          alert('Error: ' + (err.message || 'Network error')); 
+          btn.disabled = false; 
+          btn.innerHTML = original; 
+        });
+      });
+    </script>
 
 </body>
 

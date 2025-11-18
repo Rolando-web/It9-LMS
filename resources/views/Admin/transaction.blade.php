@@ -115,7 +115,7 @@
             </thead>
             <tbody>
               @forelse($transactions as $transaction)
-                <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 bg-[#2c2e33]">
+                <tr id="tx-row-{{ $transaction->id }}" class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 bg-[#2c2e33]">
                   <td class="px-4 py-4">
                     <span class="text-white font-semibold text-base">{{ $transaction->id }}</span>
                   </td>
@@ -176,13 +176,65 @@
                       </span>
                     @endif
                   </td>
+                  @php
+                    // Compute fee display:
+                    // - For borrowed/overdue NOT yet returned: live overdue = days * 50
+                    // - For return_pending: prefer frozen stored fee; fallback to live if missing
+                    // - For returned/overdue/damaged (finalized): always show stored fee (persisted at approval)
+                    $displayFee = $transaction->fee ?? 0;
+                    
+                    if (in_array($transaction->status, ['borrowed','overdue']) && is_null($transaction->returned_at) && !empty($transaction->due_date)) {
+                      // Active overdue: compute live
+                      $due = \Carbon\Carbon::parse($transaction->due_date)->startOfDay();
+                      $today = \Carbon\Carbon::now()->startOfDay();
+                      if ($today->greaterThan($due)) {
+                        $days = $due->diffInDays($today);
+                        $displayFee = max(0, $days * 50);
+                      } else {
+                        $displayFee = 0;
+                      }
+                    } elseif ($transaction->status === 'return_pending') {
+                      // Return pending: show stored frozen if present, otherwise compute live
+                      $stored = max(0, (float) ($transaction->fee ?? 0));
+                      if ($stored > 0) {
+                        $displayFee = $stored;
+                      } else {
+                        $live = 0;
+                        if (!empty($transaction->due_date)) {
+                          $due = \Carbon\Carbon::parse($transaction->due_date)->startOfDay();
+                          $today = \Carbon\Carbon::now()->startOfDay();
+                          if ($today->greaterThan($due)) {
+                            $live = max(0, $due->diffInDays($today) * 50);
+                          }
+                        }
+                        $displayFee = $live;
+                      }
+                    } else {
+                      // For returned, overdue (with returned_at set), or damaged: prefer stored fee.
+                      // Fallback: if stored fee is 0/missing but the book was returned late, compute based on returned_at vs due_date.
+                      $storedFinal = max(0, (float) ($transaction->fee ?? 0));
+                      if ($storedFinal > 0) {
+                        $displayFee = $storedFinal;
+                      } else {
+                        $fallback = 0;
+                        if (!empty($transaction->due_date) && !empty($transaction->returned_at)) {
+                          $due = \Carbon\Carbon::parse($transaction->due_date)->startOfDay();
+                          $ret = \Carbon\Carbon::parse($transaction->returned_at)->startOfDay();
+                          if ($ret->greaterThan($due)) {
+                            $fallback = max(0, $due->diffInDays($ret) * 50);
+                          }
+                        }
+                        $displayFee = $fallback;
+                      }
+                    }
+                  @endphp
                   <td class="px-4 py-4">
-                    <span class="text-gray-300 text-sm">₱{{ number_format($transaction->fee ?? 0, 2) }}</span>
+                    <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
                   </td>
                   <td class="px-4 py-4 text-end">
                     <div class="inline-flex items-center gap-2">
                       <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 rounded-md">
-                        <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500"
+        <button class="view-transaction-btn inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500"
                               data-bs-toggle="modal" 
                               data-bs-target="#bookModal"
                               data-tx-id="{{ $transaction->id }}"
@@ -192,9 +244,10 @@
                               data-user-name="{{ optional($transaction->user)->firstName }} {{ optional($transaction->user)->lastName }}"
                               data-borrow-date="{{ $transaction->borrowed_at ? \Carbon\Carbon::parse($transaction->borrowed_at)->format('M d, Y') : 'N/A' }}"
                               data-due-date="{{ $transaction->due_date ? \Carbon\Carbon::parse($transaction->due_date)->format('M d, Y') : 'N/A' }}"
+                              data-due-raw="{{ $transaction->due_date ? \Carbon\Carbon::parse($transaction->due_date)->toDateString() : '' }}"
                               data-return-date="{{ $transaction->returned_at ? \Carbon\Carbon::parse($transaction->returned_at)->format('M d, Y') : 'Not returned' }}"
                               data-status="{{ ucfirst(str_replace('_', ' ', $transaction->status)) }}"
-                              data-fee="{{ number_format($transaction->fee ?? 0, 2) }}">
+                              data-fee="{{ $displayFee < 0 ? 0 : $displayFee }}">
                         <i class="bi bi-eye text-base"></i>
                       </button>
                   </div>
@@ -258,76 +311,9 @@
     </div>
     </div>
 
-<x-transaction-modal/>
-
-<!-- Reject Return Modal -->
-<div class="modal fade" id="rejectReturnModal" tabindex="-1" role="dialog" aria-labelledby="rejectReturnModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="background-color: #2c2e33; border: 1px solid #373a40;">
-      <div class="modal-header" style="border-bottom: 1px solid #373a40;">
-        <h5 class="modal-title text-white" id="rejectReturnModalLabel">
-          <i class="bi bi-x-circle text-danger me-2"></i>
-          Reject Book Return
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="rejectReturnForm">
-          <input type="hidden" id="rejectTransactionId" name="transaction_id">
-          
-          <div class="mb-3">
-            <label for="rejectReason" class="form-label text-white">
-              <i class="bi bi-file-text me-1"></i>Rejection Reason
-            </label>
-            <textarea 
-              class="form-control" 
-              id="rejectReason" 
-              name="reason" 
-              rows="3" 
-              placeholder="Describe the damage or reason for rejection..."
-              required
-              style="background-color: #1a1b1e; border-color: #373a40; color: white;"></textarea>
-            <small class="text-muted">Explain why the book is being rejected</small>
-          </div>
-
-          <div class="mb-3">
-            <label for="damageFee" class="form-label text-white">
-              <i class="bi bi-currency-dollar me-1"></i>Damage Fee (₱)
-            </label>
-            <input 
-              type="number" 
-              class="form-control" 
-              id="damageFee" 
-              name="damage_fee" 
-              min="0" 
-              step="0.01"
-              value="50.00"
-              placeholder="Enter damage fee"
-              required
-              style="background-color: #1a1b1e; border-color: #373a40; color: white;">
-            <small class="text-muted">Standard damage fee is ₱50.00</small>
-          </div>
-
-          <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            This will charge the user for book damage and mark the transaction as "damaged".
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer" style="border-top: 1px solid #373a40;">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancel
-        </button>
-        <button type="button" class="btn btn-danger" id="confirmRejectBtn">
-          <i class="bi bi-check-circle me-1"></i>Confirm Rejection
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
+  <x-transaction-modal/>
+  <x-notification-modal/>
 <x-import-footer/>
 <script src="{{ asset('js/staff.js') }}"></script>
-<script src="{{ asset('js/return-modal.js') }}"></script>
 <script src="{{ asset('js/transaction-filter.js') }}"></script>
 

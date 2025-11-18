@@ -16,13 +16,13 @@ class BookSeeder extends Seeder
   {
     $books = [
       [
-        'title' => 'One Piece',
-        'author' => 'Eiichiro Oda',
+        'title' => 'Hunter x Hunter',
+        'author' => 'Yoshihiro Togashi',
         'category' => 'Fiction',
         'isbn' => '111-111-111',
         'publish_date' => Carbon::create(1997, 7, 22)->toDateString(),
-        'copies' => 5,
-        'image' => 'image/onepiece.jpg',
+        'copies' => 1,
+        'image' => 'image/hxh.png',
       ],
       [
         'title' => 'Solo Leveling',
@@ -99,5 +99,6 @@ class BookSeeder extends Seeder
         $b + ['user_id' => $userId]
       );
     }
+    echo "Books seeded successfully. \n";
   }
 }

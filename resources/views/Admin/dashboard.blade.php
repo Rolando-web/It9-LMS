@@ -23,7 +23,7 @@
                 </div>
                 <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+12%</span>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $books->count() }}</p>
+              <p class="text-3xl font-bold text-white mb-1">{{ $totalBooks }}</p>
               <p class="text-sm text-gray-400 font-medium">Total Books</p>
             </div>
 
@@ -35,7 +35,7 @@
                 </div>
                 <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+8%</span>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $books->unique('category')->count() }}</p>
+              <p class="text-3xl font-bold text-white mb-1">{{ $categoriesCount }}</p>
               <p class="text-sm text-gray-400 font-medium">Categories</p>
             </div>
 
@@ -47,7 +47,7 @@
                 </div>
                 <span class="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-semibold rounded-full">0%</span>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $books->sum('copies') }}</p>
+              <p class="text-3xl font-bold text-white mb-1">{{ $availableCopies }}</p>
               <p class="text-sm text-gray-400 font-medium">Available Copies</p>
             </div>
 
@@ -59,7 +59,7 @@
                 </div>
                 <span class="px-3 py-1 bg-green-500/10 text-green-500 text-xs font-semibold rounded-full">+5%</span>
               </div>
-              <p class="text-3xl font-bold text-white mb-1">{{ $books->unique('author')->count() }}</p>
+              <p class="text-3xl font-bold text-white mb-1">{{ $authorsCount }}</p>
               <p class="text-sm text-gray-400 font-medium">Authors</p>
             </div>
           </div>
@@ -93,7 +93,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse($books->take(5) as $index => $book)
+                  @forelse($recentBooks as $index => $book)
                   <tr class="border-b border-[#373a40] hover:bg-[#25262b] transition-all duration-200 {{ $index % 2 == 0 ? 'bg-[#2c2e33]' : 'bg-[#272931]' }}">
                     <td class="px-6 py-4">
                       <span class="text-white font-semibold text-base">{{ $book->id }}</span>
@@ -118,7 +118,7 @@
                       <span class="text-gray-300 text-sm">{{ $book->author }}</span>
                     </td>
                     <td class="px-4 py-4">
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-500 border-blue-500/20">
                         <i class="bi bi-tag-fill me-1.5"></i>{{ $book->category }}
                       </span>
                     </td>
@@ -130,14 +130,15 @@
                       <small class="text-gray-500 text-xs">{{ $book->created_at->diffForHumans() }}</small>
                     </td>
                     <td class="px-4 py-4">
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                         <i class="bi bi-stack me-1.5"></i>{{ $book->copies }}
                       </span>
                     </td>
                     
                     <td class="px-4 py-4 text-end">
                       <div class="flex gap-2 justify-end">
-                        <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 editBtn" 
+                       <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200 rounded-md">
+                         <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent  border-cyan-500/20 text-cyan-500 editBtn" 
                                 title="Edit Book"
                                 data-id="{{ $book->id }}"
                                 data-title="{{ $book->title }}"
@@ -151,13 +152,16 @@
                                 data-bs-target="#editBookModal">
                           <i class="bi bi-pencil-square text-base"></i>
                         </button>
-                        <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this book?');">
+                       </div>
+                        <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline delete-book-form">
                           @csrf
                           @method('DELETE')
-                          <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200" 
+                     <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200 rounded-md">
+                           <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent  border-red-500/20 text-red-500" 
                                   title="Delete Book">
                             <i class="bi bi-trash text-base"></i>
                           </button>
+                     </div>
                         </form>
                       </div>
                     </td>
@@ -181,38 +185,32 @@
             </div>
 
             <!-- Pagination -->
+            @if($recentBooks->hasPages())
             <div class="px-6 py-4 border-t border-[#373a40] bg-[#25262b] flex items-center justify-between">
               <div class="text-sm text-gray-400">
-                Showing <span class="font-semibold text-white">1-5</span> of <span class="font-semibold text-white">{{ $books->count() }}</span> books
+                Showing <span class="font-semibold text-white">{{ $recentBooks->firstItem() }}-{{ $recentBooks->lastItem() }}</span> of <span class="font-semibold text-white">{{ $recentBooks->total() }}</span> books
               </div>
-              
               <div class="flex items-center gap-2">
-                <!-- Previous Button -->
-                <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                  <i class="bi bi-chevron-left"></i>
-                </button>
-                
-                <!-- Page Numbers -->
-                <button class="px-4 py-2 rounded-lg bg-cyan-500 text-white font-semibold">
-                  1
-                </button>
-                @if($books->count() > 5)
-                <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
-                  2
-                </button>
+                @if ($recentBooks->onFirstPage())
+                  <span class="px-3 py-2 rounded-lg bg-[#2c2e33] text-gray-600 cursor-not-allowed"><i class="bi bi-chevron-left"></i></span>
+                @else
+                  <a href="{{ $recentBooks->previousPageUrl() }}" class="px-3 py-2 rounded-lg bg-[#2c2e33] text-gray-300 hover:text-cyan-500 transition-all"><i class="bi bi-chevron-left"></i></a>
                 @endif
-                @if($books->count() > 10)
-                <button class="px-4 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-white transition-all">
-                  3
-                </button>
+                @foreach ($recentBooks->getUrlRange(1, $recentBooks->lastPage()) as $page => $url)
+                  @if ($page == $recentBooks->currentPage())
+                    <span class="px-4 py-2 rounded-lg bg-cyan-500 text-white font-semibold">{{ $page }}</span>
+                  @else
+                    <a href="{{ $url }}" class="px-4 py-2 rounded-lg bg-[#2c2e33] text-gray-300 hover:text-white transition-all">{{ $page }}</a>
+                  @endif
+                @endforeach
+                @if ($recentBooks->hasMorePages())
+                  <a href="{{ $recentBooks->nextPageUrl() }}" class="px-3 py-2 rounded-lg bg-[#2c2e33] text-gray-300 hover:text-cyan-500 transition-all"><i class="bi bi-chevron-right"></i></a>
+                @else
+                  <span class="px-3 py-2 rounded-lg bg-[#2c2e33] text-gray-600 cursor-not-allowed"><i class="bi bi-chevron-right"></i></span>
                 @endif
-                
-                <!-- Next Button -->
-                <button class="px-3 py-2 rounded-lg bg-[#2c2e33]  text-gray-400 hover:border-cyan-500/50 hover:text-cyan-500 transition-all {{ $books->count() <= 5 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : '' }}" {{ $books->count() <= 5 ? 'disabled' : '' }}>
-                  <i class="bi bi-chevron-right"></i>
-                </button>
               </div>
             </div>
+            @endif
 
           </div>
         </div>
@@ -225,6 +223,22 @@
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{ asset('js/book-modal.js') }}"></script>
         <script src="{{ asset('js/sidebar.js') }}"></script>
+
+<script>
+// Handle delete book confirmation
+document.addEventListener('submit', async function(e) {
+  if (e.target.classList.contains('delete-book-form')) {
+    e.preventDefault();
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this book? This action cannot be undone.',
+      'Delete Book'
+    );
+    if (confirmed) {
+      e.target.submit();
+    }
+  }
+});
+</script>
 </body>
 
 </html>

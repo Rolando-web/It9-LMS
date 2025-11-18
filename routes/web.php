@@ -8,6 +8,8 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\NotifController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReturnTransactionController;
+use App\Http\Controllers\PayMongoController;
 
 // Guest Routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
@@ -33,7 +35,7 @@ Route::middleware(['user'])->group(function () {
   Route::get('/book-return', [NavController::class, 'book'])->name('book');
   Route::get('/user-transaction', [NavController::class, 'transaction'])->name('user-transaction');
   Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
-  Route::post('/return/{id}', [TransactionController::class, 'return'])->middleware('auth');
+  Route::post('/return/{id}', [ReturnTransactionController::class, 'request'])->name('transactions.return.request')->middleware('auth');
 
   // Notification routes
   Route::get('/notifications', [NotifController::class, 'getNotifications'])->name('notifications.get');
@@ -41,6 +43,11 @@ Route::middleware(['user'])->group(function () {
 
   // Download transaction receipt PDF (User)
   Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt');
+
+  // Payment routes
+  Route::post('/payment/create', [PayMongoController::class, 'createPayment'])->name('payment.create');
+  Route::get('/payment/callback', [PayMongoController::class, 'paymentCallback'])->name('payment.callback');
+  Route::get('/payment/failed', [PayMongoController::class, 'paymentFailed'])->name('payment.failed');
 });
 
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)
@@ -57,8 +64,8 @@ Route::middleware(['admin'])->group(function () {
   Route::post('/admin/transactions/{id}/reject', [StaffController::class, 'adminReject'])->name('admin.transactions.reject');
 
   // Admin approve/reject endpoints for return requests
-  Route::post('/admin/transactions/{id}/approve-return', [StaffController::class, 'approveReturn'])->name('admin.transactions.approve-return');
-  Route::post('/admin/transactions/{id}/reject-return', [StaffController::class, 'rejectReturn'])->name('admin.transactions.reject-return');
+  Route::post('/admin/transactions/{id}/approve-return', [ReturnTransactionController::class, 'approve'])->name('admin.transactions.approve-return');
+  Route::post('/admin/transactions/{id}/reject-return', [ReturnTransactionController::class, 'reject'])->name('admin.transactions.reject-return');
 
   // Download transaction receipt PDF
   Route::get('/admin/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('admin.transaction.receipt');
@@ -77,3 +84,6 @@ Route::middleware(['super_admin'])->group(function () {
 
 // Logout route (accessible to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// PayMongo Webhook (public endpoint, no auth)
+Route::post('/webhooks/paymongo', [PayMongoController::class, 'handleWebhook'])->name('webhooks.paymongo');

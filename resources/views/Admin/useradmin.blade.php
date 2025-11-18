@@ -182,7 +182,7 @@
                         <i class="bi bi-pencil-square text-base"></i>
                       </button>
                      </div>
-                      <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                      <form method="POST" class="inline delete-user-form">
                         @csrf
                         @method('DELETE')
                      <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200">
@@ -219,4 +219,22 @@
 
 
 <x-add-user-modal/>
+<x-notification-modal/>
+
+<script>
+// Handle delete user confirmation
+document.addEventListener('submit', async function(e) {
+  if (e.target.classList.contains('delete-user-form')) {
+    e.preventDefault();
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this user? This action cannot be undone.',
+      'Delete User'
+    );
+    if (confirmed) {
+      e.target.submit();
+    }
+  }
+});
+</script>
+
 <x-import-footer/>

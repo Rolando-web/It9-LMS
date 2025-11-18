@@ -50,7 +50,7 @@
          data-last-page="{{ $books->lastPage() }}"
          data-per-page="{{ $books->perPage() }}">
         @foreach($books as $book)
-          <div class="book-card bg-gray-800 rounded-xl p-2 hover:bg-gray-750 transition-colors group" data-book-id="{{ $book->id }}" data-title="{{ e($book->title) }}" data-author="{{ e($book->author) }}" data-image="{{ asset($book->image ?? 'image/default-book.jpg') }}">
+      <div class="book-card bg-gray-800 rounded-xl p-2 hover:bg-gray-750 transition-colors group" data-book-id="{{ $book->id }}" data-title="{{ e($book->title) }}" data-author="{{ e($book->author) }}" data-image="{{ asset($book->image ?? 'image/default-book.jpg') }}" data-category="{{ strtolower($book->category ?? '') }}">
             <div class="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors group ">
               <div class="mb-4">
                 <div class="w-full h-48 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center mb-4 relative overflow-hidden">
@@ -68,6 +68,9 @@
                     </svg>
                     <span class="text-yellow-400 text-sm font-medium">4.8</span>
                     <span class="text-gray-500 text-sm">{{ \Carbon\Carbon::parse($book->publish_date)->format('Y') }}</span>
+                    @if(($book->copies ?? 0) <= 0)
+                      <span class="text-red-500 text-sm font-semibold ml-2">OUT OF STOCK</span>
+                    @endif
                   </div>
                 </div>
               </div>
@@ -86,7 +89,7 @@
                   Already Borrowed
                 </button>
               @elseif($isOutOfStock)
-                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors mb-2">
+                <button type="button" class="findSimilarBtn w-full bg-white hover:bg-gray-100 text-gray-900 py-2 px-3 rounded-lg text-sm font-medium transition-colors mb-2" data-category="{{ strtolower($book->category ?? '') }}">
                   Find Similar Book
                 </button>
               @else

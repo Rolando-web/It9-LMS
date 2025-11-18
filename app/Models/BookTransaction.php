@@ -27,6 +27,11 @@ class BookTransaction extends Model
 
   protected $dates = ['borrowed_at', 'returned_at', 'return_requested_at', 'due_date', 'created_at', 'updated_at'];
 
+  protected $casts = [
+    'fee' => 'float',
+    'days_overdue' => 'integer',
+  ];
+
   public function user()
   {
     return $this->belongsTo(User::class);
