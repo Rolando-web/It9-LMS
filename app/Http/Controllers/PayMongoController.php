@@ -12,7 +12,7 @@ use App\Models\ActivityLog;
 class PayMongoController extends Controller
 {
     /**
-     * Create a PayMongo source for GCash/PayMaya payment
+     * Create a PayMongo Checkout Session for GCash/PayMaya payment
      */
     public function createPayment(Request $request)
     {
@@ -21,15 +21,21 @@ class PayMongoController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
+        // Ensure PayMongo secret key is configured
+        $secret = env('PAYMONGO_SECRET_KEY') ?: env('PAYMONGO_SECRET');
+        if (empty($secret) || !is_string($secret)) {
+            return response()->json([
+                'message' => 'PayMongo secret key is not configured. Please set PAYMONGO_SECRET_KEY in your .env file.'
+            ], 500);
+        }
+
         $request->validate([
             'transaction_id' => 'required|integer|exists:book_transactions,id',
             'amount' => 'required|numeric|min:1',
-            'payment_method' => 'required|in:gcash,paymaya',
         ]);
 
         $txId = $request->transaction_id;
         $amount = (float) $request->amount;
-        $method = $request->payment_method;
 
         // Verify transaction belongs to user and has outstanding fee
         $tx = BookTransaction::where('id', $txId)
@@ -48,18 +54,27 @@ class PayMongoController extends Controller
         // Convert amount to cents (PayMongo uses smallest currency unit)
         $amountCents = (int) ($amount * 100);
 
-        // Create PayMongo Source (for GCash/PayMaya)
-        $response = Http::withBasicAuth(env('PAYMONGO_SECRET_KEY'), '')
-            ->post('https://api.paymongo.com/v1/sources', [
+        // Create PayMongo Checkout Session (allows user to choose GCash or PayMaya)
+        $response = Http::withBasicAuth($secret, '')
+            ->post('https://api.paymongo.com/v1/checkout_sessions', [
                 'data' => [
                     'attributes' => [
-                        'amount' => $amountCents,
-                        'currency' => 'PHP',
-                        'type' => $method,
-                        'redirect' => [
-                            'success' => url('/payment/callback?transaction_id=' . $txId . '&amount=' . $amount),
-                            'failed' => url('/payment/failed?transaction_id=' . $txId),
+                        'send_email_receipt' => true,
+                        'show_description' => true,
+                        'show_line_items' => true,
+                        'description' => 'Payment for Transaction #' . $txId,
+                        'line_items' => [
+                            [
+                                'currency' => 'PHP',
+                                'amount' => $amountCents,
+                                'description' => 'Book Transaction Fee Payment',
+                                'name' => 'Transaction #' . $txId,
+                                'quantity' => 1,
+                            ]
                         ],
+                        'payment_method_types' => ['gcash', 'paymaya'],
+                        'success_url' => url('/payment/callback?transaction_id=' . $txId . '&amount=' . $amount),
+                        'cancel_url' => url('/payment/failed?transaction_id=' . $txId),
                         'billing' => [
                             'name' => $user->firstName . ' ' . $user->lastName,
                             'email' => $user->email,
@@ -69,23 +84,23 @@ class PayMongoController extends Controller
             ]);
 
         if (!$response->successful()) {
-            Log::error('PayMongo Source Creation Failed', ['response' => $response->json()]);
+            Log::error('PayMongo Checkout Session Creation Failed', ['response' => $response->json()]);
             return response()->json([
-                'message' => 'Failed to create payment source',
+                'message' => 'Failed to create payment session',
                 'error' => $response->json()
             ], 500);
         }
 
-        $source = $response->json()['data'];
-        $checkoutUrl = $source['attributes']['redirect']['checkout_url'] ?? null;
-        $sourceId = $source['id'];
+        $session = $response->json()['data'];
+        $checkoutUrl = $session['attributes']['checkout_url'] ?? null;
+        $sessionId = $session['id'];
 
-        // Store source ID in session for verification
-        session(['paymongo_source_' . $txId => $sourceId]);
+        // Store session ID for verification
+        session(['paymongo_session_' . $txId => $sessionId]);
 
         return response()->json([
-            'message' => 'Payment source created',
-            'source_id' => $sourceId,
+            'message' => 'Payment session created',
+            'session_id' => $sessionId,
             'checkout_url' => $checkoutUrl,
         ]);
     }
@@ -102,69 +117,54 @@ class PayMongoController extends Controller
             return redirect('/user-transaction')->with('error', 'Invalid payment callback');
         }
 
-        // Get stored source ID from session
-        $sourceId = session('paymongo_source_' . $txId);
+        // Get stored session ID
+        $sessionId = session('paymongo_session_' . $txId);
 
-        if (!$sourceId) {
+        if (!$sessionId) {
             return redirect('/user-transaction')->with('error', 'Payment session not found');
         }
 
-        // Verify payment source status
-        $response = Http::withBasicAuth(env('PAYMONGO_SECRET_KEY'), '')
-            ->get("https://api.paymongo.com/v1/sources/{$sourceId}");
+        // Verify checkout session status
+        $secret = env('PAYMONGO_SECRET_KEY') ?: env('PAYMONGO_SECRET');
+        if (empty($secret) || !is_string($secret)) {
+            return redirect('/user-transaction')->with('error', 'PayMongo secret key is not configured.');
+        }
+
+        $response = Http::withBasicAuth($secret, '')
+            ->get("https://api.paymongo.com/v1/checkout_sessions/{$sessionId}");
 
         if (!$response->successful()) {
             return redirect('/user-transaction')->with('error', 'Payment verification failed');
         }
 
-        $source = $response->json()['data'];
-        $status = $source['attributes']['status'];
+        $session = $response->json()['data'];
+        $status = $session['attributes']['payment_intent']['attributes']['status'] ?? null;
 
-        if ($status === 'chargeable' || $status === 'paid') {
-            // Create payment (charge the source)
-            $amountCents = (int) ($amountPaid * 100);
+        if ($status === 'succeeded' || $status === 'awaiting_payment_method') {
+            $tx = BookTransaction::find($txId);
 
-            $chargeResponse = Http::withBasicAuth(env('PAYMONGO_SECRET_KEY'), '')
-                ->post('https://api.paymongo.com/v1/payments', [
-                    'data' => [
-                        'attributes' => [
-                            'amount' => $amountCents,
-                            'currency' => 'PHP',
-                            'source' => [
-                                'id' => $sourceId,
-                                'type' => 'source',
-                            ],
-                            'description' => "Payment for Transaction #{$txId}",
-                        ]
-                    ]
-                ]);
+            if ($tx) {
+                $currentFee = max(0, (float) ($tx->fee ?? 0));
+                $newFee = max(0, $currentFee - $amountPaid);
+                $tx->fee = $newFee;
+                $tx->save();
 
-            if ($chargeResponse->successful()) {
-                $tx = BookTransaction::find($txId);
-
-                if ($tx) {
-                    $currentFee = max(0, (float) ($tx->fee ?? 0));
-                    $newFee = max(0, $currentFee - $amountPaid);
-                    $tx->fee = $newFee;
-                    $tx->save();
-
-                    $user = Auth::user();
-                    if ($user) {
-                        ActivityLog::create([
-                            'user_id' => $user->id,
-                            'user_name' => $user->firstName . ' ' . $user->lastName,
-                            'role' => $user->role,
-                            'action' => 'Payment',
-                            'details' => "Paid ₱{$amountPaid} for transaction #{$txId}. Remaining fee: ₱{$newFee}",
-                            'status' => 'success',
-                        ]);
-                    }
-
-                    // Clear session
-                    session()->forget('paymongo_source_' . $txId);
-
-                    return redirect('/user-transaction')->with('success', "Payment of ₱" . number_format($amountPaid, 2) . " successful! Remaining balance: ₱" . number_format($newFee, 2));
+                $user = Auth::user();
+                if ($user) {
+                    ActivityLog::create([
+                        'user_id' => $user->id,
+                        'user_name' => $user->firstName . ' ' . $user->lastName,
+                        'role' => $user->role,
+                        'action' => 'Payment',
+                        'details' => "Paid ₱{$amountPaid} for transaction #{$txId}. Remaining fee: ₱{$newFee}",
+                        'status' => 'success',
+                    ]);
                 }
+
+                // Clear session
+                session()->forget('paymongo_session_' . $txId);
+
+                return redirect('/user-transaction')->with('success', "Payment of ₱" . number_format($amountPaid, 2) . " successful! Remaining balance: ₱" . number_format($newFee, 2));
             }
         }
 
@@ -178,7 +178,7 @@ class PayMongoController extends Controller
     {
         $txId = $request->query('transaction_id');
         if ($txId) {
-            session()->forget('paymongo_source_' . $txId);
+            session()->forget('paymongo_session_' . $txId);
         }
         return redirect('/user-transaction')->with('error', 'Payment failed or was cancelled.');
     }

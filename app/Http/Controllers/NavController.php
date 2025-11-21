@@ -59,7 +59,7 @@ class NavController extends Controller
 
         $borrowed = BookTransaction::with('book')
             ->where('user_id', $user->id)
-            ->whereIn('status', ['pending', 'borrowed', 'overdue'])
+            ->whereIn('status', ['pending', 'borrowed'])
             ->orderByDesc('borrowed_at')
             ->get();
 

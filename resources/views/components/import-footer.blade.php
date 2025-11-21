@@ -2,6 +2,7 @@
         <script src="{{ asset('js/book-modal.js') }}"></script>
         <script src="{{ asset('js/sidebar.js') }}"></script>
         <script src="{{ asset('js/transaction-modal.js') }}"></script>
+        <script src="{{ asset('js/damage-return.js') }}"></script>
         <script src="{{ asset('js/user-transaction.js') }}"></script>
         <script src="{{ asset('js/notification.js') }}"></script>
 </body>

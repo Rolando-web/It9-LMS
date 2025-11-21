@@ -229,7 +229,14 @@
                     }
                   @endphp
                   <td class="px-4 py-4">
-                    <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
+                    @if($displayFee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-semibold">
+                        <i class="bi bi-check-circle-fill"></i>
+                        PAID
+                      </span>
+                    @else
+                      <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
+                    @endif
                   </td>
                   <td class="px-4 py-4 text-end">
                     <div class="inline-flex items-center gap-2">

@@ -98,17 +98,24 @@
 
     <div class="fee-box">
         <div class="label">Transaction Fee</div>
-        <div class="amount">₱{{ number_format($transaction->fee ?? 0, 2) }}</div>
-        @if($transaction->fee > 0)
-            <p style="margin: 5px 0 0 0; font-size: 10px; color: #856404;">
-                @if($transaction->status === 'overdue')
-                    (Overdue charges apply)
-                @elseif($transaction->status === 'returned')
-                    (Fee paid)
-                @endif
-            </p>
+        @if($transaction->fee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
+            <div class="amount" style="color: #10b981; font-weight: bold; font-size: 24px;">PAID</div>
+            <p style="margin: 5px 0 0 0; font-size: 10px; color: #10b981;">All fees have been paid</p>
         @else
-            <p style="margin: 5px 0 0 0; font-size: 10px; color: #856404;">No fees charged</p>
+            <div class="amount">₱{{ number_format($transaction->fee ?? 0, 2) }}</div>
+            @if($transaction->fee > 0)
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #856404;">
+                    @if($transaction->status === 'overdue')
+                        (Overdue charges apply)
+                    @elseif($transaction->status === 'returned')
+                        (Outstanding balance)
+                    @elseif($transaction->status === 'damaged')
+                        (Damage fee applied)
+                    @endif
+                </p>
+            @else
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #856404;">No fees charged</p>
+            @endif
         @endif
     </div>
 

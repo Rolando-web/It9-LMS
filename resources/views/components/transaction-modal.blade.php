@@ -58,7 +58,7 @@
                         </div>
                         <div class="mb-2">
                           <label for="damageFee" class="form-label text-gray-300">Damage Fee (₱)</label>
-                          <input type="number" id="damageFee" class="form-control" min="0" step="0.01" placeholder="0.00" style="background:#1f2126;border-color:#3a3d44;color:#fff">
+                          <input type="number" id="damageFee" class="form-control" min="0" step="0.01" placeholder="0.00" required style="background:#1f2126;border-color:#3a3d44;color:#fff">
                         </div>
                         <small class="text-gray-400">This fee will be added to any existing overdue fees.</small>
                       </div>

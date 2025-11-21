@@ -5,8 +5,27 @@ function getCsrfToken() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Note: Eye button now uses
-    const viewButtons = document.querySelectorAll(".view-user-transaction-btn");
+    // Show toast for flash messages (e.g., payment failed/cancelled)
+    try {
+        const flash = document.getElementById("flash-data");
+        if (flash) {
+            const ok = flash.getAttribute("data-success");
+            const err = flash.getAttribute("data-error");
+            if (err && err.trim()) {
+                showToast("Payment", err.trim(), "error");
+            } else if (ok && ok.trim()) {
+                showToast("Payment", ok.trim(), "success");
+                // Payment successful - reload page to update all fees
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+    } catch {}
+    // Support both legacy and current eye button classes
+    const viewButtons = document.querySelectorAll(
+        ".view-user-transaction-btn, .view-transaction-btn"
+    );
 
     viewButtons.forEach((button) => {
         button.addEventListener("click", function () {
@@ -37,6 +56,25 @@ document.addEventListener("DOMContentLoaded", function () {
             const downloadBtn = document.getElementById("downloadReceiptBtn");
             if (downloadBtn) {
                 downloadBtn.href = "/transaction/" + txId + "/receipt";
+            }
+
+            // Toggle Pay Now button for users when fee > 0
+            const payBtn = document.getElementById("payNowBtn");
+            const payAmt = document.getElementById("payNowAmount");
+            const feeNum =
+                parseFloat((fee || "0").toString().replace(/[^\d.]/g, "")) || 0;
+            if (payBtn) {
+                if (feeNum > 0) {
+                    payBtn.classList.remove("d-none");
+                    payBtn.setAttribute("data-tx-id", txId);
+                    payBtn.setAttribute("data-fee", String(feeNum));
+                    if (payAmt) payAmt.textContent = feeNum.toFixed(2);
+                } else {
+                    payBtn.classList.add("d-none");
+                    payBtn.removeAttribute("data-tx-id");
+                    payBtn.removeAttribute("data-fee");
+                    if (payAmt) payAmt.textContent = "0.00";
+                }
             }
 
             // Update status box and return date box colors based on status
@@ -403,3 +441,97 @@ if (!document.getElementById("toastStyles")) {
     `;
     document.head.appendChild(style);
 }
+
+// Optional live updater: recalculate overdue fee in the browser for active borrowings
+(function () {
+    function computeDaysOver(dueStr) {
+        if (!dueStr) return 0;
+        try {
+            const due = new Date(dueStr + "T00:00:00");
+            due.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffMs = today.getTime() - due.getTime();
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            return days > 0 ? days : 0;
+        } catch {
+            return 0;
+        }
+    }
+
+    function updateFees() {
+        const nodes = document.querySelectorAll(".live-fee");
+        nodes.forEach((node) => {
+            const freeze = node.getAttribute("data-freeze") === "1";
+            if (freeze) return; // do not update frozen (return_pending)
+            const due = node.getAttribute("data-due");
+            const rate = parseFloat(node.getAttribute("data-rate") || "50");
+            const days = computeDaysOver(due);
+            const raw = days * rate;
+            const fee = (raw < 0 ? 0 : raw).toFixed(2);
+            node.textContent = `₱${fee}`;
+        });
+    }
+
+    // Run once and then every minute
+    updateFees();
+    setInterval(updateFees, 60000);
+})();
+
+// Direct Pay Now: create PayMongo source and redirect without modal
+document.addEventListener("click", async function (e) {
+    const btn =
+        (e.target.closest && e.target.closest("#payNowBtn")) ||
+        (e.target.closest && e.target.closest(".pay-now-btn"));
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const txId = btn.getAttribute("data-tx-id");
+    const feeAttr = btn.getAttribute("data-fee");
+    const amount = Math.max(
+        0,
+        parseFloat((feeAttr || "0").toString().replace(/[^\d.]/g, "")) || 0
+    );
+    if (!txId || amount <= 0) {
+        alert("Invalid payment details. Please try again.");
+        return;
+    }
+
+    const csrf = document.querySelector('meta[name="csrf-token"]');
+    const token = csrf ? csrf.getAttribute("content") : "";
+
+    try {
+        const res = await fetch("/payment/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": token,
+                Accept: "application/json",
+            },
+            body: JSON.stringify({
+                transaction_id: txId,
+                amount: amount,
+                // No payment_method: backend will default (e.g., GCash) or support Checkout in future
+            }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.message || "Payment creation failed");
+        }
+
+        if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+        } else {
+            alert(
+                data.message ||
+                    "No checkout URL received. Please contact support."
+            );
+        }
+    } catch (err) {
+        console.error("Payment error:", err);
+        alert(err.message || "An error occurred. Please try again.");
+    }
+});

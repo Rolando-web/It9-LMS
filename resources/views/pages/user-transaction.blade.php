@@ -6,18 +6,11 @@
 
 <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-6 py-8">
-    @if(session('success'))
-    <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      <span>{{ session('success') }}</span>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      <span>{{ session('error') }}</span>
-    </div>
+    @if(session('success') || session('error'))
+      <div id="flash-data" class="hidden" 
+           data-success="{{ session('success') }}" 
+           data-error="{{ session('error') }}">
+      </div>
     @endif
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-[#1E2939] rounded-xl p-6 text-white">
@@ -150,11 +143,16 @@
                     $displayUserFee = $tx->fee ?? 0;
                   }
                 @endphp
-                <td class="py-4 px-4 font-medium text-[#e24545]">
+                <td class="py-4 px-4 font-medium">
                   @if($tx->status === 'pending')
-                    <span>₱0.00</span>
+                    <span class="text-[#e24545]">₱0.00</span>
+                  @elseif($displayUserFee == 0 && in_array($tx->status, ['returned', 'damaged']))
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                      PAID
+                    </span>
                   @else
-                    <span class="{{ $tx->status === 'return_pending' ? 'live-fee' : (in_array($tx->status,['borrowed','overdue']) && is_null($tx->returned_at) ? 'live-fee' : '') }}"
+                    <span class="text-[#e24545] {{ $tx->status === 'return_pending' ? 'live-fee' : (in_array($tx->status,['borrowed','overdue']) && is_null($tx->returned_at) ? 'live-fee' : '') }}"
                           @if(in_array($tx->status,['borrowed','overdue']) && is_null($tx->returned_at))
                             data-due="{{ $tx->due_date ? \Carbon\Carbon::parse($tx->due_date)->toDateString() : '' }}"
                             data-rate="{{ $rate }}"
@@ -215,27 +213,9 @@
           <tbody class="text-white">
             @forelse($history as $tx)
               @php
-                // Compute finalized display fee for history rows
-                // Prefer stored fee; fallback to live calculation for active overdue
+                // Use the stored fee from database (which is 0 after payment)
                 $finalFee = max(0, (float) ($tx->fee ?? 0));
                 $status = strtolower($tx->status ?? '');
-                
-                // For active overdue transactions (not yet returned or return pending)
-                if ($finalFee <= 0 && !empty($tx->due_date)) {
-                  $dueDay = \Carbon\Carbon::parse($tx->due_date)->startOfDay();
-                  $today = \Carbon\Carbon::now()->startOfDay();
-                  
-                  // If returned, use return date; otherwise use today
-                  if (!empty($tx->returned_at)) {
-                    $retDay = \Carbon\Carbon::parse($tx->returned_at)->startOfDay();
-                    if ($retDay->greaterThan($dueDay)) {
-                      $finalFee = max(0, $dueDay->diffInDays($retDay) * 50);
-                    }
-                  } elseif (in_array($status, ['borrowed', 'overdue', 'return_pending']) && $today->greaterThan($dueDay)) {
-                    // Active overdue: calculate from due date to today
-                    $finalFee = max(0, $dueDay->diffInDays($today) * 50);
-                  }
-                }
               @endphp
               <tr class="border-b border-gray-100 hover:bg-[#101929] border-opacity-10">
                 <td class="py-4 px-4 font-medium">{{ $tx->id }}</td>
@@ -248,10 +228,12 @@
                   @if($finalFee == 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at))
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                      Paid
+                      PAID
                     </span>
+                  @elseif($finalFee > 0)
+                    <span class="text-[#e24545]">₱{{ number_format($finalFee, 2) }}</span>
                   @else
-                    <span class="text-[#e24545]">₱{{ number_format($finalFee < 0 ? 0 : $finalFee, 2) }}</span>
+                    <span class="text-gray-400">₱0.00</span>
                   @endif
                 </td>
                 <td class="py-4 px-4 text-center">
@@ -283,119 +265,8 @@
       </div>
     </div>
   </main>
-  <x-pay-modal/>
-  <script src="/js/pay-modal.js"></script>
   <script src="/js/user-transaction.js"></script>
-  <script>
-    // Immediately reflect return request fee and status on the table without waiting for admin approval
-    (function(){
-      function findRowByTxId(txId){
-        let row = document.querySelector(`tr[data-tx-id="${txId}"]`);
-        if (row) return row;
-        // Fallback: find by first cell text matching txId
-        const rows = document.querySelectorAll('table tbody tr');
-        for (const r of rows){
-          const first = r.querySelector('td');
-          if (first && first.textContent.trim() === String(txId)) return r;
-        }
-        return null;
-      }
-
-      function formatMoney(n){
-        const v = Math.max(0, parseFloat(n||0));
-        return `₱${v.toFixed(2)}`;
-      }
-
-      function updateOutstanding(delta){
-        const amtEl = document.getElementById('outstandingFeesAmount');
-        if (!amtEl) return;
-        const current = parseFloat(amtEl.getAttribute('data-amount')||'0');
-        const next = Math.max(0, current + (parseFloat(delta)||0));
-        amtEl.setAttribute('data-amount', String(next));
-        amtEl.textContent = `₱${next.toFixed(2)}`;
-        const payBtn = document.getElementById('outstandingFeesPayBtn');
-        if (payBtn) payBtn.setAttribute('data-fee', String(next));
-      }
-
-      // Listen for custom event dispatched after return success if present
-      window.addEventListener('user:return-success', function(ev){
-        const detail = ev.detail || {};
-        const txId = detail.id;
-        const fee = parseFloat(detail.fee||0);
-        const row = findRowByTxId(txId);
-        if (row){
-          // Update status label
-          const statusCell = row.children[6]; // Status column
-          if (statusCell){
-            statusCell.innerHTML = '<span class="status-label inline-flex items-center px-2.5 py-0.5 rounded-md text-small font-medium text-orange-500">Return pending</span>';
-          }
-          // Update fee and freeze it
-          const feeCell = row.children[7];
-          const feeSpan = feeCell ? feeCell.querySelector('.live-fee') : null;
-          let prev = 0;
-          if (feeSpan){
-            const text = feeSpan.textContent || '';
-            const m = text.replace(/[^\d.]/g,'');
-            prev = parseFloat(m||'0')||0;
-            feeSpan.setAttribute('data-freeze','1');
-            feeSpan.textContent = formatMoney(fee);
-          }
-          // Update outstanding total by delta
-          updateOutstanding(fee - prev);
-        }
-      });
-
-      // Intercept clicks on .return-btn in this page to update UI immediately after fetch success
-      document.addEventListener('click', function(e){
-        const btn = e.target.closest && e.target.closest('.return-btn');
-        if (!btn) return;
-        const txId = btn.getAttribute('data-tx-id') || btn.dataset.txId;
-        if (!txId) return;
-        // Patch fetch response handling by listening to a marker set by the shared handler
-        // If the global handler isn’t present, do nothing here.
-        const handler = function(ev){
-          if (!ev || !ev.detail) return;
-          if (String(ev.detail.id) !== String(txId)) return;
-          window.removeEventListener('user:return-success', handler);
-        };
-        window.addEventListener('user:return-success', handler);
-      }, true);
-    })();
-
-    // Optional live updater: recalculate overdue fee in the browser for active borrowings
-    (function(){
-      function computeDaysOver(todayStr, dueStr){
-        if(!dueStr) return 0;
-        try {
-          // normalize to local midnight to avoid partial-day issues
-          const toMid = (d) => { const dt = new Date(d+"T00:00:00"); dt.setHours(0,0,0,0); return dt; };
-          const due = toMid(dueStr);
-          const today = new Date(); today.setHours(0,0,0,0);
-          const diffMs = today.getTime() - due.getTime();
-          const days = Math.floor(diffMs / (1000*60*60*24));
-          return days > 0 ? days : 0;
-        } catch { return 0; }
-      }
-
-      function updateFees(){
-        const nodes = document.querySelectorAll('.live-fee');
-        nodes.forEach(node => {
-          const freeze = node.getAttribute('data-freeze') === '1';
-          if (freeze) return; // do not update frozen (return_pending)
-          const due = node.getAttribute('data-due');
-          const rate = parseFloat(node.getAttribute('data-rate')||'50');
-          const days = computeDaysOver(undefined, due);
-          const raw = days * rate;
-          const fee = (raw < 0 ? 0 : raw).toFixed(2);
-          node.textContent = `₱${fee}`;
-        });
-      }
-
-      updateFees();
-      // Update periodically (every minute)
-      setInterval(updateFees, 60000);
-    })();
-  </script>
-      <x-transaction-modal/>
-  <x-notification-modal/>
+  
+        <x-transaction-modal/>
+      <x-notification-modal/>
 <x-import-footer/>
