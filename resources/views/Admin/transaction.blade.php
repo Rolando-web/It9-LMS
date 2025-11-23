@@ -217,7 +217,7 @@
                     }
                   @endphp
                   <td class="px-4 py-4">
-                    @if($displayFee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
+                    @if($displayFee == 0 && $originalFee > 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
                       <span class="text-gray-400 text-sm">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-xs font-semibold"><i class="bi bi-check-circle-fill"></i>PAID</span>
                     @else
                       <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
@@ -241,7 +241,7 @@
                               data-status="{{ ucfirst(str_replace('_', ' ', $transaction->status)) }}"
                               data-fee="{{ $displayFee < 0 ? 0 : $displayFee }}"
                               data-original-fee="{{ $originalFee }}"
-                              data-is-paid="{{ $displayFee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at) ? '1' : '0' }}">
+                              data-is-paid="{{ $displayFee == 0 && $originalFee > 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at) ? '1' : '0' }}">
                         <i class="bi bi-eye text-base"></i>
                       </button>
                   </div>

@@ -98,11 +98,14 @@
 
     <div class="fee-box">
         <div class="label">Transaction Fee</div>
-        @if($transaction->fee == 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
-            <div class="amount">₱{{ number_format($transaction->original_fee ?? 0, 2) }}/<span style="color: #10b981; font-weight: bold;">PAID</span></div>
+        @php
+            $originalFee = max(0, (float) ($transaction->original_fee ?? 0));
+        @endphp
+        @if($transaction->fee == 0 && $originalFee > 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
+            <div class="amount">PHP {{ number_format($originalFee, 2) }}/<span style="color: #10b981; font-weight: bold;">PAID</span></div>
             <p style="margin: 5px 0 0 0; font-size: 10px; color: #10b981;">All fees have been paid</p>
         @else
-            <div class="amount">₱{{ number_format($transaction->fee ?? 0, 2) }}</div>
+            <div class="amount">PHP {{ number_format($transaction->fee ?? 0, 2) }}</div>
             @if($transaction->fee > 0)
                 <p style="margin: 5px 0 0 0; font-size: 10px; color: #856404;">
                     @if($transaction->status === 'overdue')

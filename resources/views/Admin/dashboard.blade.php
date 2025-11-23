@@ -8,13 +8,25 @@
     @include('components.sidebar')
 
     <x-header>
-  <h1 class="text-light mb-0 text-3xl">
+  <h1 class="text-light mb-0 text-2xl md:text-3xl">
        Dashboard
       </h1>
     </x-header>
 
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
+          <!-- Dashboard Filter -->
+          <div class="flex justify-end mb-6">
+            <div class="flex items-center gap-3">
+              <label class="text-gray-400 text-sm font-medium">Dashboard Period:</label>
+              <select id="dashboardFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                <option value="6">Last 6 Months</option>
+                <option value="3">Last 3 Months</option>
+                <option value="1">This Month</option>
+              </select>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-[#2c2e33]  rounded-xl p-6 hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
               <div class="flex items-center justify-between">
@@ -70,7 +82,6 @@
 
           <!-- Charts Section -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Return Status Chart -->
             <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -102,11 +113,11 @@
             <!-- Total Borrowed Chart -->
             <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                <h5 class="font-semibold text-white flex items-center gap-2 md:text-lg">
                   <i class="bi bi-bar-chart text-blue-500"></i>
                   Total Borrowed
-                </h3>
-                <select id="borrowedFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
+                </h5>
+                <select id="borrowedFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg p-1 md:px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
                   <option value="6">Last 6 Months</option>
                   <option value="3">Last 3 Months</option>
                   <option value="1">This Month</option>
@@ -120,11 +131,11 @@
             <!-- Total Activities Chart -->
             <div class="bg-[#2c2e33] rounded-xl shadow-xl p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                <h3 class="md:text-lg font-semibold text-white flex items-center gap-2">
                   <i class="bi bi-activity text-purple-500"></i>
                   Total Activities
                 </h3>
-                <select id="activitiesFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-purple-500">
+                <select id="activitiesFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg p-1 md:px-3 py-1.5  focus:ring-2 focus:ring-purple-500">
                   <option value="6">Last 6 Months</option>
                   <option value="3">Last 3 Months</option>
                   <option value="1">This Month</option>
@@ -452,7 +463,33 @@ let activitiesChart = new Chart(activitiesCtx, {
     }
 });
 
-// Filter handlers
+// Update charts function
+function updateCharts(months) {
+    // Update Borrowed Chart
+    const filteredBorrowedData = borrowedData.slice(-months);
+    borrowedChart.data.labels = filteredBorrowedData.map(d => d.month);
+    borrowedChart.data.datasets[0].data = filteredBorrowedData.map(d => d.count);
+    borrowedChart.update();
+    
+    // Update Activities Chart
+    const filteredActivitiesData = activitiesData.slice(-months);
+    activitiesChart.data.labels = filteredActivitiesData.map(d => d.month);
+    activitiesChart.data.datasets[0].data = filteredActivitiesData.map(d => d.count);
+    activitiesChart.update();
+}
+
+// Main Dashboard Filter (Parent Filter)
+document.getElementById('dashboardFilter').addEventListener('change', function(e) {
+    const months = parseInt(e.target.value);
+    
+    document.getElementById('borrowedFilter').value = e.target.value;
+    document.getElementById('activitiesFilter').value = e.target.value;
+    
+    // Update all charts
+    updateCharts(months);
+});
+
+
 document.getElementById('borrowedFilter').addEventListener('change', function(e) {
     const months = parseInt(e.target.value);
     const filteredData = borrowedData.slice(-months);

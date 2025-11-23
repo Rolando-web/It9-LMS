@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const returnDate = this.getAttribute("data-return-date") || "--";
             const statusText = this.getAttribute("data-status") || "--";
             const feeVal = this.getAttribute("data-fee") || "0";
+            const originalFee = this.getAttribute("data-original-fee") || feeVal;
+            const isPaid = this.getAttribute("data-is-paid") === "1";
 
             // Basic assignments
             if (els.bookImage) els.bookImage.src = bookImage;
@@ -45,7 +47,16 @@ document.addEventListener("DOMContentLoaded", function () {
             if (els.returnDate)
                 els.returnDate.textContent = returnDate || "Not returned";
             if (els.status) els.status.textContent = statusText;
-            if (els.fee) els.fee.textContent = `₱${Number(feeVal).toFixed(2)}`;
+            
+            // Display fee with PAID badge if applicable
+            if (els.fee) {
+                if (isPaid) {
+                    const feeNum = parseFloat(originalFee) || 0;
+                    els.fee.innerHTML = '₱' + feeNum.toFixed(2) + '/<span style="color: #10b981; font-weight: bold; padding: 2px 8px; background: rgba(16, 185, 129, 0.1); border-radius: 4px; font-size: 0.85em;">PAID</span>';
+                } else {
+                    els.fee.textContent = `₱${Number(feeVal).toFixed(2)}`;
+                }
+            }
 
             // Update buttons with tx id
             if (els.approveBtn) els.approveBtn.setAttribute("data-tx-id", txId);

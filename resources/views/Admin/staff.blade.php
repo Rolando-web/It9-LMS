@@ -193,3 +193,4 @@
 
   {{-- Import external staff.js --}}
   <script src="{{ asset('js/staff.js') }}"></script>
+  <x-import-footer/>

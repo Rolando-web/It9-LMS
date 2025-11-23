@@ -127,27 +127,23 @@
                   if ($due && $now->greaterThan($due)) {
                     $daysOver = $now->copy()->startOfDay()->diffInDays($due->copy()->startOfDay());
                   }
-                  // Fee rules (user page):
-                  // pending: always 0 (not yet active borrow)
-                  // borrowed / overdue (no return request): live overdue days * rate
-                  // return_pending: frozen stored fee (no escalation)
-                  // damaged / returned / overdue with returned_at: stored fee
                   $computedLive = $daysOver * $rate;
+                  $originalFee = max(0, (float) ($tx->original_fee ?? 0));
                   if ($tx->status === 'pending') {
                     $displayUserFee = 0;
                   } elseif ($tx->status === 'return_pending') {
-                    $displayUserFee = $tx->fee ?? 0; // frozen
+                    $displayUserFee = $tx->fee ?? 0;
                   } elseif (in_array($tx->status, ['borrowed','overdue']) && is_null($tx->returned_at)) {
                     $displayUserFee = $computedLive;
-                  } else { // finalized states
+                  } else {
                     $displayUserFee = $tx->fee ?? 0;
                   }
                 @endphp
                 <td class="py-4 px-4 font-medium">
                   @if($tx->status === 'pending')
                     <span class="text-[#e24545]">₱0.00</span>
-                  @elseif($displayUserFee == 0 && in_array($tx->status, ['returned', 'damaged']))
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
+                  @elseif($displayUserFee == 0 && $originalFee > 0 && in_array($tx->status, ['returned', 'damaged']))
+                    <span class="text-gray-400">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                       PAID
                     </span>
@@ -186,8 +182,6 @@
         </table>
       </div>
     </div>
-
-    <!-- Transaction History -->
     <div class="bg-[#1E2939] rounded-xl p-6">
       <div class="flex items-center space-x-2 mb-6">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +207,6 @@
           <tbody class="text-white">
             @forelse($history as $tx)
               @php
-                // Use the stored fee from database (which is 0 after payment)
                 $finalFee = max(0, (float) ($tx->fee ?? 0));
                 $originalFee = max(0, (float) ($tx->original_fee ?? 0));
                 $status = strtolower($tx->status ?? '');
@@ -226,7 +219,7 @@
                 <td class="py-4 px-4">{{ $tx->borrowed_at ? \Carbon\Carbon::parse($tx->borrowed_at)->format('M d, Y') : '' }}</td>
                 <td class="py-4 px-4">{{ $tx->returned_at ? \Carbon\Carbon::parse($tx->returned_at)->format('M d, Y') : 'N/A' }}</td>
                 <td class="py-4 px-4 font-medium">
-                  @if($finalFee == 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at))
+                   @if($finalFee == 0 && $originalFee > 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at))
                     <span class="text-gray-400">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold">PAID</span>
                   @elseif($finalFee > 0)
                     <span class="text-[#e24545]">₱{{ number_format($finalFee, 2) }}</span>
@@ -250,7 +243,7 @@
         data-status="{{ ucfirst($tx->status) }}"
         data-fee="{{ $finalFee < 0 ? 0 : $finalFee }}"
         data-original-fee="{{ $originalFee }}"
-        data-is-paid="{{ $finalFee == 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at) ? '1' : '0' }}">
+        data-is-paid="{{ $finalFee == 0 && $originalFee > 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at) ? '1' : '0' }}">
                     <i class="bi bi-eye text-base"></i>
                   </button>
                 </td>

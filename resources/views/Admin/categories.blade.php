@@ -6,8 +6,7 @@
     
     @include('components.sidebar')
     <x-header>
-      <h1 class="text-light mb-0 text-3xl flex items-center gap-2">
-        <i class="bi bi-tags-fill text-emerald-500"></i>
+      <h1 class="text-light mb-0 text-2xl flex items-center gap-2 md:text-3xl">
         Book Categories
       </h1>
     </x-header>
@@ -18,13 +17,13 @@
         <div class="mb-6">
           <div class="bg-[#2c2e33] rounded-lg px-6 py-4 flex items-center justify-between">
             <div>
-              <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+              <h2 class="text-xl font-semibold text-white flex items-center gap-2 md:text-2xl">
                 <i class="bi bi-collection text-emerald-500"></i>
                 Browse Categories
               </h2>
               <p class="text-gray-400 text-sm mt-1">Explore books by category</p>
             </div>
-            <span class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <span class="inline-flex items-center p-1 md:px-4 py-2 rounded-lg text-sm font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
               <i class="bi bi-grid-3x3-gap-fill me-2"></i>8 Categories
             </span>
           </div>
