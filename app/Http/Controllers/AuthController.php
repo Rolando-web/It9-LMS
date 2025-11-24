@@ -47,12 +47,11 @@ class AuthController extends Controller
     {
         $books = \App\Models\Book::latest()->take(8)->get();
 
-        // Get category statistics from CategoryController
         $categoryController = new \App\Http\Controllers\CategoryController();
         $categories = $categoryController->getCategoryStats();
 
-        // Get statistics for hero section
-        $totalBooks = \App\Models\Book::sum('copies'); // Total available copies
+
+        $totalBooks = \App\Models\Book::sum('copies');
         $activeMembers = \App\Models\User::where('role', 'user')->count();
         $totalAdmins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->count();
 
@@ -77,7 +76,6 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Log registration
         ActivityLog::create([
             'user_id' => $user->id,
             'user_name' => $user->firstName . ' ' . $user->lastName,
@@ -87,17 +85,12 @@ class AuthController extends Controller
             'status' => 'success',
         ]);
 
-        // Automatically log in the user after registration
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Redirect to user dashboard (home)
         return redirect()->route('home')->with('success', 'Account Created Successfully! Welcome to the Library Management System.');
     }
 
-    /**
-     * Show the forgot password (reset link request) form
-     */
     public function showForgotPasswordForm()
     {
         if (Auth::check()) {
@@ -106,9 +99,6 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
-    /**
-     * Simplified: verify email exists and proceed to reset form (no email sending)
-     */
     public function checkEmail(Request $request)
     {
         $validated = $request->validate([
@@ -124,16 +114,12 @@ class AuthController extends Controller
             ->with('success', 'Email verified. Please set a new password.');
     }
 
-    /**
-     * Show the password reset form (simplified, no token)
-     */
     public function showResetForm(Request $request)
     {
         $email = $request->query('email');
         if (!$email) {
             return redirect()->route('password.request');
         }
-        // Optionally verify email exists before showing form
         $exists = User::where('email', $email)->exists();
         if (!$exists) {
             return redirect()->route('password.request')->withErrors(['email' => 'Invalid or unknown email.']);
@@ -141,9 +127,6 @@ class AuthController extends Controller
         return view('auth.reset-password', ['email' => $email]);
     }
 
-    /**
-     * Handle the password reset (simplified, directly updates by email)
-     */
     public function resetPassword(Request $request)
     {
         $validated = $request->validate([
