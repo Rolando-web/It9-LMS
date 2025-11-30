@@ -63,6 +63,84 @@ class DashboardController extends Controller
         ));
     }
 
+    // AJAX: Dashboard data for a specific date (per-day view)
+    public function dashboardByDate(Request $request)
+    {
+        $dateStr = $request->query('date');
+        try {
+            $date = $dateStr ? \Carbon\Carbon::parse($dateStr)->startOfDay() : now()->startOfDay();
+        } catch (\Exception $e) {
+            $date = now()->startOfDay();
+        }
+
+        $start = $date->copy();
+        $end = $date->copy()->endOfDay();
+
+        // Return status (for the selected day)
+        $returnedWell = BookTransaction::where('status', 'returned')
+            ->whereBetween('returned_at', [$start, $end])
+            ->count();
+        $returnedDamaged = BookTransaction::where('status', 'damaged')
+            ->whereBetween('returned_at', [$start, $end])
+            ->count();
+
+        // Borrowed by hour (0-23)
+        $borrowedByHour = [];
+        for ($h = 0; $h < 24; $h++) {
+            $hStart = $start->copy()->addHours($h);
+            $hEnd = $hStart->copy()->endOfHour();
+            $count = BookTransaction::whereBetween('borrowed_at', [$hStart, $hEnd])->count();
+            $borrowedByHour[] = [
+                'hour' => $hStart->format('H:00'),
+                'count' => $count,
+            ];
+        }
+
+        // Activities by hour (0-23)
+        $activitiesByHour = [];
+        for ($h = 0; $h < 24; $h++) {
+            $hStart = $start->copy()->addHours($h);
+            $hEnd = $hStart->copy()->endOfHour();
+            $count = ActivityLog::whereBetween('created_at', [$hStart, $hEnd])->count();
+            $activitiesByHour[] = [
+                'hour' => $hStart->format('H:00'),
+                'count' => $count,
+            ];
+        }
+
+        // Recently added books on selected day (limit 5)
+        $recentBooks = Book::whereBetween('created_at', [$start, $end])
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        // Card metrics for selected day
+        $booksAddedCount = Book::whereBetween('created_at', [$start, $end])->count();
+        $categoriesCountDay = Book::whereBetween('created_at', [$start, $end])
+            ->distinct('category')->count('category');
+        $availableCopiesDay = Book::whereBetween('created_at', [$start, $end])->sum('copies');
+        $authorsCountDay = Book::whereBetween('created_at', [$start, $end])
+            ->distinct('author')->count('author');
+
+        // Render rows partial
+        $rowsHtml = view('Admin.partials.dashboard-recent-rows', [
+            'recentBooks' => $recentBooks,
+        ])->render();
+
+        return response()->json([
+            'date' => $date->toDateString(),
+            'returnedWell' => $returnedWell,
+            'returnedDamaged' => $returnedDamaged,
+            'borrowedByHour' => $borrowedByHour,
+            'activitiesByHour' => $activitiesByHour,
+            'recentRowsHtml' => $rowsHtml,
+            'totalBooksDay' => $booksAddedCount,
+            'categoriesCountDay' => $categoriesCountDay,
+            'availableCopiesDay' => $availableCopiesDay,
+            'authorsCountDay' => $authorsCountDay,
+        ]);
+    }
+
     // Staff management view
     public function staff()
     {

@@ -15,15 +15,11 @@
 
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
-          <!-- Dashboard Filter -->
+          <!-- Dashboard Date Filter -->
           <div class="flex justify-end mb-6">
             <div class="flex items-center gap-3">
-              <label class="text-gray-400 text-sm font-medium">Dashboard Period:</label>
-              <select id="dashboardFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                <option value="6">Last 6 Months</option>
-                <option value="3">Last 3 Months</option>
-                <option value="1">This Month</option>
-              </select>
+              <label for="dashboardDate" class="text-gray-400 text-sm font-medium">Dashboard Date:</label>
+              <input type="date" id="dashboardDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
             </div>
           </div>
 
@@ -34,7 +30,7 @@
                   <i class="bi bi-book-fill text-blue-500 text-2xl"></i>
                 </div>
                 <div class="text-right">
-                  <p class="text-3xl font-bold text-white mb-1">{{ $totalBooks }}</p>
+                  <p id="totalBooksCount" class="text-3xl font-bold text-white mb-1">{{ $totalBooks }}</p>
                   <p class="text-sm text-gray-400 font-medium">Total Books</p>
                 </div>
               </div>
@@ -47,7 +43,7 @@
                   <i class="bi bi-tags-fill text-emerald-500 text-2xl"></i>
                 </div>
                 <div class="text-right">
-                  <p class="text-3xl font-bold text-white mb-1">{{ $categoriesCount }}</p>
+                  <p id="categoriesCount" class="text-3xl font-bold text-white mb-1">{{ $categoriesCount }}</p>
                   <p class="text-sm text-gray-400 font-medium">Categories</p>
                 </div>
               </div>
@@ -60,7 +56,7 @@
                   <i class="bi bi-stack text-purple-500 text-2xl"></i>
                 </div>
                 <div class="text-right">
-                  <p class="text-3xl font-bold text-white mb-1">{{ $availableCopies }}</p>
+                  <p id="availableCopiesCount" class="text-3xl font-bold text-white mb-1">{{ $availableCopies }}</p>
                   <p class="text-sm text-gray-400 font-medium">Available Copies</p>
                 </div>
               </div>
@@ -73,7 +69,7 @@
                   <i class="bi bi-people-fill text-orange-500 text-2xl"></i>
                 </div>
                 <div class="text-right">
-                  <p class="text-3xl font-bold text-white mb-1">{{ $authorsCount }}</p>
+                  <p id="authorsCount" class="text-3xl font-bold text-white mb-1">{{ $authorsCount }}</p>
                   <p class="text-sm text-gray-400 font-medium">Authors</p>
                 </div>
               </div>
@@ -98,14 +94,14 @@
                     <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
                     <span class="text-gray-400">Returned Well</span>
                   </div>
-                  <span class="text-white font-semibold">{{ $returnedWell }}</span>
+                  <span id="returnedWellCount" class="text-white font-semibold">{{ $returnedWell }}</span>
                 </div>
                 <div class="flex items-center justify-between text-sm">
                   <div class="flex items-center gap-2">
                     <div class="w-3 h-3 bg-red-500 rounded-full"></div>
                     <span class="text-gray-400">Damaged</span>
                   </div>
-                  <span class="text-white font-semibold">{{ $returnedDamaged }}</span>
+                  <span id="returnedDamagedCount" class="text-white font-semibold">{{ $returnedDamaged }}</span>
                 </div>
               </div>
             </div>
@@ -236,7 +232,7 @@
                           <i class="bi bi-pencil-square text-base"></i>
                         </button>
                        </div>
-                        <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline delete-book-form">
+                        <form method="POST" action="{{ route('delete-book', $book->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this book?');">
                           @csrf
                           @method('DELETE')
                      <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200 rounded-md">
@@ -310,7 +306,7 @@
         <script src="{{ asset('js/sidebar.js') }}"></script>
 
 <script>
-// Chart.js Configuration
+// Chart.js Configuration (initial monthly data; will be replaced by date fetch)
 const borrowedData = @json($borrowedByMonth);
 const activitiesData = @json($activitiesByMonth);
 
@@ -463,65 +459,139 @@ let activitiesChart = new Chart(activitiesCtx, {
     }
 });
 
-// Update charts function
-function updateCharts(months) {
-    // Update Borrowed Chart
-    const filteredBorrowedData = borrowedData.slice(-months);
-    borrowedChart.data.labels = filteredBorrowedData.map(d => d.month);
-    borrowedChart.data.datasets[0].data = filteredBorrowedData.map(d => d.count);
+// Date-based dashboard updater
+async function fetchDashboardForDate(dateStr) {
+  try {
+    const res = await fetch(`{{ route('dashboard.byDate') }}?date=${encodeURIComponent(dateStr)}`);
+    if (!res.ok) throw new Error('Failed to load date data');
+    const data = await res.json();
+
+    // Update return status counts and chart
+    const well = Number(data.returnedWell || 0);
+    const damaged = Number(data.returnedDamaged || 0);
+    const wellEl = document.getElementById('returnedWellCount');
+    const damEl = document.getElementById('returnedDamagedCount');
+    if (wellEl) wellEl.textContent = well;
+    if (damEl) damEl.textContent = damaged;
+    returnStatusChart.data.datasets[0].data = [well, damaged];
+    returnStatusChart.update();
+
+    // Update Borrowed chart by hour
+    const bLabels = data.borrowedByHour.map(d => d.hour);
+    const bCounts = data.borrowedByHour.map(d => d.count);
+    borrowedChart.data.labels = bLabels;
+    borrowedChart.data.datasets[0].data = bCounts;
     borrowedChart.update();
-    
-    // Update Activities Chart
-    const filteredActivitiesData = activitiesData.slice(-months);
-    activitiesChart.data.labels = filteredActivitiesData.map(d => d.month);
-    activitiesChart.data.datasets[0].data = filteredActivitiesData.map(d => d.count);
+
+    // Update Activities chart by hour
+    const aLabels = data.activitiesByHour.map(d => d.hour);
+    const aCounts = data.activitiesByHour.map(d => d.count);
+    activitiesChart.data.labels = aLabels;
+    activitiesChart.data.datasets[0].data = aCounts;
     activitiesChart.update();
+
+    // Update recent books rows
+    const tbody = document.querySelector('table tbody');
+    if (tbody && data.recentRowsHtml !== undefined) {
+      tbody.innerHTML = data.recentRowsHtml;
+      bindDashboardEditButtons();
+    }
+
+    // Update summary cards for selected date
+    const tb = document.getElementById('totalBooksCount');
+    const cat = document.getElementById('categoriesCount');
+    const ac = document.getElementById('availableCopiesCount');
+    const au = document.getElementById('authorsCount');
+    if (tb) tb.textContent = Number(data.totalBooksDay || 0);
+    if (cat) cat.textContent = Number(data.categoriesCountDay || 0);
+    if (ac) ac.textContent = Number(data.availableCopiesDay || 0);
+    if (au) au.textContent = Number(data.authorsCountDay || 0);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-// Main Dashboard Filter (Parent Filter)
-document.getElementById('dashboardFilter').addEventListener('change', function(e) {
-    const months = parseInt(e.target.value);
-    
-    document.getElementById('borrowedFilter').value = e.target.value;
-    document.getElementById('activitiesFilter').value = e.target.value;
-    
-    // Update all charts
-    updateCharts(months);
-});
-
-
-document.getElementById('borrowedFilter').addEventListener('change', function(e) {
-    const months = parseInt(e.target.value);
-    const filteredData = borrowedData.slice(-months);
-    borrowedChart.data.labels = filteredData.map(d => d.month);
-    borrowedChart.data.datasets[0].data = filteredData.map(d => d.count);
-    borrowedChart.update();
-});
-
-document.getElementById('activitiesFilter').addEventListener('change', function(e) {
-    const months = parseInt(e.target.value);
-    const filteredData = activitiesData.slice(-months);
-    activitiesChart.data.labels = filteredData.map(d => d.month);
-    activitiesChart.data.datasets[0].data = filteredData.map(d => d.count);
-    activitiesChart.update();
-});
-</script>
-
-<script>
-// Handle delete book confirmation
-document.addEventListener('submit', async function(e) {
-  if (e.target.classList.contains('delete-book-form')) {
-    e.preventDefault();
-    const confirmed = await showConfirm(
-      'Are you sure you want to delete this book? This action cannot be undone.',
-      'Delete Book'
-    );
-    if (confirmed) {
-      e.target.submit();
-    }
+// Initialize date input to today and fetch
+document.addEventListener('DOMContentLoaded', () => {
+  const dateInput = document.getElementById('dashboardDate');
+  if (dateInput) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const val = `${yyyy}-${mm}-${dd}`;
+    dateInput.value = val;
+    fetchDashboardForDate(val);
+    dateInput.addEventListener('change', (e) => {
+      if (e.target.value) fetchDashboardForDate(e.target.value);
+    });
+  }
+  const borrowedSel = document.getElementById('borrowedFilter');
+  const activitiesSel = document.getElementById('activitiesFilter');
+  if (borrowedSel) {
+    borrowedSel.addEventListener('change', function(e) {
+      const months = parseInt(e.target.value, 10) || 6;
+      const filtered = borrowedData.slice(-months);
+      borrowedChart.data.labels = filtered.map(d => d.month);
+      borrowedChart.data.datasets[0].data = filtered.map(d => d.count);
+      borrowedChart.update();
+    });
+  }
+  if (activitiesSel) {
+    activitiesSel.addEventListener('change', function(e) {
+      const months = parseInt(e.target.value, 10) || 6;
+      const filtered = activitiesData.slice(-months);
+      activitiesChart.data.labels = filtered.map(d => d.month);
+      activitiesChart.data.datasets[0].data = filtered.map(d => d.count);
+      activitiesChart.update();
+    });
   }
 });
+
+// Bind edit buttons in dashboard table (for dynamically loaded rows)
+function bindDashboardEditButtons() {
+  const buttons = document.querySelectorAll('.editBtn');
+  buttons.forEach((button) => {
+    if (button._dashboardBound) return; // avoid double-binding
+    button._dashboardBound = true;
+    button.addEventListener('click', function () {
+      const id = this.getAttribute('data-id');
+      const title = this.getAttribute('data-title');
+      const author = this.getAttribute('data-author');
+      const category = this.getAttribute('data-category');
+      const isbn = this.getAttribute('data-isbn');
+      const publishDate = this.getAttribute('data-publish_date');
+      const copies = this.getAttribute('data-copies');
+      const image = this.getAttribute('data-image');
+
+      const idEl = document.getElementById('edit_id');
+      if (!idEl) return;
+      idEl.value = id;
+      document.getElementById('edit_title').value = title || '';
+      document.getElementById('edit_author').value = author || '';
+      document.getElementById('edit_category').value = category || '';
+      document.getElementById('edit_isbn').value = isbn || '';
+      document.getElementById('edit_publish_date').value = publishDate || '';
+      document.getElementById('edit_copies').value = copies || '';
+
+      const previewImg = document.getElementById('edit_preview');
+      const previewPlaceholder = document.getElementById('edit_preview_placeholder');
+      if (previewImg) {
+        if (image && image !== '') {
+          previewImg.src = image;
+          previewImg.style.display = 'block';
+          if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+        } else {
+          previewImg.style.display = 'none';
+          if (previewPlaceholder) previewPlaceholder.style.display = 'block';
+        }
+      }
+    });
+  });
+}
 </script>
+
+<script></script>
 </body>
 
 </html>

@@ -175,14 +175,20 @@
                   <td class="px-4 py-4 text-end">
                     <div class="flex gap-2 justify-end">
                      <div class="hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all duration-200">
-                       <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500" 
+                       <button class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent border-cyan-500/20 text-cyan-500 edit-user-btn" 
                               title="Edit User"
+                              data-user-id="{{ $user->id }}"
+                              data-first-name="{{ $user->firstName }}"
+                              data-last-name="{{ $user->lastName }}"
+                              data-email="{{ $user->email }}"
+                              data-contact="{{ $user->contact }}"
+                              data-role="{{ $user->role }}"
                               data-bs-toggle="modal"
                               data-bs-target="#editUserModal">
                         <i class="bi bi-pencil-square text-base"></i>
                       </button>
                      </div>
-                      <form method="POST" class="inline delete-user-form">
+                      <form method="POST" action="{{ route('user.destroy', $user->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
                         @csrf
                         @method('DELETE')
                      <div class="hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200">
@@ -219,21 +225,69 @@
 
 
 <x-add-user-modal/>
+<x-edit-user-modal/>
 <x-notification-modal/>
 
 <script>
-// Handle delete user confirmation
-document.addEventListener('submit', async function(e) {
-  if (e.target.classList.contains('delete-user-form')) {
-    e.preventDefault();
-    const confirmed = await showConfirm(
-      'Are you sure you want to delete this user? This action cannot be undone.',
-      'Delete User'
-    );
-    if (confirmed) {
-      e.target.submit();
-    }
+// Populate Edit User Modal on button click
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.edit-user-btn');
+  if (!btn) return;
+
+  const id = btn.getAttribute('data-user-id');
+  const firstName = btn.getAttribute('data-first-name') || '';
+  const lastName = btn.getAttribute('data-last-name') || '';
+  const email = btn.getAttribute('data-email') || '';
+  const contact = btn.getAttribute('data-contact') || '';
+  const role = btn.getAttribute('data-role') || '';
+
+  const form = document.getElementById('editUserForm');
+  if (form) {
+    form.action = `{{ url('/user-admin') }}/${id}`;
   }
+  const firstNameInput = document.getElementById('edit_firstName');
+  const lastNameInput = document.getElementById('edit_lastName');
+  const emailInput = document.getElementById('edit_email');
+  const contactInput = document.getElementById('edit_contact');
+  const roleSelect = document.getElementById('edit_role');
+  const passInput = document.getElementById('edit_password');
+  const passConfInput = document.getElementById('edit_password_confirmation');
+
+  if (firstNameInput) firstNameInput.value = firstName;
+  if (lastNameInput) lastNameInput.value = lastName;
+  if (emailInput) emailInput.value = email;
+  if (contactInput) contactInput.value = contact;
+  if (roleSelect) roleSelect.value = role;
+  if (passInput) passInput.value = '';
+  if (passConfInput) passConfInput.value = '';
+});
+
+// Flash messages as alerts (success, error, validation)
+document.addEventListener('DOMContentLoaded', function() {
+  @if(session('success'))
+    if (typeof showSuccess === 'function') {
+      showSuccess(@json(session('success')), 'Success');
+    } else {
+      alert(@json(session('success')));
+    }
+  @endif
+
+  @if(session('error'))
+    if (typeof showError === 'function') {
+      showError(@json(session('error')), 'Error');
+    } else {
+      alert(@json(session('error')));
+    }
+  @endif
+
+  @if($errors->any())
+    const validationMessage = @json(implode("\n", $errors->all()));
+    if (typeof showError === 'function') {
+      showError(validationMessage, 'Validation Errors');
+    } else {
+      alert(validationMessage);
+    }
+  @endif
 });
 </script>
 

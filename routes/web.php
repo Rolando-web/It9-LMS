@@ -54,6 +54,7 @@ Route::middleware(['user'])->group(function () {
 //Admin Routes (Protected by admin middleware - allows both admin and super_admin)
 Route::middleware(['admin'])->group(function () {
   Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+  Route::get('/dashboard/date', [DashboardController::class, 'dashboardByDate'])->name('dashboard.byDate');
   Route::get('/books', [BookController::class, 'adminBooks'])->name('books');
   Route::get('/transaction', [TransactionController::class, 'adminTransactions'])->name('transactions');
   Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
@@ -85,6 +86,8 @@ Route::middleware(['admin'])->group(function () {
 Route::middleware(['super_admin'])->group(function () {
   Route::get('/user-admin', [DashboardController::class, 'useradmin'])->name('user-admin');
   Route::post('/user-admin/add', [UserController::class, 'store'])->name('user.store');
+  Route::put('/user-admin/{id}', [UserController::class, 'update'])->name('user.update');
+  Route::delete('/user-admin/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 });
 
 // Logout route (accessible to all authenticated users)
