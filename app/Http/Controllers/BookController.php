@@ -272,7 +272,7 @@ class BookController extends Controller
         $selectedCategory = $request->query('category');
         $search = $request->query('search');
 
-        $q = Book::with('user');
+        $q = Book::with('user:id,firstName,lastName,role');
         if ($selectedCategory && $selectedCategory !== 'all') {
             $q->where('category', $selectedCategory);
         }

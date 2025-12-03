@@ -222,7 +222,7 @@
                    @if($finalFee == 0 && $originalFee > 0 && in_array($status, ['returned', 'overdue', 'damaged']) && !empty($tx->returned_at))
                     <span class="text-gray-400">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-400 text-xs font-semibold">PAID</span>
                   @elseif($finalFee > 0)
-                    <span class="text-[#e24545]">₱{{ number_format($finalFee, 2) }}</span>
+                    <span class="text-[#e24545]">₱{{ number_format($finalFee, 2) }}/</span><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/10 border-red-500/20 text-red-400 text-xs font-semibold">UNPAID</span>
                   @else
                     <span class="text-gray-400">₱0.00</span>
                   @endif

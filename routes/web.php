@@ -36,14 +36,12 @@ Route::middleware(['user'])->group(function () {
   Route::get('/book-return', [TransactionController::class, 'bookReturn'])->name('book');
   Route::get('/user-transaction', [TransactionController::class, 'userTransactions'])->name('user-transaction');
   Route::post('/borrow', [TransactionController::class, 'borrow'])->middleware('auth');
+  Route::delete('/borrow/cancel/{id}', [TransactionController::class, 'cancelBorrow'])->name('borrow.cancel')->middleware('auth');
   Route::post('/return/{id}', [ReturnTransactionController::class, 'request'])->name('transactions.return.request')->middleware('auth');
 
   // Notification routes
   Route::get('/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
   Route::post('/notifications/{id}/read', [NotificationController::class, 'markNotificationAsRead'])->name('notifications.read');
-
-  // Download transaction receipt PDF (User)
-  Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt');
 
   // Payment routes
   Route::post('/payment/create', [PayMongoController::class, 'createPayment'])->name('payment.create');
@@ -55,6 +53,7 @@ Route::middleware(['user'])->group(function () {
 Route::middleware(['admin'])->group(function () {
   Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
   Route::get('/dashboard/date', [DashboardController::class, 'dashboardByDate'])->name('dashboard.byDate');
+  Route::get('/dashboard/report', [DashboardController::class, 'downloadReport'])->name('dashboard.report');
   Route::get('/books', [BookController::class, 'adminBooks'])->name('books');
   Route::get('/transaction', [TransactionController::class, 'adminTransactions'])->name('transactions');
   Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
@@ -68,9 +67,6 @@ Route::middleware(['admin'])->group(function () {
   // Admin approve/reject endpoints for return requests
   Route::post('/admin/transactions/{id}/approve-return', [ReturnTransactionController::class, 'approve'])->name('admin.transactions.approve-return');
   Route::post('/admin/transactions/{id}/reject-return', [ReturnTransactionController::class, 'reject'])->name('admin.transactions.reject-return');
-
-  // Download transaction receipt PDF
-  Route::get('/admin/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('admin.transaction.receipt');
 
   // Book Management Routes
   Route::post('/create-book', [BookController::class, 'saveBook'])->name('create');
@@ -92,6 +88,9 @@ Route::middleware(['super_admin'])->group(function () {
 
 // Logout route (accessible to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Download transaction receipt PDF (accessible to all authenticated users - user, admin, super_admin)
+Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt')->middleware('auth');
 
 // PayMongo Webhook (public endpoint, no auth)
 Route::post('/webhooks/paymongo', [PayMongoController::class, 'handleWebhook'])->name('webhooks.paymongo');

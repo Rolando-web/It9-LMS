@@ -76,9 +76,65 @@ class TransactionController extends Controller
   // Generate PDF 
   public function downloadReceipt($id)
   {
+    $user = Auth::user();
+    if (!$user) {
+      abort(403, 'Unauthorized access.');
+    }
+
     $transaction = BookTransaction::with(['user', 'book', 'approver'])->findOrFail($id);
+    
+    // Allow if user is admin/super_admin OR owns the transaction
+    $isAdmin = in_array($user->role, ['admin', 'super_admin']);
+    $ownsTransaction = $transaction->user_id === $user->id;
+    
+    if (!$isAdmin && !$ownsTransaction) {
+      abort(403, 'Unauthorized access. You can only download receipts for your own transactions.');
+    }
+
     $pdf = Pdf::loadView('pdf.transaction-receipt', compact('transaction'));
     return $pdf->download('receipt-' . $transaction->id . '.pdf');
+  }
+
+  // Cancel pending borrow request
+  public function cancelBorrow($id)
+  {
+    $user = Auth::user();
+    if (!$user) {
+      return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $tx = BookTransaction::with('book')->findOrFail($id);
+
+    // Verify the transaction belongs to the user
+    if ($tx->user_id !== $user->id) {
+      return response()->json(['message' => 'Unauthorized to cancel this transaction'], 403);
+    }
+
+    // Only pending transactions can be cancelled
+    if ($tx->status !== 'pending') {
+      return response()->json(['message' => 'Only pending borrow requests can be cancelled'], 422);
+    }
+
+    // Delete the transaction and restore book copy
+    DB::transaction(function () use ($tx) {
+      $book = Book::lockForUpdate()->find($tx->book_id);
+      if ($book) {
+        $book->increment('copies');
+      }
+      $tx->delete();
+    });
+
+    // Log activity
+    ActivityLog::create([
+      'user_id' => $user->id,
+      'user_name' => $user->firstName . ' ' . $user->lastName,
+      'role' => $user->role,
+      'action' => 'Cancel Borrow',
+      'details' => 'Cancelled pending borrow request for: ' . $tx->book->title,
+      'status' => 'success',
+    ]);
+
+    return response()->json(['message' => 'Borrow request cancelled successfully'], 200);
   }
 
   // User book return view

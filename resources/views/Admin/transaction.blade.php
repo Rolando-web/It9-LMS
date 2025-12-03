@@ -219,8 +219,10 @@
                   <td class="px-4 py-4">
                     @if($displayFee == 0 && $originalFee > 0 && in_array($transaction->status, ['returned', 'overdue', 'damaged']) && !empty($transaction->returned_at))
                       <span class="text-gray-400 text-sm">₱{{ number_format($originalFee, 2) }}/</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-xs font-semibold"><i class="bi bi-check-circle-fill"></i>PAID</span>
+                    @elseif($displayFee > 0)
+                      <span class="text-red-400 text-sm">₱{{ number_format($displayFee, 2) }}/</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-500/10 border-red-500/20 text-red-500 text-xs font-semibold"><i class="bi bi-x-circle-fill"></i>UNPAID</span>
                     @else
-                      <span class="text-gray-300 text-sm">₱{{ number_format($displayFee < 0 ? 0 : $displayFee, 2) }}</span>
+                      <span class="text-gray-300 text-sm">₱0.00</span>
                     @endif
                   </td>
                   <td class="px-4 py-4 text-end">

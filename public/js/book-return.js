@@ -34,6 +34,59 @@ function showToast(message, type = "success") {
     }, 2500);
 }
 
+// Handle cancel borrow request
+document.addEventListener("click", async function (e) {
+    const cancelBtn = e.target.closest(".cancel-btn");
+    if (cancelBtn) {
+        const id = cancelBtn.dataset.txId;
+        const card = cancelBtn.closest(".group");
+
+        if (!confirm("Are you sure you want to cancel this borrow request?")) return;
+
+        const originalHTML = cancelBtn.innerHTML;
+        cancelBtn.disabled = true;
+        cancelBtn.classList.add("opacity-70", "cursor-not-allowed");
+        cancelBtn.innerHTML =
+            '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 align-middle"></span>Cancelling...';
+
+        const tokenEl = document.querySelector('meta[name="csrf-token"]');
+        const token = tokenEl ? tokenEl.content : "";
+
+        try {
+            const res = await fetch(`/borrow/cancel/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": token,
+                    Accept: "application/json",
+                },
+                credentials: "same-origin",
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to cancel borrow request");
+            }
+
+            // Remove the card from the DOM with animation
+            if (card) {
+                card.style.transition = "opacity 0.3s, transform 0.3s";
+                card.style.opacity = "0";
+                card.style.transform = "scale(0.9)";
+                setTimeout(() => card.remove(), 300);
+            }
+
+            showToast(data.message || "Borrow request cancelled successfully.");
+        } catch (err) {
+            showToast(err.message || "Network error", "error");
+            cancelBtn.disabled = false;
+            cancelBtn.classList.remove("opacity-70", "cursor-not-allowed");
+            cancelBtn.innerHTML = originalHTML;
+        }
+        return;
+    }
+});
+
+// Handle return request
 document.addEventListener("click", async function (e) {
     const btn = e.target.closest(".return-btn");
     if (!btn) return;

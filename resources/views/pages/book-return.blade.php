@@ -71,7 +71,11 @@
                   <h3>Status: <span class="status-chip py-1 rounded text-md text-gray-600">{{ ucfirst($tx->status) }}</span></h3>
                 @endif
               </div>
-              @if($tx->status !== 'returned')
+              @if($tx->status === 'pending')
+                <div class="mt-3">
+                  <button data-tx-id="{{ $tx->id }}" class="cancel-btn w-full bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">Cancel Request</button>
+                </div>
+              @elseif($tx->status !== 'returned')
                 <div class="mt-3">
                   <button data-tx-id="{{ $tx->id }}" class="return-btn w-full bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">Return</button>
                 </div>

@@ -13,11 +13,11 @@ class DashboardController extends Controller
     // Admin dashboard
     public function dashboard()
     {
-        // Stats across all books
-        $totalBooks = Book::count();
-        $categoriesCount = Book::distinct('category')->count('category');
-        $availableCopies = Book::sum('copies');
-        $authorsCount = Book::distinct('author')->count('author');
+        // Cache stats for 5 minutes to reduce DB load
+        $totalBooks = \Cache::remember('dashboard.total_books', 300, fn() => Book::count());
+        $categoriesCount = \Cache::remember('dashboard.categories', 300, fn() => Book::distinct('category')->count('category'));
+        $availableCopies = \Cache::remember('dashboard.copies', 300, fn() => Book::sum('copies'));
+        $authorsCount = \Cache::remember('dashboard.authors', 300, fn() => Book::distinct('author')->count('author'));
 
         // Recently added books, paginated (5 per page)
         $recentBooks = Book::latest()->paginate(5);
@@ -63,18 +63,106 @@ class DashboardController extends Controller
         ));
     }
 
-    // AJAX: Dashboard data for a specific date (per-day view)
-    public function dashboardByDate(Request $request)
+    // Generate PDF report for date range
+    public function downloadReport(Request $request)
     {
-        $dateStr = $request->query('date');
+        $startDateStr = $request->query('start_date');
+        $endDateStr = $request->query('end_date');
+        
         try {
-            $date = $dateStr ? \Carbon\Carbon::parse($dateStr)->startOfDay() : now()->startOfDay();
+            $start = $startDateStr ? \Carbon\Carbon::parse($startDateStr)->startOfDay() : now()->startOfDay();
+            $end = $endDateStr ? \Carbon\Carbon::parse($endDateStr)->endOfDay() : now()->endOfDay();
         } catch (\Exception $e) {
-            $date = now()->startOfDay();
+            $start = now()->startOfDay();
+            $end = now()->endOfDay();
+        }
+        
+        // Ensure start is not after end
+        if ($start->greaterThan($end)) {
+            $temp = $start;
+            $start = $end;
+            $end = $temp;
         }
 
-        $start = $date->copy();
-        $end = $date->copy()->endOfDay();
+        // Gather statistics
+        $booksAdded = Book::whereBetween('created_at', [$start, $end])->count();
+        $totalBorrowed = BookTransaction::whereBetween('borrowed_at', [$start, $end])->count();
+        $totalReturned = BookTransaction::whereBetween('returned_at', [$start, $end])
+            ->whereIn('status', ['returned', 'damaged', 'overdue'])
+            ->whereNotNull('returned_at')
+            ->count();
+        $returnedWell = BookTransaction::where('status', 'returned')
+            ->whereBetween('returned_at', [$start, $end])
+            ->count();
+        $returnedDamaged = BookTransaction::where('status', 'damaged')
+            ->whereBetween('returned_at', [$start, $end])
+            ->count();
+        $totalActivities = ActivityLog::whereBetween('created_at', [$start, $end])->count();
+        $totalFees = BookTransaction::whereBetween('returned_at', [$start, $end])
+            ->whereNotNull('returned_at')
+            ->sum('fee');
+
+        // Get detailed data
+        $recentBooks = Book::whereBetween('created_at', [$start, $end])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $transactions = BookTransaction::with(['user', 'book'])
+            ->whereBetween('borrowed_at', [$start, $end])
+            ->orderByDesc('borrowed_at')
+            ->get();
+
+        $activities = ActivityLog::whereBetween('created_at', [$start, $end])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $stats = [
+            'booksAdded' => $booksAdded,
+            'totalBorrowed' => $totalBorrowed,
+            'totalReturned' => $totalReturned,
+            'returnedWell' => $returnedWell,
+            'returnedDamaged' => $returnedDamaged,
+            'totalActivities' => $totalActivities,
+            'totalFees' => $totalFees,
+            'dayCount' => $start->diffInDays($end) + 1,
+        ];
+
+        $startDate = $start->format('M d, Y');
+        $endDate = $end->format('M d, Y');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dashboard-report', compact(
+            'startDate',
+            'endDate',
+            'stats',
+            'recentBooks',
+            'transactions',
+            'activities'
+        ));
+
+        $filename = 'dashboard-report-' . $start->format('Y-m-d') . '-to-' . $end->format('Y-m-d') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    // AJAX: Dashboard data for a date range
+    public function dashboardByDate(Request $request)
+    {
+        $startDateStr = $request->query('start_date');
+        $endDateStr = $request->query('end_date');
+        
+        try {
+            $start = $startDateStr ? \Carbon\Carbon::parse($startDateStr)->startOfDay() : now()->startOfDay();
+            $end = $endDateStr ? \Carbon\Carbon::parse($endDateStr)->endOfDay() : now()->endOfDay();
+        } catch (\Exception $e) {
+            $start = now()->startOfDay();
+            $end = now()->endOfDay();
+        }
+        
+        // Ensure start is not after end
+        if ($start->greaterThan($end)) {
+            $temp = $start;
+            $start = $end;
+            $end = $temp;
+        }
 
         // Return status (for the selected day)
         $returnedWell = BookTransaction::where('status', 'returned')
@@ -84,28 +172,63 @@ class DashboardController extends Controller
             ->whereBetween('returned_at', [$start, $end])
             ->count();
 
-        // Borrowed by hour (0-23)
-        $borrowedByHour = [];
-        for ($h = 0; $h < 24; $h++) {
-            $hStart = $start->copy()->addHours($h);
-            $hEnd = $hStart->copy()->endOfHour();
-            $count = BookTransaction::whereBetween('borrowed_at', [$hStart, $hEnd])->count();
-            $borrowedByHour[] = [
-                'hour' => $hStart->format('H:00'),
-                'count' => $count,
-            ];
-        }
+        // Calculate total days in range
+        $totalDays = $start->diffInDays($end) + 1;
+        
+        // For single day: show hourly breakdown (0-23)
+        // For multiple days: show daily breakdown
+        if ($totalDays == 1) {
+            // Borrowed by hour (0-23) for single day
+            $borrowedByHour = [];
+            for ($h = 0; $h < 24; $h++) {
+                $hStart = $start->copy()->addHours($h);
+                $hEnd = $hStart->copy()->endOfHour();
+                $count = BookTransaction::whereBetween('borrowed_at', [$hStart, $hEnd])->count();
+                $borrowedByHour[] = [
+                    'hour' => $hStart->format('H:00'),
+                    'count' => $count,
+                ];
+            }
 
-        // Activities by hour (0-23)
-        $activitiesByHour = [];
-        for ($h = 0; $h < 24; $h++) {
-            $hStart = $start->copy()->addHours($h);
-            $hEnd = $hStart->copy()->endOfHour();
-            $count = ActivityLog::whereBetween('created_at', [$hStart, $hEnd])->count();
-            $activitiesByHour[] = [
-                'hour' => $hStart->format('H:00'),
-                'count' => $count,
-            ];
+            // Activities by hour (0-23) for single day
+            $activitiesByHour = [];
+            for ($h = 0; $h < 24; $h++) {
+                $hStart = $start->copy()->addHours($h);
+                $hEnd = $hStart->copy()->endOfHour();
+                $count = ActivityLog::whereBetween('created_at', [$hStart, $hEnd])->count();
+                $activitiesByHour[] = [
+                    'hour' => $hStart->format('H:00'),
+                    'count' => $count,
+                ];
+            }
+        } else {
+            // Borrowed by day for date range
+            $borrowedByHour = [];
+            $currentDate = $start->copy();
+            while ($currentDate->lte($end)) {
+                $dayStart = $currentDate->copy()->startOfDay();
+                $dayEnd = $currentDate->copy()->endOfDay();
+                $count = BookTransaction::whereBetween('borrowed_at', [$dayStart, $dayEnd])->count();
+                $borrowedByHour[] = [
+                    'hour' => $currentDate->format('M d'),
+                    'count' => $count,
+                ];
+                $currentDate->addDay();
+            }
+
+            // Activities by day for date range
+            $activitiesByHour = [];
+            $currentDate = $start->copy();
+            while ($currentDate->lte($end)) {
+                $dayStart = $currentDate->copy()->startOfDay();
+                $dayEnd = $currentDate->copy()->endOfDay();
+                $count = ActivityLog::whereBetween('created_at', [$dayStart, $dayEnd])->count();
+                $activitiesByHour[] = [
+                    'hour' => $currentDate->format('M d'),
+                    'count' => $count,
+                ];
+                $currentDate->addDay();
+            }
         }
 
         // Recently added books on selected day (limit 5)
@@ -128,7 +251,8 @@ class DashboardController extends Controller
         ])->render();
 
         return response()->json([
-            'date' => $date->toDateString(),
+            'start_date' => $start->toDateString(),
+            'end_date' => $end->toDateString(),
             'returnedWell' => $returnedWell,
             'returnedDamaged' => $returnedDamaged,
             'borrowedByHour' => $borrowedByHour,

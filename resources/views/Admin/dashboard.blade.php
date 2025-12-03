@@ -15,11 +15,22 @@
 
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
-          <!-- Dashboard Date Filter -->
+          <!-- Dashboard Date Range Filter -->
           <div class="flex justify-end mb-6">
             <div class="flex items-center gap-3">
-              <label for="dashboardDate" class="text-gray-400 text-sm font-medium">Dashboard Date:</label>
-              <input type="date" id="dashboardDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+              <label for="startDate" class="text-gray-400 text-sm font-medium">From:</label>
+              <input type="date" id="startDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+              <label for="endDate" class="text-gray-400 text-sm font-medium">To:</label>
+              <input type="date" id="endDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+              <button id="applyDateRange" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
+                <i class="bi bi-funnel-fill me-1"></i>Apply
+              </button>
+              <button id="downloadReport" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
+                <i class="bi bi-file-earmark-pdf-fill me-1"></i>Download Report
+              </button>
+              <button id="resetDateRange" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
+                <i class="bi bi-arrow-clockwise me-1"></i>Reset
+              </button>
             </div>
           </div>
 
@@ -459,10 +470,10 @@ let activitiesChart = new Chart(activitiesCtx, {
     }
 });
 
-// Date-based dashboard updater
-async function fetchDashboardForDate(dateStr) {
+// Date-based dashboard updater with date range support
+async function fetchDashboardForDate(startDate, endDate) {
   try {
-    const res = await fetch(`{{ route('dashboard.byDate') }}?date=${encodeURIComponent(dateStr)}`);
+    const res = await fetch(`{{ route('dashboard.byDate') }}?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
     if (!res.ok) throw new Error('Failed to load date data');
     const data = await res.json();
 
@@ -511,20 +522,66 @@ async function fetchDashboardForDate(dateStr) {
   }
 }
 
-// Initialize date input to today and fetch
+// Initialize date range inputs to today and fetch
 document.addEventListener('DOMContentLoaded', () => {
-  const dateInput = document.getElementById('dashboardDate');
-  if (dateInput) {
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const applyBtn = document.getElementById('applyDateRange');
+  const downloadBtn = document.getElementById('downloadReport');
+  const resetBtn = document.getElementById('resetDateRange');
+  
+  if (startDateInput && endDateInput) {
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    const val = `${yyyy}-${mm}-${dd}`;
-    dateInput.value = val;
-    fetchDashboardForDate(val);
-    dateInput.addEventListener('change', (e) => {
-      if (e.target.value) fetchDashboardForDate(e.target.value);
-    });
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    
+    // Initialize both to today
+    startDateInput.value = todayStr;
+    endDateInput.value = todayStr;
+    fetchDashboardForDate(todayStr, todayStr);
+    
+    // Apply button
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const start = startDateInput.value;
+        const end = endDateInput.value;
+        if (start && end) {
+          if (new Date(start) > new Date(end)) {
+            alert('Start date cannot be after end date');
+            return;
+          }
+          fetchDashboardForDate(start, end);
+        }
+      });
+    }
+    
+    // Download Report button
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', () => {
+        const start = startDateInput.value;
+        const end = endDateInput.value;
+        if (start && end) {
+          if (new Date(start) > new Date(end)) {
+            alert('Start date cannot be after end date');
+            return;
+          }
+          // Open PDF download in new tab
+          const url = `/dashboard/report?start_date=${encodeURIComponent(start)}&end_date=${encodeURIComponent(end)}`;
+          window.open(url, '_blank');
+        }
+      });
+    }
+    
+    // Reset button
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        startDateInput.value = todayStr;
+        endDateInput.value = todayStr;
+        fetchDashboardForDate(todayStr, todayStr);
+      });
+    }
   }
   const borrowedSel = document.getElementById('borrowedFilter');
   const activitiesSel = document.getElementById('activitiesFilter');
