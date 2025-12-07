@@ -36,12 +36,11 @@ COPY . /var/www/html/
 
 # Create uploads folder and set permissions
 
-RUN mkdir -p /var/www/html/public/uploads \
+RUN mkdir -p /var/www/html/public/storage/books \
 
-  && chown -R www-data:www-data /var/www/html/public/uploads \
+  && chown -R www-data:www-data /var/www/html/public/storage/books \
 
-  && chmod -R 775 /var/www/html/public/uploads
-
+  && chmod -R 775 /var/www/html/public/storage/books
 
 
 

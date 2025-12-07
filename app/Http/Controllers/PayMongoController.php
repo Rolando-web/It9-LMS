@@ -11,9 +11,6 @@ use App\Models\ActivityLog;
 
 class PayMongoController extends Controller
 {
-    /**
-     * Create a PayMongo Checkout Session for GCash/PayMaya payment
-     */
     public function createPayment(Request $request)
     {
         $user = Auth::user();
@@ -21,7 +18,6 @@ class PayMongoController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Ensure PayMongo secret key is configured
         $secret = config('paymongo.secret_key');
         if (empty($secret) || !is_string($secret)) {
             return response()->json([
@@ -92,7 +88,7 @@ class PayMongoController extends Controller
         $checkoutUrl = $session['attributes']['checkout_url'] ?? null;
         $sessionId = $session['id'];
 
-        // Store session ID for verification
+    
         session(['paymongo_session_' . $txId => $sessionId]);
 
         return response()->json([
@@ -102,9 +98,7 @@ class PayMongoController extends Controller
         ]);
     }
 
-    /**
-     * Handle payment success callback from PayMongo
-     */
+
     public function paymentCallback(Request $request)
     {
         $txId = $request->query('transaction_id');
@@ -114,14 +108,13 @@ class PayMongoController extends Controller
             return redirect('/user-transaction')->with('error', 'Invalid payment callback');
         }
 
-        // Get stored session ID
+    
         $sessionId = session('paymongo_session_' . $txId);
 
         if (!$sessionId) {
             return redirect('/user-transaction')->with('error', 'Payment session not found');
         }
 
-        // Verify checkout session status
         $secret = config('paymongo.secret_key');
         if (empty($secret) || !is_string($secret)) {
             return redirect('/user-transaction')->with('error', 'PayMongo secret key is not configured.');
@@ -166,10 +159,6 @@ class PayMongoController extends Controller
 
         return redirect('/user-transaction')->with('error', 'Payment was not completed. Please try again.');
     }
-
-    /**
-     * Handle failed payment
-     */
 
     public function paymentFailed(Request $request)
     {

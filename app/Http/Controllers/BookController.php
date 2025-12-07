@@ -36,10 +36,22 @@ class BookController extends Controller
         // Handle image upload
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('storage/books'), $imageName);
-            $imagePath = 'storage/books/' . $imageName;
+            try {
+                $image = $request->file('image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                
+                // Ensure the directory exists
+                $uploadPath = public_path('storage/books');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                $image->move($uploadPath, $imageName);
+                $imagePath = 'storage/books/' . $imageName;
+            } catch (\Exception $e) {
+                \Log::error('Image upload failed: ' . $e->getMessage());
+                return redirect()->route('books')->with('error', 'Failed to upload image: ' . $e->getMessage());
+            }
         }
 
         // Create the book
@@ -95,17 +107,27 @@ class BookController extends Controller
 
         $imagePath = $book->image;
         if ($request->hasFile('edit_image')) {
-            if ($book->image && file_exists(public_path($book->image))) {
-                unlink(public_path($book->image));
+            try {
+                // Delete old image if exists
+                if ($book->image && file_exists(public_path($book->image))) {
+                    unlink(public_path($book->image));
+                }
+                
+                // Ensure the directory exists
+                $uploadPath = public_path('storage/books');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                $image = $request->file('edit_image');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move($uploadPath, $imageName);
+                $imagePath = 'storage/books/' . $imageName;
+            } catch (\Exception $e) {
+                \Log::error('Image upload failed during update: ' . $e->getMessage());
+                return redirect()->route('books')->with('error', 'Failed to upload image: ' . $e->getMessage());
             }
-
-            $image = $request->file('edit_image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('storage/books'), $imageName);
-            $imagePath = 'storage/books/' . $imageName;
-        }
-
-        $book->update([
+        }        $book->update([
             'title' => $validated['edit_title'],
             'author' => $validated['edit_author'],
             'category' => $validated['edit_category'],

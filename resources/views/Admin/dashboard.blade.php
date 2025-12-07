@@ -16,21 +16,29 @@
         <!-- Dashboard Content -->
         <div class="px-8 py-6">
           <!-- Dashboard Date Range Filter -->
-          <div class="flex justify-end mb-6">
-            <div class="flex items-center gap-3">
-              <label for="startDate" class="text-gray-400 text-sm font-medium">From:</label>
-              <input type="date" id="startDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
-              <label for="endDate" class="text-gray-400 text-sm font-medium">To:</label>
-              <input type="date" id="endDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
-              <button id="applyDateRange" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
-                <i class="bi bi-funnel-fill me-1"></i>Apply
-              </button>
-              <button id="downloadReport" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
-                <i class="bi bi-file-earmark-pdf-fill me-1"></i>Download Report
-              </button>
-              <button id="resetDateRange" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors">
-                <i class="bi bi-arrow-clockwise me-1"></i>Reset
-              </button>
+          <div class="mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-end gap-3 w-full">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto">
+                <div class="flex items-center gap-2">
+                  <label for="startDate" class="text-gray-400 text-sm font-medium whitespace-nowrap">From:</label>
+                  <input type="date" id="startDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 w-full sm:w-56" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <label for="endDate" class="text-gray-400 text-sm font-medium whitespace-nowrap">To:</label>
+                  <input type="date" id="endDate" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 w-full sm:w-56" />
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <button id="applyDateRange" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors w-full sm:w-auto">
+                  <i class="bi bi-funnel-fill me-1"></i>Apply
+                </button>
+                <button id="downloadReport" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors w-full sm:w-auto">
+                  <i class="bi bi-file-earmark-pdf-fill me-1"></i>Download Report
+                </button>
+                <button id="resetDateRange" class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors w-full sm:w-auto">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                </button>
+              </div>
             </div>
           </div>
 

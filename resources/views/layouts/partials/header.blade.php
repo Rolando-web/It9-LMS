@@ -2,6 +2,15 @@
 <header class="relative z-10 px-4 py-4 bg-[#101929]">
 <nav class="flex items-center md:justify-between mx-auto">
 
+        @php
+          $isHome = request()->routeIs('home');
+          $isBook = request()->routeIs('book');
+          $isCollection = request()->routeIs('collection');
+          $isTransaction = request()->routeIs('user-transaction');
+          $activeCls = 'text-white bg-white/10';
+          $inactiveCls = 'text-gray-300 hover:text-white';
+        @endphp
+
         <div class="text-xl font-bold flex-1 lg:text-center">
           <span class="text-white">HOME</span><span class="text-gray-300">LIBRARY</span>
         </div>
@@ -15,28 +24,28 @@
 
        {{-- Navigation Links  --}}
         <div class="hidden md:flex items-start space-x-5 sm:flex-1 justify-center">
-          <a href="{{route('home')}}" class="flex items-center space-x-1 text-white hover:text-gray-300 transition-colors">
+          <a href="{{route('home')}}" class="flex items-center space-x-1 px-3 py-2 rounded-md transition-colors {{ $isHome ? $activeCls : $inactiveCls }}" @if($isHome) aria-current="page" @endif>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" />
             </svg>
             <span>Home</span>
           </a>
-          <a href="{{route('book')}}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
+          <a href="{{route('book')}}" class="flex items-center space-x-1 px-3 py-2 rounded-md transition-colors {{ $isBook ? $activeCls : $inactiveCls }}" @if($isBook) aria-current="page" @endif>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 6v12a1 1 0 001 1h6a1 1 0 011 1V6a1 1 0 00-1-1H4a1 1 0 00-1 1zm18-1h-6a1 1 0 00-1 1v14a1 1 0 011-1h6a1 1 0 001-1V6a1 1 0 00-1-1z" />
             </svg>
             <span>Books</span>
           </a>
-          <a href="{{route('collection')}}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
+          <a href="{{route('collection')}}" class="flex items-center space-x-1 px-3 py-2 rounded-md transition-colors {{ $isCollection ? $activeCls : $inactiveCls }}" @if($isCollection) aria-current="page" @endif>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 19V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1zm6 0V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1zm6 0V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1z" />
             </svg>
             <span>Collection</span>
           </a>
-          <a href="{{route('user-transaction')}}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition-colors">
+          <a href="{{route('user-transaction')}}" class="flex items-center space-x-1 px-3 py-2 rounded-md transition-colors {{ $isTransaction ? $activeCls : $inactiveCls }}" @if($isTransaction) aria-current="page" @endif>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 21">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l3 3 5-5m0 6l6-6L21 13" />
               <text x="10" y="15" font-size="12" font-family="sans-serif">$</text>
@@ -139,28 +148,28 @@
             </div>
 
             <nav class="space-y-">
-              <a href="#" class="flex items-center space-x-3 text-white hover:text-gray-300 transition-colors py-3">
+              <a href="{{route('home')}}" class="flex items-center space-x-3 rounded-md px-4 py-3 transition-colors {{ $isHome ? $activeCls : $inactiveCls }}" @if($isHome) aria-current="page" @endif>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" />
               </svg>
                 <span class="text-lg">Home</span>
               </a>
-              <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors py-3">
+              <a href="{{route('book')}}" class="flex items-center space-x-3 rounded-md px-4 py-3 transition-colors {{ $isBook ? $activeCls : $inactiveCls }}" @if($isBook) aria-current="page" @endif>
                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 6v12a1 1 0 001 1h6a1 1 0 011 1V6a1 1 0 00-1-1H4a1 1 0 00-1 1zm18-1h-6a1 1 0 00-1 1v14a1 1 0 011-1h6a1 1 0 001-1V6a1 1 0 00-1-1z" />
             </svg>
                 <span class="text-lg">Books</span>
               </a>
-              <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors py-3">
+              <a href="{{route('collection')}}" class="flex items-center space-x-3 rounded-md px-4 py-3 transition-colors {{ $isCollection ? $activeCls : $inactiveCls }}" @if($isCollection) aria-current="page" @endif>
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 19V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1zm6 0V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1zm6 0V5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1z" />
             </svg>
                 <span class="text-lg">Collection</span>
               </a>
-              <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white transition-colors py-3">
+              <a href="{{route('user-transaction')}}" class="flex items-center space-x-3 rounded-md px-4 py-3 transition-colors {{ $isTransaction ? $activeCls : $inactiveCls }}" @if($isTransaction) aria-current="page" @endif>
                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 21">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l3 3 5-5m0 6l6-6L21 13" />
               <text x="10" y="15" font-size="12" font-family="sans-serif">$</text>

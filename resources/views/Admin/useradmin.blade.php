@@ -229,7 +229,6 @@
 <x-notification-modal/>
 
 <script>
-// Populate Edit User Modal on button click
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('.edit-user-btn');
   if (!btn) return;

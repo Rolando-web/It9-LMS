@@ -12,7 +12,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 
-// Guest Routes (for non-authenticated users only)
+// Guest Routes
 Route::middleware(['guest'])->group(function () {
   Route::get('/', [AuthController::class, 'showLoginForm']);
   Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -21,7 +21,7 @@ Route::middleware(['guest'])->group(function () {
   Route::post('/register', [AuthController::class, 'register']);
 
 
-  // Password Reset (Forgot Password)
+  // Password Reset
   Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
   Route::post('/forgot-password', [AuthController::class, 'checkEmail'])->name('password.check');
   Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset');
@@ -49,7 +49,7 @@ Route::middleware(['user'])->group(function () {
   Route::get('/payment/failed', [PayMongoController::class, 'paymentFailed'])->name('payment.failed');
 });
 
-//Admin Routes (Protected by admin middleware - allows both admin and super_admin)
+//Admin Routes
 Route::middleware(['admin'])->group(function () {
   Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
   Route::get('/dashboard/date', [DashboardController::class, 'dashboardByDate'])->name('dashboard.byDate');
@@ -78,7 +78,7 @@ Route::middleware(['admin'])->group(function () {
   Route::get('/api/categories/filter', [CategoryController::class, 'getCategoriesForFilter'])->name('categories.filter');
 });
 
-//Super Admin Only Routes (Protected by super_admin middleware)
+//Super Admin
 Route::middleware(['super_admin'])->group(function () {
   Route::get('/user-admin', [DashboardController::class, 'useradmin'])->name('user-admin');
   Route::post('/user-admin/add', [UserController::class, 'store'])->name('user.store');
@@ -86,11 +86,9 @@ Route::middleware(['super_admin'])->group(function () {
   Route::delete('/user-admin/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 });
 
-// Logout route (accessible to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Download transaction receipt PDF (accessible to all authenticated users - user, admin, super_admin)
+// Download transaction receipt PDF
 Route::get('/transaction/{id}/receipt', [TransactionController::class, 'downloadReceipt'])->name('transaction.receipt')->middleware('auth');
 
-// PayMongo Webhook (public endpoint, no auth)
 Route::post('/webhooks/paymongo', [PayMongoController::class, 'handleWebhook'])->name('webhooks.paymongo');
