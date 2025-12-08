@@ -163,6 +163,20 @@
 
     // Show toast on page load if there's a session message
     document.addEventListener('DOMContentLoaded', function() {
+        // Wire up close buttons for custom alerts (non-Bootstrap alerts)
+        document.querySelectorAll('[data-bs-dismiss="alert"]').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                const alertBox = btn.closest('[role="alert"]');
+                if (alertBox) {
+                    alertBox.style.transition = 'opacity 150ms';
+                    alertBox.style.opacity = '0';
+                    setTimeout(function(){
+                        alertBox.remove();
+                    }, 160);
+                }
+            });
+        });
         @if(session('error'))
             showAdminToast("{{ session('error') }}", "This book cannot be deleted", true);
         @endif
