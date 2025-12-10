@@ -131,7 +131,6 @@
 <x-import-footer/>
 
 <script>
-    // Toast notification function
     function showAdminToast(message, sub, isError = false) {
         const t = document.getElementById("adminToast");
         const inner = document.getElementById("adminToastInner");
@@ -140,7 +139,6 @@
 
         if (!t || !msg || !subEl || !inner) return;
 
-        // Set colors based on success or error
         if (isError) {
             inner.className = "bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-xs border border-red-500";
         } else {
@@ -161,9 +159,7 @@
         }, 4000);
     }
 
-    // Show toast on page load if there's a session message
     document.addEventListener('DOMContentLoaded', function() {
-        // Wire up close buttons for custom alerts (non-Bootstrap alerts)
         document.querySelectorAll('[data-bs-dismiss="alert"]').forEach(function(btn){
             btn.addEventListener('click', function(e){
                 e.preventDefault();

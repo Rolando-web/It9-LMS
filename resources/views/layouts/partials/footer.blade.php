@@ -40,9 +40,9 @@
         <div class="space-y-4">
           <h3 class="text-white font-semibold text-lg">Quick Links</h3>
           <ul class="space-y-2">
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Home</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Book Collection</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Categories</a></li>
+            <li><a href="{{route('home')}}" class="text-gray-400 hover:text-white transition-colors text-sm">Home</a></li>
+            <li><a href="{{route('book')}}" class="text-gray-400 hover:text-white transition-colors text-sm">Book Collection</a></li>
+            <li><a href="{{route('collection')}}" class="text-gray-400 hover:text-white transition-colors text-sm">Categories</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Featured Books</a></li>
           </ul>
         </div>
@@ -89,11 +89,6 @@
 
       <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <p class="text-gray-400 text-sm">© 2024 HomeLibrary. All rights reserved.</p>
-        <div class="flex space-x-6">
-          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie Policy</a>
-        </div>
       </div>
     </div>
 </footer>
