@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
       ['email' => 'tluayon7@gmail.com'],
       [
         'firstName' => 'Tiffany',
-        'lastName' => 'Ocon',
+        'lastName' => 'Luayon',
         'contact' => '09234567890',
         'password' => Hash::make('Luayon123'),
         'role' => 'admin',

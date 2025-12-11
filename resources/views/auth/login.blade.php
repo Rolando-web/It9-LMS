@@ -58,6 +58,9 @@
             <div class="flex justify-between items-center">
               <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
             </div>
+          <div class="mt-3 text-center">
+            <a href="{{ route('password.request') }}" class="text-gray-400 hover:text-white">Forgot your password?</a>
+          </div>
             <button type="submit" class="w-full cursor-pointer bg-[#131313] text-white py-2 border rounded-md hover:bg-[#1A2C2F] hover:border-[#1ED1E9] hover:text-white transition">Log in</button>
             <p class="mt-6 ">
               Don't have an account?

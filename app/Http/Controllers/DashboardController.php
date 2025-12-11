@@ -278,17 +278,46 @@ class DashboardController extends Controller
     }
 
     // Activity log view
-    public function activitylog()
+    public function activitylog(Request $request)
     {
         $perPage = 15;
-        $activities = ActivityLog::with('user')->latest()->paginate($perPage);
+        $filter = $request->get('filter', 'all');
+
+        $query = ActivityLog::with('user')->latest();
+
+        // Apply filter
+        switch ($filter) {
+            case 'borrowed':
+                $query->where('action', 'like', '%Borrow%');
+                break;
+            case 'returned':
+                $query->where('action', 'like', '%Return%');
+                break;
+            case 'update':
+                $query->where('action', 'like', '%Update%');
+                break;
+            case 'login':
+                $query->where('action', 'Login');
+                break;
+            case 'logout':
+                $query->where('action', 'Logout');
+                break;
+            case 'add':
+                $query->where('action', 'like', '%Add%');
+                break;
+            case 'delete':
+                $query->where('action', 'like', '%Delete%');
+                break;
+        }
+
+        $activities = $query->paginate($perPage)->appends(['filter' => $filter]);
 
         $totalActivities = ActivityLog::count();
         $userLogins = ActivityLog::where('action', 'Login')->count();
         $bookActions = ActivityLog::where('action', 'like', '%Book%')->count();
         $todaysActivity = ActivityLog::whereDate('created_at', now()->toDateString())->count();
 
-        return view('Admin.activitylog', compact('activities', 'totalActivities', 'userLogins', 'bookActions', 'todaysActivity'));
+        return view('Admin.activitylog', compact('activities', 'totalActivities', 'userLogins', 'bookActions', 'todaysActivity', 'filter'));
     }
 
     // User admin view

@@ -5,7 +5,7 @@
       <div class="flex flex-col md:flex-row w-full max-w-4xl rounded-lg shadow-lg overflow-hidden md:h-[560px]">
 
         <div class="md:w-1/2 w-full bg-[#252525] p-8 flex flex-col items-center justify-center text-center text-white">
-          <img src="./image/willan.jpg" alt="William Shakespeare" class="w-20 h-20 md:w-32 md:h-32 rounded-full mb-4">
+          <img src="{{ asset('image/willan.jpg') }}" alt="William Shakespeare" class="w-20 h-20 md:w-32 md:h-32 rounded-full mb-4">
           <h2 class="text-3xl md:text-4xl font-bold mb-2">Library Management System</h2>
           <p class=" my-4 md:my-8 text-[18px]">Create a new password to access your account.</p>
         </div>

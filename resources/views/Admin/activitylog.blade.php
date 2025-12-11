@@ -67,10 +67,37 @@
       <!-- Activity Logs Table -->
       <div class="bg-[#2c2e33] rounded-xl shadow-xl overflow-hidden">
         <div class="px-6 py-4 border-b border-[#373a40]">
-          <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-            <i class="bi bi-list-task text-purple-500"></i>
-            Recent Activity Logs
-          </h3>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+              <i class="bi bi-list-task text-purple-500"></i>
+              Recent Activity Logs
+            </h3>
+            
+            <!-- Filter Dropdown -->
+            <div class="flex items-center gap-3">
+              <label for="activityFilter" class="text-gray-400 text-sm font-medium flex items-center gap-2">
+                <i class="bi bi-funnel"></i>
+                Filter:
+              </label>
+              <form method="GET" action="{{ route('activity-log') }}" id="filterForm">
+                <select name="filter" id="activityFilter" class="bg-[#1a1b1e] border border-[#373a40] text-white text-sm rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 cursor-pointer appearance-none" onchange="this.form.submit()">
+                  <option value="all" {{ ($filter ?? 'all') === 'all' ? 'selected' : '' }}>All Activities</option>
+                  <option value="login" {{ ($filter ?? '') === 'login' ? 'selected' : '' }}>Login</option>
+                  <option value="logout" {{ ($filter ?? '') === 'logout' ? 'selected' : '' }}>Logout</option>
+                  <option value="borrowed" {{ ($filter ?? '') === 'borrowed' ? 'selected' : '' }}>Borrowed</option>
+                  <option value="returned" {{ ($filter ?? '') === 'returned' ? 'selected' : '' }}>Returned</option>
+                  <option value="update" {{ ($filter ?? '') === 'update' ? 'selected' : '' }}>Update</option>
+                  <option value="add" {{ ($filter ?? '') === 'add' ? 'selected' : '' }}>Add</option>
+                  <option value="delete" {{ ($filter ?? '') === 'delete' ? 'selected' : '' }}>Delete</option>
+                </select>
+              </form>
+              @if(($filter ?? 'all') !== 'all')
+                <a href="{{ route('activity-log') }}" class="text-gray-400 hover:text-red-500 transition-colors" title="Clear filter">
+                  <i class="bi bi-x-circle text-xl"></i>
+                </a>
+              @endif
+            </div>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -146,7 +173,6 @@
                 </a>
               @endif
 
-              {{-- First page + ellipsis if needed --}}
               @if($start > 1)
                 <a href="{{ $activities->url(1) }}" class="px-4 py-2 rounded-lg {{ $activities->currentPage() == 1 ? 'bg-purple-500 text-white' : 'bg-[#2c2e33] text-gray-400 hover:border-purple-500/50 hover:text-white' }}">1</a>
                 @if($start > 2)
@@ -154,12 +180,10 @@
                 @endif
               @endif
 
-              {{-- Range of pages --}}
               @for($i = $start; $i <= $end; $i++)
                 <a href="{{ $activities->url($i) }}" class="px-4 py-2 rounded-lg {{ $activities->currentPage() == $i ? 'bg-purple-500 text-white' : 'bg-[#2c2e33] text-gray-400 hover:border-purple-500/50 hover:text-white' }}">{{ $i }}</a>
               @endfor
 
-              {{-- Last page + ellipsis if needed --}}
               @if($end < $activities->lastPage())
                 @if($end < $activities->lastPage() - 1)
                   <span class="px-2 text-gray-400">...</span>
@@ -167,7 +191,6 @@
                 <a href="{{ $activities->url($activities->lastPage()) }}" class="px-4 py-2 rounded-lg {{ $activities->currentPage() == $activities->lastPage() ? 'bg-purple-500 text-white' : 'bg-[#2c2e33] text-gray-400 hover:border-purple-500/50 hover:text-white' }}">{{ $activities->lastPage() }}</a>
               @endif
 
-              {{-- Next --}}
               @if($activities->hasMorePages())
                 <a href="{{ $activities->nextPageUrl() }}" class="px-3 py-2 rounded-lg bg-[#2c2e33] text-gray-400 hover:border-purple-500/50 hover:text-purple-500 transition-all">
                   <i class="bi bi-chevron-right"></i>

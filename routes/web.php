@@ -22,10 +22,14 @@ Route::middleware(['guest'])->group(function () {
 
 
   // Password Reset
-  Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-  Route::post('/forgot-password', [AuthController::class, 'checkEmail'])->name('password.check');
-  Route::get('/reset-password', [AuthController::class, 'showResetForm'])->name('password.reset');
-  Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+  Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+  Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+  // Graceful handler when token is missing
+  Route::get('/reset-password', function () {
+    return redirect()->route('password.request')->withErrors(['email' => 'Please enter your email to continue resetting your password.']);
+  });
+  Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+  Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 //User Routes 

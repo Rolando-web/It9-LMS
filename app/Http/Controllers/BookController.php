@@ -94,6 +94,16 @@ class BookController extends Controller
     public function updateBook(Request $request)
     {
         $book = Book::findOrFail($request->edit_id);
+        
+        // Store original values for comparison
+        $originalValues = [
+            'title' => $book->title,
+            'author' => $book->author,
+            'category' => $book->category,
+            'isbn' => $book->isbn,
+            'publish_date' => $book->publish_date,
+            'copies' => $book->copies,
+        ];
 
         $validated = $request->validate([
             'edit_title' => 'required|string|max:255',
@@ -106,6 +116,7 @@ class BookController extends Controller
         ]);
 
         $imagePath = $book->image;
+        $imageUpdated = false;
         if ($request->hasFile('edit_image')) {
             try {
                 // Delete old image if exists
@@ -123,6 +134,7 @@ class BookController extends Controller
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $image->move($uploadPath, $imageName);
                 $imagePath = 'storage/books/' . $imageName;
+                $imageUpdated = true;
             } catch (\Exception $e) {
                 \Log::error('Image upload failed during update: ' . $e->getMessage());
                 return redirect()->route('books')->with('error', 'Failed to upload image: ' . $e->getMessage());
@@ -137,13 +149,41 @@ class BookController extends Controller
             'image' => $imagePath,
         ]);
 
+        // Build specific change details
+        $changes = [];
+        if ($originalValues['title'] !== $validated['edit_title']) {
+            $changes[] = "Title: '{$originalValues['title']}' → '{$validated['edit_title']}'";
+        }
+        if ($originalValues['author'] !== $validated['edit_author']) {
+            $changes[] = "Author: '{$originalValues['author']}' → '{$validated['edit_author']}'";
+        }
+        if ($originalValues['category'] !== $validated['edit_category']) {
+            $changes[] = "Category: '{$originalValues['category']}' → '{$validated['edit_category']}'";
+        }
+        if ($originalValues['isbn'] !== $validated['edit_isbn']) {
+            $changes[] = "ISBN: '{$originalValues['isbn']}' → '{$validated['edit_isbn']}'";
+        }
+        if ($originalValues['publish_date'] !== $validated['edit_publish_date']) {
+            $changes[] = "Publish Date: '{$originalValues['publish_date']}' → '{$validated['edit_publish_date']}'";
+        }
+        if ((int)$originalValues['copies'] !== (int)$validated['edit_copies']) {
+            $changes[] = "Copies: {$originalValues['copies']} → {$validated['edit_copies']}";
+        }
+        if ($imageUpdated) {
+            $changes[] = "Image updated";
+        }
+
+        $detailsText = empty($changes) 
+            ? "Updated book: {$book->title} (no changes detected)"
+            : "Updated book '{$book->title}': " . implode(', ', $changes);
+
         // Log activity
         ActivityLog::create([
             'user_id' => Auth::id(),
             'user_name' => Auth::user() ? Auth::user()->firstName . ' ' . Auth::user()->lastName : null,
             'role' => Auth::user() ? Auth::user()->role : null,
             'action' => 'Update Book',
-            'details' => 'Updated book: ' . $book->title,
+            'details' => $detailsText,
             'status' => 'success',
         ]);
 
